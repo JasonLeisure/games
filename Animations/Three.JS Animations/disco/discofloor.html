@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disco Floor</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+            color: white;
+            font-family: 'Arial', sans-serif;
+        }
+
+        audio {
+            background-color: white;
+            display: block;
+            margin: 10px auto;
+        }
+
+        #play-button {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+            color: white;
+            font-size: 24px;
+            z-index: 1;
+        }
+
+        #disco-floor {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #bubble-text {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            color: #ff0000;
+        }
+
+         @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(5px); }
+        }
+
+        #bubble-text.shake {
+            animation: shake 0.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <audio id="audio" src="disco.mp3" loop></audio>
+    <div id="bubble-text">Shake that booty</div>
+    <div id="play-button" onclick="playAudio()">Click to Play</div>
+    <div id="disco-floor"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const audioElement = document.getElementById('audio');
+        let interactionEnabled = false;
+
+
+        function playAudio() {
+            audioElement.play();
+            document.getElementById('play-button').style.display = 'none';
+            interactionEnabled = true;
+        }
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('disco-floor').appendChild(renderer.domElement);
+        const spacing = 1;
+        const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
+        const neonSquares = [];
+        const originalColors = [];
+
+const neonLights = [];
+
+for (let i = 0; i < neonSquares.length; i++) {
+    const light = new THREE.PointLight(0xffffff, 1, 1);
+    light.position.copy(neonSquares[i].position);
+    neonLights.push(light);
+    scene.add(light);
+}
+        for (let i = -5; i <= 5; i++) {
+            for (let j = -5; j <= 5; j++) {
+                const geometry = new THREE.BoxGeometry(1, 0.1, 1);
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const material = new THREE.MeshBasicMaterial({ color });
+                const square = new THREE.Mesh(geometry, material);
+                square.position.set(i * spacing, 0, j * spacing);
+                neonSquares.push(square);
+                originalColors.push(color);
+                scene.add(square);
+            }
+        }
+
+
+        camera.position.set(0, 3, 10);
+        camera.lookAt(0, 0, 0);
+
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let lastColorChangeTime = 0;
+        const minColorChangeInterval = 100;
+
+const barrierGeometry = new THREE.PlaneGeometry(100, 100);
+const barrierMaterial = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 });
+const barrierPlane = new THREE.Mesh(barrierGeometry, barrierMaterial);
+barrierPlane.position.set(0, 0.01, 0);
+scene.add(barrierPlane);
+
+
+document.addEventListener('mousemove', (event) => {
+    const currentTime = Date.now();
+    if (!interactionEnabled || currentTime - lastColorChangeTime < minColorChangeInterval) {
+        return;
+    }
+
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+
+    const neonIntersects = raycaster.intersectObjects(neonSquares);
+
+    if (neonIntersects.length > 0) {
+        const square = neonIntersects[0].object;
+        square.material.color.setHex(colors[Math.floor(Math.random() * colors.length)]);
+        lastColorChangeTime = currentTime;
+    }
+
+
+    const wireframeIntersects = raycaster.intersectObjects(neonWireframes.filter(obj => obj !== barrierPlane));
+
+    if (wireframeIntersects.length > 0) {
+        const wireframeSquare = wireframeIntersects[0].object;
+    }
+});
+
+
+document.addEventListener('mousemove', (event) => {
+    const currentTime = Date.now();
+    if (!interactionEnabled || currentTime - lastColorChangeTime < minColorChangeInterval) {
+        return;
+    }
+
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+
+    const neonIntersects = raycaster.intersectObjects(neonSquares);
+
+    if (neonIntersects.length > 0) {
+        const square = neonIntersects[0].object;
+        const squareIndex = neonSquares.indexOf(square);
+
+
+        square.material.color.setHex(colors[Math.floor(Math.random() * colors.length)]);
+
+
+        neonLights[squareIndex].color.set(square.material.color);
+
+        lastColorChangeTime = currentTime;
+    }
+
+
+    const wireframeIntersects = raycaster.intersectObjects(neonWireframes.filter(obj => obj !== barrierPlane));
+
+    if (wireframeIntersects.length > 0) {
+        const wireframeSquare = wireframeIntersects[0].object;
+    }
+});
+
+        let currentPatternIndex = 0;
+        let patternInterval = 3000;
+        let lastPatternChangeTime = 0;
+
+        const patterns = [
+            // Pattern 1 - All Red
+            Array.from({ length: neonSquares.length }, (_, i) => i),
+            // Pattern 2 - All Green
+            Array.from({ length: neonSquares.length }, (_, i) => i),
+            // Pattern 3 - All Blue
+            Array.from({ length: neonSquares.length }, (_, i) => i),
+            // Pattern 4 - All Yellow
+            Array.from({ length: neonSquares.length }, (_, i) => i),
+            // Pattern 5 - All Magenta
+            Array.from({ length: neonSquares.length }, (_, i) => i),
+            // Pattern 6 - All Cyan
+            Array.from({ length: neonSquares.length }, (_, i) => i),
+            // Pattern 7 - All Random Colors
+            Array.from({ length: neonSquares.length }, (_, i) => i),
+            // Pattern 8 - All White
+            Array.from({ length: neonSquares.length }, (_, i) => i),
+            // Pattern 9 - All Black
+            Array.from({ length: neonSquares.length }, (_, i) => i),
+            // Pattern 10 - Red Diagonal
+            [0, 7, 14, 21, 28, 35, 42, 49],
+            // Pattern 11 - Green Diagonal
+            [6, 13, 20, 27, 34, 41, 48, 55],
+            // Pattern 12 - Blue Diagonal
+            [12, 19, 26, 33, 40, 47, 54, 61],
+            // Pattern 13 - Random Diagonal
+            [0, 19, 14, 27, 28, 41, 54, 49],
+            // Pattern 14 - Checkerboard
+            [0, 2, 4, 6, 9, 11, 13, 15, 20, 22, 24, 26, 29, 31, 33, 38, 40, 42, 44, 46, 49, 51, 53, 55],
+            // Pattern 15 - Spiral
+            [0, 1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 51, 52, 53, 54, 55, 50, 45, 40, 35],
+            // Pattern 16 - Concentric Circles
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+            // Pattern 17 - Cross
+            [12, 13, 14, 15, 16, 24, 25, 26, 27, 28, 36, 37, 38, 39, 40, 48, 49, 50, 51, 52],
+            // Pattern 18 - Grid
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35],
+            // Pattern 19 - Random Dots
+            [0, 4, 7, 12, 14, 18, 20, 24, 27, 32, 35, 40, 44, 47, 52, 54],
+            // Pattern 20 - Centered Circles
+            [12, 13, 14, 15, 16, 24, 25, 26, 27, 28, 36, 37, 38, 39, 40],
+        ];
+
+
+        function applyPattern(pattern) {
+            for (let i = 0; i < neonSquares.length; i++) {
+                const square = neonSquares[i];
+                if (pattern.includes(i)) {
+                    square.material.color.setHex(colors[Math.floor(Math.random() * colors.length)]);
+                }
+            }
+        }
+
+
+        function resetColors() {
+            for (let i = 0; i < neonSquares.length; i++) {
+                const square = neonSquares[i];
+                square.material.color.setHex(originalColors[i]);
+            }
+        }
+
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const currentTime = Date.now();
+            if (currentTime - lastPatternChangeTime >= patternInterval) {
+                resetColors();
+                applyPattern(patterns[currentPatternIndex]);
+                currentPatternIndex = (currentPatternIndex + 1) % patterns.length;
+                lastPatternChangeTime = currentTime;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

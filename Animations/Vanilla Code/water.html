@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
+        body {
+            background: #0077be;
+            overflow: hidden;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas></canvas>
+    <script>
+        var canvas, ctx, tim, bai, shineAlpha;
+        var touchX = 0, touchY = 0;
+        var isTouchMoving = false;
+        var rippleSize = 60;
+        var waves = [];
+
+        canvas = document.getElementsByTagName('canvas')[0];
+        ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        shineAlpha = 0.1;
+
+
+        function createWater() {
+            var a, b, c, s, p, r, x, y, z, x1, y1, max, p2, han, h, pt, hei;
+            ctx.globalCompositeOperation = "source-over";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = "lighter";
+            tim = new Date().getTime() / 10;
+
+
+            var gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, "rgba(0, 100, 200, 0.7)");
+            gradient.addColorStop(1, "rgba(0, 50, 150, 0.7)");
+            ctx.strokeStyle = ctx.fillStyle = gradient;
+
+            bai = 0.6 + Math.sin(tim / 471) * 0.2;
+            hei = 0.05;
+            pt = [];
+
+
+            function nami(r, s) {
+                var a = Math.sin(r * 2 - tim / 13 + s * 13) / 20 +
+                    Math.sin(r * 5 - tim / 17 + s * 13) / 20 +
+                    Math.sin(r * 7 - tim / 19 + s * 13) / 40;
+                return a * bai;
+            }
+
+            for (c = 0; c < 180; c++) {
+                s = (c + 1) / 180;
+                han = Math.cos(s * Math.PI / 2);
+                h = Math.sin(s * Math.PI / 2);
+                s = 1 - s;
+                p = [];
+                max = (canvas.width * han) | 0;
+                r = 0;
+                for (a = 0; a < max; a++) {
+                    x = Math.cos(r) * han;
+                    y = Math.sin(r) * han;
+                    z = nami(r, s);
+                    x -= z * s;
+                    p.push([x, y, hei + z * s + h]);
+                    r += Math.PI * 2 / max;
+                }
+                pt.push(p);
+            }
+            for (c = 0; c < pt.length; c++) {
+                p = pt[c];
+                p2 = [];
+                for (a = 0; a < p.length; a++) {
+                    x = p[a][0];
+                    y = p[a][1];
+                    z = p[a][2];
+                    b = Math.pow(1.5, y / 2);
+                    x1 = x * b * (canvas.width / 2) + (canvas.width / 2);
+                    y1 = z * b * (canvas.height / 2) - hei * (canvas.height / 2) + (canvas.height / 2);
+                    p2.push([x1, y1]);
+                }
+                ctx.beginPath();
+                for (a = 0; a < p2.length; a++) ctx.lineTo(p2[a][0], p2[a][1]);
+                ctx.closePath();
+                ctx.stroke();
+            }
+
+
+            var lightGradient = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 50, canvas.width / 2, canvas.height / 2, canvas.width / 2);
+            lightGradient.addColorStop(0, "rgba(255, 255, 255, " + shineAlpha + ")");
+            lightGradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+            ctx.fillStyle = lightGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+            shineAlpha -= 0.0005;
+            if (shineAlpha < 0) {
+                shineAlpha = 0;
+            }
+
+
+            if (isTouchMoving) {
+                ctx.beginPath();
+                ctx.arc(touchX, touchY, rippleSize, 0, Math.PI * 2);
+                ctx.fillStyle = "rgba(0, 100, 200, 0.5)";
+                ctx.fill();
+            }
+
+
+            for (let i = 0; i < waves.length; i++) {
+                var wave = waves[i];
+                ctx.beginPath();
+                ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = "rgba(0, 100, 200, " + wave.alpha + ")";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                wave.radius += 2;
+                wave.alpha -= 0.005;
+                if (wave.alpha <= 0) {
+                    waves.splice(i, 1);
+                }
+            }
+        }
+
+
+        canvas.addEventListener("touchmove", function (e) {
+            var touch = e.touches[0];
+            touchX = touch.clientX;
+            touchY = touch.clientY;
+            isTouchMoving = true;
+        });
+
+        canvas.addEventListener("touchend", function () {
+            isTouchMoving = false;
+        });
+
+
+        canvas.addEventListener("touchstart", function (e) {
+            var touch = e.touches[0];
+            waves.push({ x: touch.clientX, y: touch.clientY, radius: 10, alpha: 1.0 });
+        });
+        setInterval(createWater, 16);
+    </script>
+</body>
+</html>
