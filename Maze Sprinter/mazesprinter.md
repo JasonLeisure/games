@@ -1,6 +1,6 @@
 # Maze Sprinter
 
-- Maze Sprinter is an exciting browser-based maze-solving game that challenges your puzzle-solving skills and agility. Navigate through randomly generated mazes, sprinting as a canvas-drawn character, and reach the exit before the timer runs out.
+## Maze Sprinter is an exciting browser-based maze-solving game that challenges your puzzle-solving skills and agility. Navigate through randomly generated mazes, sprinting as a canvas-drawn character, and reach the exit before the timer runs out.
 
 - **Objective**: Guide the canvas-drawn character from the starting position to the exit of the maze.
 - **Controls**: Use the arrow keys or the WASD keys for movement.
@@ -34,9 +34,9 @@
 
 ## Carpets in the Maze
 
-- The maze environment in Maze Sprinter features vibrant carpets with moving fibers. The carpets not only add an aesthetic element to the game but also create a sense of depth and immersion as you navigate through the maze. The carpets are randomly generated for each level, adding variety to the gameplay experience.
+# The maze environment in Maze Sprinter features vibrant carpets with moving fibers. The carpets not only add an aesthetic element to the game but also create a sense of depth and immersion as you navigate through the maze. The carpets are randomly generated for each level, adding variety to the gameplay experience.
 
-- The moving fibers within the carpets create a dynamic visual effect that enhances the overall atmosphere of the game. As you guide the canvas-drawn character through the maze, you'll notice the intricate details of the carpets and how they interact with your movement.
+# The moving fibers within the carpets create a dynamic visual effect that enhances the overall atmosphere of the game. As you guide the canvas-drawn character through the maze, you'll notice the intricate details of the carpets and how they interact with your movement.
 
 ## Credits
 
