@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+    }
+
+    canvas {
+        display: block;
+        background-color: #000;
+    }
+</style>
+<title>Planets</title>
+</head>
+<body>
+<canvas id="webgl-canvas"></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const roomSize = 5;
+    const ballsCount = 5;
+    const balls = [];
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas') });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    initRoom();
+    initBalls();
+    initCamera();
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(1, 3, 2);
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
+
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    directionalLight.shadow.mapSize.width = 1024;
+    directionalLight.shadow.mapSize.height = 1024;
+    directionalLight.shadow.camera.near = 0.5;
+    directionalLight.shadow.camera.far = 10;
+    directionalLight.shadow.camera.top = 2;
+    directionalLight.shadow.camera.right = 2;
+    directionalLight.shadow.camera.bottom = -2;
+    directionalLight.shadow.camera.left = -2;
+
+    scene.fog = new THREE.Fog(0x000000, 2, 8);
+
+    const particleGeometry = new THREE.BufferGeometry();
+    const particleMaterial = new THREE.PointsMaterial({
+        color: new THREE.Color(0xffffff),
+        size: 0.02,
+        sizeAttenuation: false,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    });
+
+    const particleCount = 1000;
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+
+    const particleGroup = new THREE.Group();
+
+    for (let i = 0; i < positions.length; i += 3) {
+        const radius = Math.random() * 5;
+        const angle1 = Math.random() * Math.PI * 2;
+        const angle2 = Math.random() * Math.PI;
+        const x = radius * Math.cos(angle1) * Math.sin(angle2);
+        const y = radius * Math.sin(angle1) * Math.sin(angle2);
+        const z = radius * Math.cos(angle2);
+        positions[i] = x;
+        positions[i + 1] = y;
+        positions[i + 2] = z;
+        const randomColor = new THREE.Color(Math.random(), Math.random(), Math.random());
+        colors[i] = randomColor.r;
+        colors[i + 1] = randomColor.g;
+        colors[i + 2] = randomColor.b;
+
+
+        const pointLight = new THREE.PointLight(0xffffff, 0.1);
+        pointLight.position.set(x, y, z);
+        particleGroup.add(pointLight);
+    }
+
+    particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    particleMaterial.size = 1.6;
+
+    const particles = new THREE.Points(particleGeometry, particleMaterial);
+    particleGroup.add(particles);
+
+    scene.add(particleGroup);
+
+    const movementSpeed = 0.1;
+    const turnSpeed = Math.PI * 0.02;
+    const roomHalfSize = roomSize / 2;
+
+    document.addEventListener("keydown", (event) => {
+        switch (event.key) {
+            case "ArrowUp":
+                camera.translateZ(-movementSpeed);
+                break;
+            case "ArrowDown":
+                camera.translateZ(movementSpeed);
+                break;
+            case "ArrowLeft":
+                camera.rotation.y += turnSpeed;
+                break;
+            case "ArrowRight":
+                camera.rotation.y -= turnSpeed;
+                break;
+        }
+    });
+
+    function animateParticles() {
+        particles.rotation.x += 0.001;
+        particles.rotation.y += 0.001;
+        particleGeometry.attributes.position.needsUpdate = true;
+        particleGeometry.attributes.color.needsUpdate = true;
+
+        renderer.render(scene, camera);
+        requestAnimationFrame(animateParticles);
+    }
+
+    animateParticles();
+
+
+const gui = new dat.GUI();
+
+
+const fogControls = gui.addFolder('Fog Controls');
+fogControls.add(scene.fog, 'near', 0, 10).step(0.1);
+fogControls.add(scene.fog, 'far', 0, 10).step(0.1);
+
+const rotationControls = gui.addFolder('Rotation Controls');
+const rotationSpeed = { speed: 0.001 };
+rotationControls.add(rotationSpeed, 'speed', 0, 0.01).step(0.001).name('Rotation Speed');
+
+
+gui.add(directionalLight, 'intensity', 0, 1).step(0.01);
+gui.add(ambientLight, 'intensity', 0, 1).step(0.01);
+gui.updateDisplay();
+
+
+const planetSizeControls = gui.addFolder('Planet Size Controls');
+balls.forEach((ball, index) => {
+    const ballFolder = planetSizeControls.addFolder(`Ball ${index + 1}`);
+    const initialSize = ball.geometry.parameters.radius;
+    const sizeConfig = { size: initialSize };
+    ballFolder.add(sizeConfig, 'size', 0.1, 1.5).step(0.1).onChange(() => {
+        ball.scale.set(sizeConfig.size, sizeConfig.size, sizeConfig.size);
+    });
+});
+    function initRoom() {
+        const roomMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+
+        const roomCeilingGeometry = new THREE.PlaneGeometry(roomSize, roomSize);
+        const roomCeiling = new THREE.Mesh(roomCeilingGeometry, roomMaterial);
+        roomCeiling.rotation.x = -Math.PI / 2;
+        roomCeiling.position.y = roomSize / 2;
+        scene.add(roomCeiling);
+
+        const roomFloorGeometry = new THREE.PlaneGeometry(roomSize, roomSize);
+        const roomFloor = new THREE.Mesh(roomFloorGeometry, roomMaterial);
+        roomFloor.rotation.x = Math.PI / 2;
+        roomFloor.position.y = -roomSize / 2;
+        scene.add(roomFloor);
+
+        const roomWallGeometry = new THREE.PlaneGeometry(roomSize, roomSize);
+        const roomWallRight = new THREE.Mesh(roomWallGeometry, roomMaterial);
+        roomWallRight.rotation.y = -Math.PI / 2;
+        roomWallRight.position.x = roomSize / 2;
+        scene.add(roomWallRight);
+
+        const roomWallLeft = new THREE.Mesh(roomWallGeometry, roomMaterial);
+        roomWallLeft.rotation.y = Math.PI / 2;
+        roomWallLeft.position.x = -roomSize / 2;
+        scene.add(roomWallLeft);
+    }
+
+    function initBalls() {
+    function rainbowColor() {
+        const hue = Math.random();
+        return new THREE.Color().setHSL(hue, 0.8, 0.7);
+    }
+
+    for (let i = 0; i < ballsCount; i++) {
+        const radius = Math.random() * 0.5 + 0.2;
+        const ballGeometry = new THREE.SphereGeometry(radius, 64, 64);
+
+        const planetColor = rainbowColor();
+
+        const wireframeBallMaterial = new THREE.MeshBasicMaterial({
+            color: planetColor,
+            wireframe: true
+        });
+
+        const ball = new THREE.Mesh(ballGeometry, wireframeBallMaterial);
+
+        let positionValid = false;
+        while (!positionValid) {
+            ball.position.x = (Math.random() - 0.5) * 4;
+            ball.position.y = (Math.random() - 0.5) * 4;
+            ball.position.z = (Math.random() - 0.5) * 4;
+
+            positionValid = true;
+            for (const otherBall of balls) {
+                const distance = ball.position.distanceTo(otherBall.position);
+                if (distance < 0.5 * (radius + otherBall.geometry.parameters.radius)) {
+                    positionValid = false;
+                    break;
+                }
+            }
+        }
+
+        scene.add(ball);
+
+        balls.push(ball);
+
+        ball.addEventListener('click', () => {
+            ball.material.color = rainbowColor();
+        });
+    }
+}
+
+    function initCamera() {
+        camera.position.z = 5;
+    }
+
+
+    function animateBalls() {
+    const time = Date.now() * 0.001;
+    balls.forEach((ball, index) => {
+        const radius = 1.0;
+        const angle = time + index * (Math.PI * 2) / balls.length;
+        ball.position.x = Math.cos(angle) * radius;
+        ball.position.y = Math.sin(angle) * radius;
+
+
+        const rotationSpeedValue = rotationSpeed.speed * 0.001;
+        ball.rotation.x += rotationSpeedValue;
+        ball.rotation.y += rotationSpeedValue;
+    });
+}
+
+
+    function animate() {
+        requestAnimationFrame(animate);
+
+        animateBalls();
+        renderer.render(scene, camera);
+    }
+
+    animate();
+});
+</script>
+</body>
+</html>

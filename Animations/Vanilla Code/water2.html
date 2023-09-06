@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            background: #000;
+        }
+        canvas {
+            position: relative;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas></canvas>
+    <script>
+        var canvas, ctx, tim, bai;
+        var touchX = 0, touchY = 0;
+        var isTouchMoving = false;
+        var rippleSize = 40;
+
+        canvas = document.getElementsByTagName('canvas')[0];
+        ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+
+        function createWater() {
+            var a, b, c, s, p, r, x, y, z, x1, y1, max, p2, han, h, pt, hei;
+            ctx.globalCompositeOperation = "source-over";
+            ctx.fillStyle = "rgb(0,0,0)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = "lighter";
+            tim = new Date().getTime() / 10;
+            ctx.strokeStyle = ctx.fillStyle = "hsla(200, 80%, 60%, 0.6)";
+            bai = 0.6 + Math.sin(tim / 471) * 0.2;
+            hei = 0.1;
+            pt = [];
+
+
+            function nami(r, s) {
+                var a = Math.sin(r * 2 - tim / 13 + s * 13) / 20 +
+                    Math.sin(r * 5 - tim / 17 + s * 13) / 20 +
+                    Math.sin(r * 7 - tim / 19 + s * 13) / 40;
+                return a * bai;
+            }
+
+            for (c = 0; c < 180; c++) {
+                s = (c + 1) / 180;
+                han = Math.cos(s * Math.PI / 2);
+                h = Math.sin(s * Math.PI / 2);
+                s = 1 - s;
+                p = [];
+                max = (canvas.width * han) | 0;
+                r = 0;
+                for (a = 0; a < max; a++) {
+                    x = Math.cos(r) * han;
+                    y = Math.sin(r) * han;
+                    z = nami(r, s);
+                    x -= z * s;
+                    p.push([x, y, hei + z * s + h]);
+                    r += Math.PI * 2 / max;
+                }
+                pt.push(p);
+            }
+            for (c = 0; c < 100; c++) {
+                s = (c + 1) / 100;
+                p = [];
+                max = canvas.width * s;
+                r = 0;
+                for (a = 0; a < max; a++) {
+                    x = Math.cos(r) * s;
+                    y = Math.sin(r) * s;
+                    z = nami(r, s);
+                    x -= z * s;
+                    p.push([x, y, hei + z * s]);
+                    r += Math.PI * 2 / max;
+                }
+                pt.push(p);
+            }
+            for (c = 0; c < pt.length; c++) {
+                p = pt[c];
+                p2 = [];
+                for (a = 0; a < p.length; a++) {
+                    x = p[a][0];
+                    y = p[a][1];
+                    z = p[a][2];
+                    b = Math.pow(1.5, y / 2);
+                    x1 = x * b * (canvas.width / 2) + (canvas.width / 2);
+                    y1 = z * b * (canvas.height / 2) - hei * (canvas.height / 2) + (canvas.height / 2);
+                    p2.push([x1, y1]);
+                }
+                ctx.beginPath();
+                for (a = 0; a < p2.length; a++) ctx.lineTo(p2[a][0], p2[a][1]);
+                ctx.closePath();
+                ctx.stroke();
+            }
+
+
+            if (isTouchMoving) {
+                ctx.beginPath();
+                ctx.arc(touchX, touchY, rippleSize, 0, Math.PI * 2);
+                ctx.fillStyle = "rgba(200, 200, 255, 0.5)";
+                ctx.fill();
+            }
+
+            requestAnimationFrame(createWater);
+        }
+
+
+        canvas.addEventListener("touchmove", function (e) {
+            var touch = e.touches[0];
+            touchX = touch.clientX;
+            touchY = touch.clientY;
+            isTouchMoving = true;
+        });
+
+        canvas.addEventListener("touchend", function () {
+            isTouchMoving = false;
+        });
+        createWater();
+    </script>
+</body>
+</html>

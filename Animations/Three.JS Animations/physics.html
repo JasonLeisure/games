@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ball Drop Physics</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    <script>
+
+        const scene = new THREE.Scene();
+
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 5, 15);
+
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        document.body.appendChild(renderer.domElement);
+
+
+        const world = new CANNON.World();
+        world.gravity.set(0, -9.81, 0);
+        world.broadphase = new CANNON.SAPBroadphase(world);
+
+
+        const groundShape = new CANNON.Plane();
+        const groundBody = new CANNON.Body({ mass: 0, shape: groundShape });
+        groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+        world.addBody(groundBody);
+
+        const groundGeometry = new THREE.PlaneGeometry(30, 30, 32, 32);
+        const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x808080, roughness: 0.8, metalness: 0.2 });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+
+        const sphereColors = [
+        "#FF0000",   // Red
+        "#FF7F00",   // Orange
+        "#FFFF00",   // Yellow
+        "#00FF00",   // Green
+        "#0000FF",   // Blue
+        "#FF1493",   // DeepPink
+        "#00FFFF",   // Cyan
+        "#FFD700",   // Gold
+        "#FF00FF",   // Fuchsia
+        "#ADFF2F",   // GreenYellow
+        "#1E90FF",   // DodgerBlue
+        "#7FFFD4",   // Aquamarine
+        "#FFE4C4",   // Bisque
+        "#00FA9A",   // MediumSpringGreen
+        "#AFEEEE",   // PaleTurquoise
+        "#FF6347",   // Tomato
+        "#FFC0CB",   // Pink
+        "#32CD32",   // LimeGreen
+        "#7B68EE",   // MediumSlateBlue
+        "#48D1CC",   // MediumTurquoise
+        "#8A2BE2",   // BlueViolet
+        "#66CDAA",   // MediumAquamarine
+        "#FF69B4",   // HotPink
+        "#9932CC",   // DarkOrchid
+        "#FF00FF",   // Magenta
+        "#00BFFF",   // DeepSkyBlue
+        "#7FFF00",   // Chartreuse
+        "#F08080",   // LightCoral
+        "#90EE90",   // LightGreen
+        "#00FFFF",   // Aqua
+        "#FFB6C1",   // LightPink
+        "#FFA07A",   // LightSalmon
+        "#7CFC00",   // LawnGreen
+        "#FFDAB9",   // PeachPuff
+        "#9370DB",   // MediumPurple
+        "#20B2AA",   // LightSeaGreen
+        "#00CED1",   // DarkTurquoise
+        "#00FF7F",   // SpringGreen
+        "#FF4500",   // OrangeRed
+        "#FF8C00",   // DarkOrange
+        "#FA8072",   // Salmon
+        "#FFB400",   // Goldenrod
+        "#FF69B4",   // HotPink
+        "#BA55D3",   // MediumOrchid
+        "#3CB371",   // MediumSeaGreen
+        "#4169E1",   // RoyalBlue
+        "#DAA520",   // Goldenrod
+        "#FF6347",   // Tomato
+];
+
+        const minBalls = 1; // Minimum number of balls (100)
+        const maxBalls = 5; // Maximum number of balls (500)
+        const numSpheres = (Math.floor(Math.random() * (maxBalls - minBalls + 1)) + minBalls) * 100;
+        const spheres = [];
+
+        for (let i = 0; i < numSpheres; i++) {
+            const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
+            const randomColor = sphereColors[Math.floor(Math.random() * sphereColors.length)];
+            const sphereMaterial = new THREE.MeshStandardMaterial({ color: randomColor, roughness: 0.5, metalness: 0.5 });
+            const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+            const sphereBody = new CANNON.Body({ mass: Math.random() * 2 + 0.5, shape: new CANNON.Sphere(1) });
+            const x = Math.random() * 10 - 5;
+            const y = Math.random() * 30 + 10;
+            const z = Math.random() * 10 - 5;
+
+
+            sphereBody.quaternion.setFromAxisAngle(new CANNON.Vec3(Math.random(), Math.random(), Math.random()), Math.random() * Math.PI);
+
+            sphereBody.position.set(x, y, z);
+            world.addBody(sphereBody);
+
+
+            sphereBody.material = new CANNON.Material();
+            sphereBody.material.friction = 0.5;
+            sphereBody.material.restitution = 0.3;
+
+            spheres.push({ mesh: sphere, body: sphereBody });
+            sphere.castShadow = true;
+            scene.add(sphere);
+        }
+
+
+
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(10, 20, 10);
+light.castShadow = true;
+light.shadow.mapSize.width = 4096;
+light.shadow.mapSize.height = 4096;
+light.shadow.radius = 2;
+light.shadow.camera.left = -20;
+light.shadow.camera.right = 20;
+light.shadow.camera.top = 20;
+light.shadow.camera.bottom = -20;
+
+scene.add(light);
+
+
+const dynamicLight = new THREE.PointLight(0xffffff, 1);
+dynamicLight.castShadow = true;
+scene.add(dynamicLight);
+
+
+        const moveDirection = new THREE.Vector3();
+        const rotationSpeed = 0.02;
+        const movementSpeed = 0.2;
+
+
+        const keys = {
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false,
+        };
+
+        document.addEventListener('keydown', (event) => {
+            keys[event.key] = true;
+        });
+
+        document.addEventListener('keyup', (event) => {
+            keys[event.key] = false;
+            moveDirection.set(0, 0, 0);
+        });
+
+
+        const update = () => {
+            const rotationDirection = new THREE.Vector3();
+            moveDirection.set(0, 0, 0);
+
+            if (keys.ArrowUp) {
+                moveDirection.z = 1;
+            }
+            if (keys.ArrowDown) {
+                moveDirection.z = -1;
+            }
+            if (keys.ArrowLeft) {
+                rotationDirection.y = 1;
+            }
+            if (keys.ArrowRight) {
+                rotationDirection.y = -1;
+            }
+
+
+            camera.rotateOnWorldAxis(rotationDirection, rotationSpeed);
+
+
+            const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+            const actualMoveDirection = forward.multiplyScalar(moveDirection.z);
+            camera.position.add(actualMoveDirection.multiplyScalar(movementSpeed));
+        };
+
+
+        const animate = () => {
+    requestAnimationFrame(animate);
+    world.step(1 / 60);
+    update();
+
+    spheres.forEach(({ mesh, body }) => {
+        mesh.position.copy(body.position);
+        mesh.quaternion.copy(body.quaternion);
+    });
+
+
+    if (spheres.length > 0) {
+        const firstSphere = spheres[0].mesh;
+        dynamicLight.position.copy(firstSphere.position);
+        dynamicLight.position.y = 1;
+    }
+
+    renderer.render(scene, camera);
+};
+
+animate();
+    </script>
+</body>
+</html>

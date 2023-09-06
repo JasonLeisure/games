@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>3D Maze Game</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    const mazeWidth = 10;
+    const mazeHeight = 10;
+    const cellSize = 20;
+    const playerSize = 10;
+    let levelCompleted = false;
+    let currentLevel = 0;
+    const levels = [
+
+  [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 2, 0, 1, 0, 0, 1, 0, 0, 1],
+    [1, 1, 0, 1, 1, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 1, 1, 0, 1],
+    [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 1, 0, 1, 1, 1, 0, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  ],
+
+      [
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+        [1, 0, 1, 1, 1, 0, 1, 0, 0, 1],
+        [1, 0, 0, 1, 2, 0, 1, 0, 0, 1],
+        [1, 1, 0, 0, 1, 0, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 1, 1, 0, 1, 0, 1, 1],
+        [1, 0, 0, 0, 1, 0, 1, 0, 0, 1],
+        [1, 0, 1, 0, 1, 0, 1, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      ],
+      [
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+        [1, 0, 1, 1, 1, 1, 1, 0, 2, 1],
+        [1, 0, 0, 0, 1, 0, 1, 0, 1, 1],
+        [1, 1, 1, 0, 1, 0, 1, 0, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 1, 1, 1, 0, 1, 0, 1, 1],
+        [1, 0, 0, 0, 1, 0, 1, 0, 0, 1],
+        [1, 0, 1, 0, 1, 0, 1, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      ],
+      [
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+        [1, 0, 1, 1, 1, 1, 1, 0, 1, 1],
+        [1, 0, 0, 2, 1, 0, 1, 0, 1, 1],
+        [1, 1, 1, 1, 1, 0, 1, 0, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 1, 1, 1, 0, 1, 0, 1, 1],
+        [1, 0, 0, 0, 1, 0, 1, 0, 0, 1],
+        [1, 0, 1, 0, 1, 0, 1, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      ],
+      [
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+        [1, 0, 0, 0, 1, 1, 0, 0, 0, 1],
+        [1, 0, 1, 0, 0, 1, 1, 1, 0, 1],
+        [1, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+        [1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+        [1, 1, 0, 1, 1, 0, 1, 0, 1, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 1, 2, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      ],
+    ];
+
+    let mazeData = levels[currentLevel];
+
+const player = new THREE.Mesh(
+  new THREE.BoxGeometry(playerSize, playerSize, playerSize),
+  new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+);
+scene.add(player);
+
+const walls = [];
+
+for (let row = 0; row < mazeHeight; row++) {
+  for (let col = 0; col < mazeWidth; col++) {
+    if (mazeData[row][col] === 1) {
+      const wall = new THREE.Mesh(
+        new THREE.BoxGeometry(cellSize, cellSize, cellSize),
+        new THREE.MeshBasicMaterial({ color: 0x444444 })
+      );
+      wall.position.set(col * cellSize - (mazeWidth / 2) * cellSize, 0, row * cellSize - (mazeHeight / 2) * cellSize);
+      scene.add(wall);
+      walls.push(wall);
+    }
+    if (mazeData[row][col] === 2) {
+      const redWall = new THREE.Mesh(
+        new THREE.BoxGeometry(cellSize, cellSize, cellSize),
+        new THREE.MeshBasicMaterial({ color: 0xff0000 })
+      );
+      redWall.position.set(col * cellSize - (mazeWidth / 2) * cellSize, 0, row * cellSize - (mazeHeight / 2) * cellSize);
+      scene.add(redWall);
+      redWall.userData = { isTeleport: true };
+      walls.push(redWall);
+    }
+  }
+}
+
+camera.position.z = 50;
+
+const movement = { left: false, right: false, forward: false, back: false };
+
+document.addEventListener('keydown', handleKeyDown);
+document.addEventListener('keyup', handleKeyUp);
+
+function handleKeyDown(event) {
+  const keyCode = event.keyCode;
+  if (keyCode === 37) movement.left = true;
+  if (keyCode === 39) movement.right = true;
+  if (keyCode === 38) movement.forward = true;
+  if (keyCode === 40) movement.back = true;
+}
+
+function handleKeyUp(event) {
+  const keyCode = event.keyCode;
+  if (keyCode === 37) movement.left = false;
+  if (keyCode === 39) movement.right = false;
+  if (keyCode === 38) movement.forward = false;
+  if (keyCode === 40) movement.back = false;
+}
+
+function movePlayer() {
+  const speed = 0.5;
+  const prevPosition = player.position.clone();
+
+  if (movement.left) player.position.x -= speed;
+  if (movement.right) player.position.x += speed;
+
+  const moveDirection = new THREE.Vector3();
+  camera.getWorldDirection(moveDirection);
+  moveDirection.y = 0;
+  moveDirection.normalize();
+
+  if (movement.forward) {
+    player.position.add(moveDirection.clone().multiplyScalar(-speed));
+  }
+  if (movement.back) {
+    player.position.add(moveDirection.clone().multiplyScalar(speed));
+  }
+
+  if (checkCollision(player)) {
+    player.position.copy(prevPosition);
+  }
+}
+
+function handleTeleportation() {
+  const playerPosition = player.position.clone();
+  if (mazeData[Math.floor((playerPosition.z + (mazeHeight * cellSize / 2)) / cellSize)][Math.floor((playerPosition.x + (mazeWidth * cellSize / 2)) / cellSize)] === 2) {
+    console.log("Teleporting to the next level");
+    currentLevel++;
+    levelCompleted = false;
+    loadLevel(currentLevel);
+  }
+}
+
+function moveCamera() {
+  const movementSpeed = 0.5;
+  const rotationSpeed = 0.02;
+  const prevCameraPosition = camera.position.clone();
+
+  const cameraDirection = camera.getWorldDirection(new THREE.Vector3());
+  const cameraRight = new THREE.Vector3().crossVectors(cameraDirection, camera.up).normalize();
+
+  if (movement.left) camera.rotation.y += rotationSpeed;
+  if (movement.right) camera.rotation.y -= rotationSpeed;
+  const forwardMovement = cameraDirection.clone().multiplyScalar(movementSpeed);
+  const backwardMovement = cameraDirection.clone().multiplyScalar(-movementSpeed);
+
+  if (movement.forward) camera.position.add(forwardMovement);
+  if (movement.back) camera.position.add(backwardMovement);
+
+  if (checkCollision(camera.position)) {
+    camera.position.copy(prevCameraPosition);
+  }
+}
+
+function checkCollision(position) {
+  const playerBox = new THREE.Box3().setFromCenterAndSize(position, new THREE.Vector3(playerSize, playerSize, playerSize));
+
+  for (const wall of walls) {
+    if (wall.userData && wall.userData.isTeleport) continue;
+
+    const wallBox = new THREE.Box3().setFromObject(wall);
+    if (playerBox.intersectsBox(wallBox)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function loadLevel(levelIndex) {
+  const level = levels[levelIndex];
+  mazeData = level;
+
+  for (const wall of walls) {
+    scene.remove(wall);
+  }
+  walls.length = 0;
+
+  for (let row = 0; row < mazeHeight; row++) {
+    for (let col = 0; col < mazeWidth; col++) {
+      if (mazeData[row][col] === 1) {
+        const wall = new THREE.Mesh(
+          new THREE.BoxGeometry(cellSize, cellSize, cellSize),
+          new THREE.MeshBasicMaterial({ color: 0x444444 })
+        );
+        wall.position.set(col * cellSize - (mazeWidth / 2) * cellSize, 0, row * cellSize - (mazeHeight / 2) * cellSize);
+        scene.add(wall);
+        walls.push(wall);
+      }
+      if (mazeData[row][col] === 2) {
+        // Red wall
+        const redWall = new THREE.Mesh(
+          new THREE.BoxGeometry(cellSize, cellSize, cellSize),
+          new THREE.MeshBasicMaterial({ color: 0xff0000 })
+        );
+        redWall.position.set(col * cellSize - (mazeWidth / 2) * cellSize, 0, row * cellSize - (mazeHeight / 2) * cellSize);
+        scene.add(redWall);
+        redWall.userData = { isTeleport: true };
+        walls.push(redWall);
+      }
+    }
+  }
+
+  player.position.set(-(mazeWidth / 2) * cellSize + playerSize * 0.5, playerSize * 0.5, -(mazeHeight / 2) * cellSize + playerSize * 0.5);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  movePlayer();
+  moveCamera();
+  handleTeleportation();
+
+  renderer.render(scene, camera);
+}
+
+function goToNextLevel() {
+  if (currentLevel < levels.length - 1) {
+    currentLevel++;
+    levelCompleted = false;
+    loadLevel(currentLevel);
+  } else {
+    alert('Congratulations! You have completed all levels.');
+  }
+}
+
+loadLevel(currentLevel);
+animate();
+</script>
+</body>
+</html>

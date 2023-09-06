@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bouncy Balls</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        document.body.appendChild(renderer.domElement);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(2, 4, 2);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+
+        directionalLight.shadow.mapSize.width = 1024;
+        directionalLight.shadow.mapSize.height = 1024;
+        directionalLight.shadow.camera.near = 0.5;
+        directionalLight.shadow.camera.far = 20;
+
+        const roomSize = 10;
+        const roomGeometry = new THREE.BoxGeometry(roomSize, roomSize, roomSize);
+        const roomMaterials = [
+            new THREE.MeshPhongMaterial({ color: 0xaaaaaa, side: THREE.BackSide }),
+            new THREE.MeshPhongMaterial({ color: 0xaaaaaa, side: THREE.BackSide }),
+            new THREE.MeshPhongMaterial({ color: 0xaaaaaa }),
+            new THREE.MeshPhongMaterial({ color: 0xaaaaaa }),
+            new THREE.MeshPhongMaterial({ color: 0x777777, side: THREE.BackSide }),
+            new THREE.MeshPhongMaterial({ color: 0x777777, side: THREE.BackSide }),
+        ];
+        const roomMesh = new THREE.Mesh(roomGeometry, roomMaterials);
+        roomMesh.receiveShadow = true;
+        scene.add(roomMesh);
+
+        const balls = [];
+
+        for (let i = 0; i < 10; i++) {
+            const radius = 0.25;
+            const ballGeometry = new THREE.SphereGeometry(radius, 32, 32);
+
+            const ballMaterial = new THREE.MeshStandardMaterial({
+                color: new THREE.Color().setHSL(Math.random(), 0.7, 0.6),
+                roughness: 0.5,
+                metalness: 0.3,
+            });
+
+            const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+            ball.position.set(
+                (Math.random() - 0.5) * (roomSize - radius * 2),
+                (Math.random() - 0.5) * (roomSize - radius * 2),
+                (Math.random() - 0.5) * (roomSize - radius * 2)
+            );
+
+            ball.velocity = new THREE.Vector3(
+                (Math.random() - 0.5) * 0.2,
+                (Math.random() - 0.5) * 0.2,
+                (Math.random() - 0.5) * 0.2
+            );
+
+            ball.castShadow = true;
+            balls.push(ball);
+            scene.add(ball);
+        }
+
+
+        const goldenBallRadius = 0.5;
+        const goldenBallGeometry = new THREE.SphereGeometry(goldenBallRadius, 64, 64);
+
+
+        const goldenBallMaterial = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(1.0, 0.85, 0.0),
+            roughness: 0.3,
+            metalness: 0.8,
+            envMapIntensity: 1.0,
+        });
+
+        const goldenBall = new THREE.Mesh(goldenBallGeometry, goldenBallMaterial);
+        goldenBall.position.set(0, goldenBallRadius, 0);
+        scene.add(goldenBall);
+
+        camera.position.z = 15;
+
+        const arrowKeys = { left: false, right: false, up: false, down: false };
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowLeft") arrowKeys.left = true;
+            if (event.key === "ArrowRight") arrowKeys.right = true;
+            if (event.key === "ArrowUp") arrowKeys.up = true;
+            if (event.key === "ArrowDown") arrowKeys.down = true;
+        });
+
+        document.addEventListener("keyup", (event) => {
+            if (event.key === "ArrowLeft") arrowKeys.left = false;
+            if (event.key === "ArrowRight") arrowKeys.right = false;
+            if (event.key === "ArrowUp") arrowKeys.up = false;
+            if (event.key === "ArrowDown") arrowKeys.down = false;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const movementSpeed = 0.1;
+            const rotationSpeed = 0.02;
+
+            if (arrowKeys.left) camera.rotation.y += rotationSpeed;
+            if (arrowKeys.right) camera.rotation.y -= rotationSpeed;
+            if (arrowKeys.up) {
+                const direction = new THREE.Vector3();
+                camera.getWorldDirection(direction);
+                camera.position.addScaledVector(direction, movementSpeed);
+            }
+            if (arrowKeys.down) {
+                const direction = new THREE.Vector3();
+                camera.getWorldDirection(direction);
+                camera.position.addScaledVector(direction, -movementSpeed);
+            }
+
+            for (const ball of balls) {
+                ball.position.add(ball.velocity);
+
+                if (Math.abs(ball.position.x) + ball.geometry.parameters.radius > roomSize / 2) {
+                    ball.velocity.x *= -1;
+                }
+                if (Math.abs(ball.position.y) + ball.geometry.parameters.radius > roomSize / 2) {
+                    ball.velocity.y *= -1;
+                }
+                if (Math.abs(ball.position.z) + ball.geometry.parameters.radius > roomSize / 2) {
+                    ball.velocity.z *= -1;
+                }
+
+
+                const distance = ball.position.distanceTo(goldenBall.position);
+                if (distance <= goldenBallRadius + ball.geometry.parameters.radius) {
+                    const direction = new THREE.Vector3().subVectors(ball.position, goldenBall.position).normalize();
+                    ball.velocity.addScaledVector(direction, 0.2);
+                }
+            }
+
+
+            if (goldenBall) {
+                goldenBall.rotation.y += 0.01;
+                goldenBall.rotation.z += 0.005;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
