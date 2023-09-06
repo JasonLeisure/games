@@ -1,6 +1,6 @@
 # Tic Tac D'oh
 
-Tic Tac D'oh is a fun and whimsical twist on the classic tic-tac-toe game, inspired by "The Simpsons." Step into the shoes of "X" and take on the challenge of defeating the AI opponent, embodied by delightful rotating pink donuts with sprinkles, to secure your triumphant three-in-a-row victory!
+### Tic Tac D'oh is a fun and whimsical twist on the classic tic-tac-toe game, inspired by "The Simpsons." Step into the shoes of "X" and take on the challenge of defeating the AI opponent, embodied by delightful rotating pink donuts with sprinkles, to secure your triumphant three-in-a-row victory!
 
 - **Objective**: Get three of your "X" marks in a row horizontally, vertically, or diagonally while preventing the AI donuts from winning.
 
