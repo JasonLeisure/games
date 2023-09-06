@@ -42,7 +42,7 @@ You can change the color of the snake by following these steps:
 
 ## Acknowledgements
 
-The Boa Game is created by [Jason Leisure].
+The Boa Game is created by Jason Leisure.
 
 Apple game asset created and used freely by Clear_code
 Game over and apple eating sound effect used from mixkit freely
