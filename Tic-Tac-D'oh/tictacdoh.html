@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tic Tac D'oh</title>
+  <style>
+   body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  background-color: #f0f0f0;
+  font-family: Arial, sans-serif;
+  padding: 0;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+
+.game-name {
+  font-size: 48px;
+  font-weight: bold;
+  color: #FF5722;
+  margin-bottom: 20px;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.2),
+    4px 4px 8px rgba(0, 0, 0, 0.1),
+    6px 6px 12px rgba(0, 0, 0, 0.1);
+  animation: bounceAndRotate 4s infinite;
+  transform-style: preserve-3d;
+}
+
+@keyframes bounceAndRotate {
+  0%, 100% {
+    transform: translateY(0) rotateY(0) scale3d(1, 1, 1);
+  }
+  25% {
+    transform: translateY(-10px) rotateY(0) scale3d(1.1, 0.9, 1.1);
+  }
+  50% {
+    transform: translateY(0) rotateY(180deg) scale3d(1, 1, 1);
+  }
+  75% {
+    transform: translateY(-10px) rotateY(180deg) scale3d(1.1, 0.9, 1.1);
+  }
+  100% {
+    transform: translateY(0) rotateY(360deg) scale3d(1, 1, 1);
+  }
+}
+
+
+#game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  max-width: 600px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+
+canvas {
+  border: 2px solid #FF5722;
+  background-color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, border-color 0.3s ease-in-out;
+  border-radius: 8px;
+}
+
+canvas:hover {
+  transform: scale(1.05);
+  border-color: #E64A19;
+}
+
+
+.message {
+  font-size: 24px;
+  text-align: center;
+  margin-top: 20px;
+  font-weight: bold;
+  color: #444;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+
+.scoreboard {
+  font-size: 24px;
+  text-align: center;
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  color: #333;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+
+.play-again-btn {
+  font-size: 20px;
+  padding: 0px 40px;
+  background-color: #FF5722;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.2s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.play-again-btn:hover {
+  background-color: #E64A19;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+
+.board-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100vh;
+}
+
+.powered-by {
+  font-size: 15px;
+  color: #333;
+  text-align: center;
+  margin-top: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  opacity: 0.8;
+  position: relative;
+}
+
+.powered-by:hover {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+  </style>
+</head>
+<body>
+  <div class="board-container">
+    <div class="board">
+      <div id="game-container">
+        <div class="game-name">Tic-Tac-D'oh</div>
+        <div class="powered-by">Powered by AI</div>
+        <div class="scoreboard" id="scoreboard">Player X: 0 - Player O: 0</div>
+        <div class="message" id="message">Player X's Turn</div>
+        <canvas id="ticTacToeCanvas" width="300" height="300"></canvas>
+      </div>
+    </div>
+    <div class="button-container">
+      <button class="play-again-btn" id="resetBtn">Play Again</button>
+    </div>
+
+  <script>
+    const canvas = document.getElementById("ticTacToeCanvas");
+    const ctx = canvas.getContext("2d");
+    const cellSize = 100;
+    const rows = 3;
+    const cols = 3;
+    const board = Array(rows).fill(null).map(() => Array(cols).fill(null));
+    let currentPlayer = "X";
+    let gameStatus = "ongoing";
+    let playerXScore = 0;
+    let playerOScore = 0;
+
+    function drawPinkDonut(centerX, centerY) {
+  const donutRadius = 30;
+  const holeRadius = 15;
+  const sprinkleColors = ["#FFD700", "#FFA500", "#FF6347", "#00FF00", "#9370DB", "#FF69B4", "#00FFFF", "#FFC0CB"];
+
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, donutRadius, 0, Math.PI * 2);
+  ctx.fillStyle = "#FF1493";
+  ctx.fill();
+  ctx.closePath();
+
+  const gradient = ctx.createRadialGradient(centerX, centerY, donutRadius, centerX, centerY, donutRadius + 7);
+  gradient.addColorStop(0, "#FFC0CB");
+  gradient.addColorStop(1, "#FF1493");
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, donutRadius + 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.closePath();
+
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, holeRadius, 0, Math.PI * 2);
+  ctx.fillStyle = "white";
+  ctx.fill();
+  ctx.closePath();
+
+  for (let i = 0; i < 20; i++) {
+    let validSprinkle = false;
+    let sprinkleX, sprinkleY;
+    let sprinkleAngle = Math.random() * Math.PI * 2;
+
+    while (!validSprinkle) {
+      const distanceFromCenter = Math.random() * donutRadius;
+      sprinkleX = centerX + distanceFromCenter * Math.cos(sprinkleAngle);
+      sprinkleY = centerY + distanceFromCenter * Math.sin(sprinkleAngle);
+
+      const distanceToHoleCenter = Math.sqrt((sprinkleX - centerX) ** 2 + (sprinkleY - centerY) ** 2);
+      if (distanceToHoleCenter > holeRadius + 3) {
+        validSprinkle = true;
+      } else {
+        sprinkleAngle += Math.PI / 6;
+      }
+    }
+
+    const sprinkleColor = sprinkleColors[Math.floor(Math.random() * sprinkleColors.length)];
+
+    ctx.beginPath();
+    ctx.arc(sprinkleX, sprinkleY, 2, 0, Math.PI * 2);
+    ctx.fillStyle = sprinkleColor;
+    ctx.fill();
+    ctx.closePath();
+  }
+}
+
+
+    function drawBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "#444";
+      ctx.lineWidth = 4;
+      for (let i = 1; i < rows; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, i * cellSize);
+        ctx.lineTo(canvas.width, i * cellSize);
+        ctx.stroke();
+      }
+      for (let i = 1; i < cols; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * cellSize, 0);
+        ctx.lineTo(i * cellSize, canvas.height);
+        ctx.stroke();
+      }
+
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const cellValue = board[row][col];
+          if (cellValue === "O") {
+
+            const centerX = col * cellSize + cellSize / 2;
+            const centerY = row * cellSize + cellSize / 2;
+            drawPinkDonut(centerX, centerY);
+          } else if (cellValue === "X") {
+
+            const fontSize = 48;
+            const centerX = col * cellSize + cellSize / 2;
+            const centerY = row * cellSize + cellSize / 2;
+            ctx.font = `bold ${fontSize}px Arial`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "#FF1744";
+            ctx.fillText(cellValue, centerX, centerY);
+          }
+        }
+      }
+    }
+
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const cellValue = board[row][col];
+          if (cellValue) {
+            const fontSize = 48;
+            const centerX = col * cellSize + cellSize / 2;
+            const centerY = row * cellSize + cellSize / 2;
+            ctx.font = `bold ${fontSize}px Arial`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = cellValue === "X" ? "#FF1744" : "#2979FF";
+            ctx.fillText(cellValue, centerX, centerY);
+          }
+        }
+      }
+
+
+    function checkWinner() {
+      for (let i = 0; i < rows; i++) {
+        if (board[i][0] && board[i][0] === board[i][1] && board[i][0] === board[i][2]) {
+          return board[i][0];
+        }
+        if (board[0][i] && board[0][i] === board[1][i] && board[0][i] === board[2][i]) {
+          return board[0][i];
+        }
+      }
+
+      if (board[0][0] && board[0][0] === board[1][1] && board[0][0] === board[2][2]) {
+        return board[0][0];
+      }
+
+      if (board[0][2] && board[0][2] === board[1][1] && board[0][2] === board[2][0]) {
+        return board[0][2];
+      }
+
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          if (!board[row][col]) {
+            return null;
+          }
+        }
+      }
+
+      return "tie";
+    }
+
+    function handleCellClick(event) {
+      if (gameStatus !== "ongoing") {
+        return;
+      }
+
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const col = Math.floor(x / cellSize);
+      const row = Math.floor(y / cellSize);
+
+      if (board[row][col] === null) {
+        board[row][col] = currentPlayer;
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+        gameStatus = checkWinner() || "ongoing";
+        drawBoard();
+
+        const message = document.getElementById("message");
+        const resetBtn = document.getElementById("resetBtn");
+
+        if (gameStatus === "X" || gameStatus === "O" || gameStatus === "tie") {
+          updateScore();
+          message.textContent = gameStatus === "tie" ? "It's a tie!" : `Player ${gameStatus} wins!`;
+          resetBtn.style.display = "block";
+        } else {
+          message.textContent = `Player ${currentPlayer}'s Turn`;
+        }
+
+        nextMove();
+      }
+    }
+
+    function handleResetClick() {
+      board.forEach((row, rowIndex) => {
+        row.fill(null);
+      });
+
+      currentPlayer = "X";
+      gameStatus = "ongoing";
+      drawBoard();
+
+      const message = document.getElementById("message");
+      const resetBtn = document.getElementById("resetBtn");
+      message.textContent = `Player ${currentPlayer}'s Turn`;
+      resetBtn.style.display = "none";
+    }
+
+    let aiDepth = 2;
+
+function computerMove() {
+  if (gameStatus === "ongoing" && currentPlayer === "O") {
+    const bestMove = findBestMoveWithRandomness(aiDepth);
+    if (bestMove) {
+      const { row, col } = bestMove;
+      board[row][col] = currentPlayer;
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      gameStatus = checkWinner() || "ongoing";
+      drawBoard();
+
+      const message = document.getElementById("message");
+      const resetBtn = document.getElementById("resetBtn");
+
+      if (gameStatus === "X" || gameStatus === "O" || gameStatus === "tie") {
+        updateScore();
+        message.textContent = gameStatus === "tie" ? "It's a tie!" : `Player ${gameStatus} wins!`;
+        resetBtn.style.display = "block";
+      } else {
+        message.textContent = `Player ${currentPlayer}'s Turn`;
+      }
+    }
+  }
+}
+
+function findBestMoveWithRandomness(depth) {
+  const emptyCells = [];
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      if (!board[row][col]) {
+        emptyCells.push({ row, col });
+      }
+    }
+  }
+
+
+  const makeRandomMove = Math.random() < 0.2;
+  if (makeRandomMove && emptyCells.length > 0) {
+    const randomIndex = Math.floor(Math.random() * emptyCells.length);
+    return emptyCells[randomIndex];
+  }
+
+  let bestScore = -Infinity;
+  let bestMove;
+
+  for (const cell of emptyCells) {
+    const { row, col } = cell;
+    board[row][col] = "O";
+    const score = minimax(board, depth, false);
+    board[row][col] = null;
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestMove = cell;
+    }
+  }
+
+  return bestMove;
+}
+    function minimax(board, depth, isMaximizing) {
+      const result = checkWinner();
+      if (result === "X") return -10 + depth;
+      if (result === "O") return 10 - depth;
+      if (result === "tie") return 0;
+
+      if (isMaximizing) {
+        let bestScore = -Infinity;
+        for (let row = 0; row < rows; row++) {
+          for (let col = 0; col < cols; col++) {
+            if (!board[row][col]) {
+              board[row][col] = "O";
+              const score = minimax(board, depth + 1, false);
+              board[row][col] = null;
+              bestScore = Math.max(bestScore, score);
+            }
+          }
+        }
+        return bestScore;
+      } else {
+        let bestScore = Infinity;
+        for (let row = 0; row < rows; row++) {
+          for (let col = 0; col < cols; col++) {
+            if (!board[row][col]) {
+              board[row][col] = "X";
+              const score = minimax(board, depth + 1, true);
+              board[row][col] = null;
+              bestScore = Math.min(bestScore, score);
+            }
+          }
+        }
+        return bestScore;
+      }
+    }
+
+    function updateScore() {
+      if (gameStatus === "X") {
+        playerXScore++;
+      } else if (gameStatus === "O") {
+        playerOScore++;
+      }
+
+      const scoreboard = document.getElementById("scoreboard");
+      scoreboard.textContent = `Player X: ${playerXScore} - Player O: ${playerOScore}`;
+    }
+
+    function nextMove() {
+      if (gameStatus === "ongoing" && currentPlayer === "O") {
+        setTimeout(computerMove, 500);
+      }
+    }
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    canvas.addEventListener("click", handleCellClick);
+    document.getElementById("resetBtn").addEventListener("click", handleResetClick);
+    drawBoard();
+  </script>
+</body>
+</html>

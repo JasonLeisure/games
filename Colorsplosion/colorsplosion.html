@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+  <title>Colorsplosion</title>
+  <style>
+    body {
+      background: black;
+      margin: 0;
+      padding: 0;
+    }
+    canvas {
+      border: 1px solid #000;
+      background: black;
+      display: block;
+      margin: 0 auto;
+    }
+    .logo {
+      text-align: center;
+      margin-top: 20px;
+      font-family: 'Bangers', cursive;
+    }
+    .logo span {
+      font-size: 60px;
+      font-weight: bold;
+      margin: 0 5px;
+      letter-spacing: 3px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    .start-button-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .start-button {
+      padding: 10px 20px;
+      background-color: #0095dd;
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <audio id="backgroundMusic" src="power.mp3" loop></audio>
+  <canvas id="gameCanvas" width="900" height="360"></canvas>
+  <div class="logo">
+    <span style="color: #FF0000">C</span>
+    <span style="color: #FF7F00">o</span>
+    <span style="color: #FFFF00">l</span>
+    <span style="color: #00FF00">o</span>
+    <span style="color: #0000FF">r</span>
+    <span style="color: #FF1493">s</span>
+    <span style="color: #00FFFF">p</span>
+    <span style="color: #FFD700">l</span>
+    <span style="color: #FF00FF">o</span>
+    <span style="color: #ADFF2F">s</span>
+    <span style="color: #1E90FF">i</span>
+    <span style="color: #7FFFD4">o</span>
+    <span style="color: #FFE4C4">n</span>
+  </div>
+  <div class="start-button-container">
+    <button class="start-button" id="startButton">Start Game</button>
+  </div>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const context = canvas.getContext("2d");
+
+    const paddleWidth = 85;
+    const paddleHeight = 10;
+    const paddleSpeed = 7;
+    const ballRadius = 10;
+    const ballSpeed = 1.8;
+    const brickRowCount = 5;
+    const brickColumnCount = 10;
+    const brickWidth = 80;
+    const brickHeight = 20;
+    const brickPadding = 10;
+    const brickOffsetTop =
+      (canvas.height - brickRowCount * (brickHeight + brickPadding)) / 2;
+    const brickOffsetLeft =
+      (canvas.width -
+        brickColumnCount * (brickWidth + brickPadding) +
+        brickPadding) /
+      2;
+
+    let score = 0;
+    let lives = 3;
+    let level = 1;
+    let points = 50 + 10 * (level - 1); // Adjusted points for each level
+
+    let paddleX = (canvas.width - paddleWidth) / 2;
+    let ballX = canvas.width / 2;
+    let ballY = canvas.height - 30;
+    let ballSpeedX = ballSpeed;
+    let ballSpeedY = -ballSpeed;
+
+    let bricks = [];
+
+    let rightPressed = false;
+    let leftPressed = false;
+    let gameStarted = false;
+    let gamePaused = false;
+
+    function createBricks() {
+      for (let c = 0; c < brickColumnCount; c++) {
+        bricks[c] = [];
+        for (let r = 0; r < brickRowCount; r++) {
+          bricks[c][r] = {
+            x: 0,
+            y: 0,
+            status: 1,
+            color: getRandomColor(),
+            hitCount: 0,
+          };
+        }
+      }
+    }
+
+    function getRandomColor() {
+      const letters = "0123456789ABCDEF";
+      let color = "#";
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
+    function drawBall() {
+      context.beginPath();
+      context.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+      context.fillStyle = "#0095DD";
+      context.fill();
+      context.closePath();
+    }
+
+    function drawPaddle() {
+      context.beginPath();
+      context.rect(
+        paddleX,
+        canvas.height - paddleHeight,
+        paddleWidth,
+        paddleHeight
+      );
+      context.fillStyle = "#0095DD";
+      context.fill();
+      context.closePath();
+    }
+
+    function drawBricks() {
+      for (let c = 0; c < brickColumnCount; c++) {
+        for (let r = 0; r < brickRowCount; r++) {
+          if (bricks[c][r].status === 1) {
+            const brickX =
+              c * (brickWidth + brickPadding) + brickOffsetLeft;
+            const brickY =
+              r * (brickHeight + brickPadding) + brickOffsetTop;
+            bricks[c][r].x = brickX;
+            bricks[c][r].y = brickY;
+
+            context.beginPath();
+            context.rect(brickX, brickY, brickWidth, brickHeight);
+            context.fillStyle = bricks[c][r].color;
+            context.fill();
+            context.closePath();
+          }
+        }
+      }
+    }
+
+    function collisionDetection() {
+      for (let c = 0; c < brickColumnCount; c++) {
+        for (let r = 0; r < brickRowCount; r++) {
+          const brick = bricks[c][r];
+          if (brick.status === 1) {
+            if (
+              ballX > brick.x &&
+              ballX < brick.x + brickWidth &&
+              ballY > brick.y &&
+              ballY < brick.y + brickHeight
+            ) {
+              ballSpeedY = -ballSpeedY;
+              brick.hitCount++;
+              if (brick.hitCount === 2) { // Check if brick has been hit twice
+                brick.status = 0;
+                explodeBrick(brick);
+                score++;
+                if (score === points) {
+                  nextLevel();
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    function explodeBrick(brick) {
+      const explosionColors = [
+        "#FF0000",   // Red
+        "#FF7F00",   // Orange
+        "#FFFF00",   // Yellow
+        "#00FF00",   // Green
+        "#0000FF",   // Blue
+        "#FF1493",   // DeepPink
+        "#00FFFF",   // Cyan
+        "#FFD700",   // Gold
+        "#FF00FF",   // Fuchsia
+        "#ADFF2F",   // GreenYellow
+        "#1E90FF",   // DodgerBlue
+        "#7FFFD4",   // Aquamarine
+        "#FFE4C4",   // Bisque
+        "#00FA9A",   // MediumSpringGreen
+        "#AFEEEE",   // PaleTurquoise
+        "#FF6347",   // Tomato
+        "#FFC0CB",   // Pink
+        "#32CD32",   // LimeGreen
+        "#7B68EE",   // MediumSlateBlue
+        "#48D1CC",   // MediumTurquoise
+        "#8A2BE2",   // BlueViolet
+        "#FFA500",   // Orange
+        "#8B008B",   // DarkMagenta
+        "#BA55D3",   // MediumOrchid
+        "#66CDAA",   // MediumAquamarine
+        "#D2691E",   // Chocolate
+        "#FF69B4",   // HotPink
+        "#FF4500",   // OrangeRed
+        "#9932CC",   // DarkOrchid
+        "#FF00FF",   // Magenta
+        "#00BFFF",   // DeepSkyBlue
+        "#7FFF00",   // Chartreuse
+        "#F08080",   // LightCoral
+        "#90EE90",   // LightGreen
+        "#00FFFF",   // Aqua
+        "#FFB6C1",   // LightPink
+        "#FFA07A",   // LightSalmon
+        "#7CFC00",   // LawnGreen
+        "#FFDAB9",   // PeachPuff
+        "#9370DB",   // MediumPurple
+        "#20B2AA",   // LightSeaGreen
+        "#008080",   // Teal
+        "#FFD700",   // Gold
+        "#FF4500",   // OrangeRed
+        "#FF8C00",   // DarkOrange
+        "#FF69B4",   // HotPink
+        "#00CED1",   // DarkTurquoise
+        "#00FF7F",   // SpringGreen
+        "#66CDAA",   // MediumAquamarine
+      ];
+
+      const brickX = brick.x;
+      const brickY = brick.y;
+
+      for (let i = 0; i < 50; i++) {
+        const explosionColor =
+          explosionColors[
+            Math.floor(Math.random() * explosionColors.length)
+          ];
+        const explosionSize = Math.random() * 4;
+
+        const particleX = brickX + brickWidth / 2;
+        const particleY = brickY + brickHeight / 2;
+        const particleSpeedX = (Math.random() - 0.5) * 4;
+        const particleSpeedY = (Math.random() - 0.5) * 4;
+
+        particles.push({
+          x: particleX,
+          y: particleY,
+          speedX: particleSpeedX,
+          speedY: particleSpeedY,
+          size: explosionSize,
+          color: explosionColor,
+          lifespan: 200, // Lifespan of particles (in frames)
+        });
+      }
+    }
+
+    function drawParticles() {
+      for (let i = 0; i < particles.length; i++) {
+        const particle = particles[i];
+
+        context.beginPath();
+        context.arc(
+          particle.x,
+          particle.y,
+          particle.size,
+          0,
+          Math.PI * 2
+        );
+        context.fillStyle = particle.color;
+        context.fill();
+        context.closePath();
+
+        particle.x += particle.speedX;
+        particle.y += particle.speedY;
+        particle.lifespan--;
+
+        if (particle.lifespan <= 0) {
+          particles.splice(i, 1);
+          i--;
+        }
+      }
+    }
+
+    function drawScore() {
+      context.font = "bold 16px 'Digital', sans-serif";
+      context.fillStyle = "#FFFFFF";
+      context.shadowColor = "rgba(0, 0, 0, 0.5)";
+      context.shadowBlur = 4;
+      context.fillText("Score: " + score.toLocaleString(), 8, 20);
+      context.shadowColor = "transparent";
+    }
+
+    function drawLives() {
+      context.font = "bold 16px 'Digital', sans-serif";
+      context.fillStyle = "#FFFFFF";
+      context.shadowColor = "rgba(0, 0, 0, 0.5)";
+      context.shadowBlur = 4;
+      context.fillText(
+        "Lives: " + lives.toLocaleString(),
+        canvas.width - 65,
+        20
+      );
+      context.shadowColor = "transparent";
+    }
+
+    function drawLevel() {
+      context.font = "bold 16px 'Digital', sans-serif";
+      context.fillStyle = "#FFFFFF";
+      context.shadowColor = "rgba(0, 0, 0, 0.5)";
+      context.shadowBlur = 4;
+      context.fillText(
+        "Level: " + level.toLocaleString(),
+        canvas.width / 2 - 30,
+        20
+      );
+      context.shadowColor = "transparent";
+    }
+
+    function draw() {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      drawBricks();
+      drawBall();
+      drawPaddle();
+      drawScore();
+      drawLives();
+      drawLevel();
+      collisionDetection();
+      drawParticles();
+
+      if (
+        ballX + ballSpeedX > canvas.width - ballRadius ||
+        ballX + ballSpeedX < ballRadius
+      ) {
+        ballSpeedX = -ballSpeedX;
+      }
+      if (ballY + ballSpeedY < ballRadius) {
+        ballSpeedY = -ballSpeedY;
+      } else if (ballY + ballSpeedY > canvas.height - ballRadius) {
+        if (ballX > paddleX && ballX < paddleX + paddleWidth) {
+          ballSpeedY = -ballSpeedY;
+        } else {
+          lives--;
+          if (!lives) {
+            alert("Game Over");
+            document.location.reload();
+          } else {
+            ballX = canvas.width / 2;
+            ballY = canvas.height - 30;
+            ballSpeedX = ballSpeed;
+            ballSpeedY = -ballSpeed;
+            paddleX = (canvas.width - paddleWidth) / 2;
+          }
+        }
+      }
+
+      if (rightPressed && paddleX < canvas.width - paddleWidth) {
+        paddleX += paddleSpeed;
+      } else if (leftPressed && paddleX > 0) {
+        paddleX -= paddleSpeed;
+      }
+
+      ballX += ballSpeedX;
+      ballY += ballSpeedY;
+
+      requestAnimationFrame(draw);
+    }
+
+    function keyDownHandler(event) {
+      if (event.keyCode === 39) {
+        rightPressed = true;
+      } else if (event.keyCode === 37) {
+        leftPressed = true;
+      } else if (event.keyCode === 32) {
+        event.preventDefault();
+        if (gamePaused) {
+          gamePaused = false;
+          backgroundMusic.play();
+          backgroundMusic.volume = 0.05; // Set the volume to 5%,10% (0.05, 0.1)
+        } else {
+          gamePaused = true;
+          backgroundMusic.pause();
+        }
+      }
+    }
+
+    function keyUpHandler(event) {
+      if (event.keyCode === 39) {
+        rightPressed = false;
+      } else if (event.keyCode === 37) {
+        leftPressed = false;
+      }
+    }
+
+    function mouseMoveHandler(event) {
+      const relativeX = event.clientX - canvas.offsetLeft;
+      if (
+        relativeX > paddleWidth / 2 &&
+        relativeX < canvas.width - paddleWidth / 2
+      ) {
+        paddleX = relativeX - paddleWidth / 2;
+      } else if (relativeX <= paddleWidth / 2) {
+        paddleX = 0;
+      } else if (relativeX >= canvas.width - paddleWidth / 2) {
+        paddleX = canvas.width - paddleWidth;
+      }
+    }
+
+    function nextLevel() {
+      if (level === 6) {
+        alert("Congratulations! You completed all levels!");
+        document.location.reload();
+      } else {
+        level++;
+        score = 0;
+        points = 50 + 10 * (level - 1);
+        ballX = canvas.width / 2;
+        ballY = canvas.height - 30;
+        ballSpeedX = ballSpeed;
+        ballSpeedY = -ballSpeed;
+        paddleX = (canvas.width - paddleWidth) / 2;
+        createBricks();
+      }
+    }
+
+    const particles = [];
+    const startButton = document.getElementById("startButton");
+    const backgroundMusic = document.getElementById("backgroundMusic");
+
+    startButton.addEventListener("click", () => {
+      gameStarted = true;
+      startButton.style.display = "none";
+      document.addEventListener("keydown", keyDownHandler, false);
+      document.addEventListener("keyup", keyUpHandler, false);
+      document.addEventListener("mousemove", mouseMoveHandler, false);
+      createBricks();
+      draw();
+      backgroundMusic.play();
+      backgroundMusic.volume = 0.05; // Set the volume to 5%,10% (0.05, 0.1)
+    });
+
+    function drawStartButton() {
+      if (!gameStarted) {
+        startButton.style.display = "block";
+      }
+    }
+
+    drawStartButton();
+  </script>
+</body>
+</html>
