@@ -3,3 +3,4 @@
 Used throughout these projects are the following. Three.JS, Cannon.JS, JavaScript, CSS, HTML5, Webgl, Canvas, JavaScript
 Creative Concept Design, Game Development, Game Design. Very few images or sounds were imported but if they were they were credited in the readme's. Not every project took everything listed above.
 
+Animations if interactive which most are use mouse and arrow keys for interaction and movements. If anything is broken or needs attention let me know for the games or animations. 
