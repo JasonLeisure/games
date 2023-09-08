@@ -447,7 +447,7 @@ function drawBricks() {
 }
 
     function drawParticles() {
-    const gameBoardArea = {
+  const gameBoardArea = {
     x: 0,
     y: 0,
     width: canvas.width,
@@ -501,16 +501,15 @@ function drawBricks() {
     context.save();
     context.translate(particle.x, particle.y);
     context.rotate(particle.rotation);
-
+    const hue = (i / particles.length) * 360;
+    particle.color = `hsl(${hue}, 100%, 50%)`;
     const gradient = context.createRadialGradient(0, 0, 0, 0, 0, particle.size);
     gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
     gradient.addColorStop(0.5, particle.color);
     gradient.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
     context.fillStyle = gradient;
-
     context.strokeStyle = 'rgba(0, 0, 0, 0.2)';
     context.lineWidth = 2;
-
     context.beginPath();
     context.arc(0, 0, particle.size, 0, Math.PI * 2);
     context.fill();
