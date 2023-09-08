@@ -37,8 +37,55 @@
     <canvas></canvas>
     <script>
         var canvas, ctx;
-        var paintColors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#8B00FF'];
-        var lake = [];
+var paintColors = [
+    "#FF0000",   // Red
+    "#FF7F00",   // Orange
+    "#FFFF00",   // Yellow
+    "#00FF00",   // Green
+    "#0000FF",   // Blue
+    "#FF1493",   // DeepPink
+    "#00FFFF",   // Cyan
+    "#FFD700",   // Gold
+    "#ADFF2F",   // GreenYellow
+    "#1E90FF",   // DodgerBlue
+    "#F08080",   // LightCoral
+    "#90EE90",   // LightGreen
+    "#FFB6C1",   // LightPink
+    "#FFA07A",   // LightSalmon
+    "#7CFC00",   // LawnGreen
+    "#FFDAB9",   // PeachPuff
+    "#9370DB",   // MediumPurple
+    "#20B2AA",   // LightSeaGreen
+    "#00CED1",   // DarkTurquoise
+    "#FF4500",   // OrangeRed
+    "#FF8C00",   // DarkOrange
+    "#FA8072",   // Salmon
+    "#DAA520",   // Goldenrod
+    "#4169E1",   // RoyalBlue
+    "#3CB371",   // MediumSeaGreen
+    "#7B68EE",   // MediumSlateBlue
+    "#FFC0CB",   // Pink
+    "#7FFF00",   // Chartreuse
+    "#BA55D3",   // MediumOrchid
+    "#66CDAA",   // MediumAquamarine
+    "#9932CC",   // DarkOrchid
+    "#AFEEEE",   // PaleTurquoise
+    "#8B4513",   // SaddleBrown
+    "#2E8B57",   // SeaGreen
+    "#8B008B",   // DarkMagenta
+    "#228B22",   // ForestGreen
+    "#800000",   // Maroon
+    "#008B8B",   // DarkCyan
+    "#9400D3",   // DarkViolet
+    "#000080",   // Navy
+    "#556B2F",   // DarkOliveGreen
+    "#FFA500",   // Orange
+    "#A52A2A",   // Brown
+    "#4682B4",   // SteelBlue
+    "#DC143C"    // Crimson
+];
+var lake = [];
+
 
         canvas = document.getElementsByTagName('canvas')[0];
         ctx = canvas.getContext('2d');
