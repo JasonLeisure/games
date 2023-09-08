@@ -1,3 +1,5 @@
+Updates to files 9/8/2023. Updated Physics Animation and water 4-7 with the colors from my colorsplosion game and added more bright colors so the scenes should be even more vibrant in the animations. 
+
 5 html5 browser games and 12 Animations. 1 3D animated game. Using as little assets and libraries as possible to create these. Upgrading my animations and game development from 2000-2010. Next I am working on Unreal Game Engine and Blender to advance my game development and animations.
 
 Used throughout these projects are the following. Three.JS, Cannon.JS, JavaScript, CSS, HTML5, Webgl, Canvas, JavaScript,
