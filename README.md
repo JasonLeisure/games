@@ -1,4 +1,4 @@
-## Updates to files 9/8/2023. Updated Physics Animation, Colorsplosion game and water animations 4-7 with the colors from my colorsplosion game (Added a lot more vibrant colors to Colorsplosion also).
+## Updates to files 9/8/2023. Updated Physics Animation, Colorsplosion game and water animations 4-7 with the colors from my colorsplosion game (Added a lot more vibrant colors to Colorsplosion bricks and particles also).
 
 ### 5 html5 browser games and 12 Animations. 1 3D animated game. Using as little assets and libraries as possible to create these. Upgrading my animations and game development from 2000-2010. Next I am working on Unreal Game Engine and Blender to advance my game development and animations.
 
