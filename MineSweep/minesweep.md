@@ -1,6 +1,6 @@
-### MineSweep
+## MineSweep
 
-## Features:
+### Features:
 
 - Classic Minesweeper gameplay.
 - Neon-themed user interface with a glowing outward neon pulse effect.
@@ -10,7 +10,7 @@
 - Fast-paced background music that intensifies the challenge.
 - Responsive design for an optimal gaming experience.
 
-## Instructions:
+### Instructions:
 
 1. Game Objective: Uncover all non-mine cells without triggering any mines.
 2. Revealing Cells: Left-click on a cell to reveal its content.
@@ -20,7 +20,7 @@
 6. Game Over: If you uncover a mine or the timer hits 1 minute, all bombs explode, ending the game.
 7. Victory: Win the game by revealing all non-mine cells before the timer reaches 1 minute.
 
-## How to Play:
+### How to Play:
 
 1. Start Timer: Click on any cell to start the timer.
 2. Reveal Cells: Use the left mouse button to reveal cells.
