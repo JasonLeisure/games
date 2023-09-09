@@ -22,7 +22,7 @@
 
 ### How to Play:
 
-1. Start Timer: Click on any cell to start the timer.
+1. Start Timer: Click on any cell to start the timer or if you click Start Game you can activate the sound effect for the game that lasts 1 minute with each round.
 2. Reveal Cells: Use the left mouse button to reveal cells.
 3. Flag Mines: Use the right mouse button to flag potential mines.
 4. Strategize: Pay attention to the numbers on revealed cells to plan your moves.
