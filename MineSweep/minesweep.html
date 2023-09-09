@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body {
+    background-color: #1e1e1e;
+    color: #fff;
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  h1 {
+    font-size: 36px;
+    font-weight: bold;
+    margin: 20px 0;
+    color: #FFD700;
+    position: relative;
+    animation: bubbleOut 2s ease-in-out infinite;
+  }
+
+  @keyframes bubbleOut {
+    0% {
+      transform: scale(1);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0;
+    }
+  }
+
+  #game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 90vh;
+    position: relative;
+  }
+
+  #grid {
+    margin: 20px auto;
+    border: 2px solid #00ffcc;
+    background-color: #111;
+    display: inline-block;
+    padding: 10px;
+    border-radius: 10px;
+    animation: neon-glow 5s infinite alternate;
+  }
+
+  @keyframes neon-glow {
+    0% {
+      box-shadow: 0px 0px 30px rgba(0, 255, 204, 0.5);
+    }
+    100% {
+      box-shadow: 0px 0px 50px rgba(0, 255, 204, 0.9);
+    }
+  }
+
+#grid tr {
+  height: 28px;
+}
+
+#grid td {
+  width: 30px;
+  height: 22px;
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid #00ffcc;
+  background-color: #222;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 16px;
+  font-weight: bold;
+  position: relative;
+  color: #00ffcc;
+}
+
+#grid td.flagged::before {
+  content: "🚩";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#grid td.mine {
+  background-color: #FF0000;
+  color: #FFF;
+}
+
+#grid td.revealed {
+  background-color: #444;
+  cursor: default;
+}
+button {
+  margin: 20px;
+  padding: 12px 20px;
+  background-color: #FFD700;
+  color: #333;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #FFA500;
+}
+
+.info {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: #FFD700;
+}
+
+.info span {
+  color: #FFA500;
+}
+
+body:before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, #111, #222);
+  z-index: -1;
+}
+
+button:hover {
+  animation: pulse 0.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+#grid td:not(.flagged):not(.revealed):hover {
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+}
+
+#grid td.revealed {
+  background-color: #444;
+  cursor: default;
+}
+
+#grid td.mine {
+  background-color: #FF0000;
+  color: #FFF;
+}
+
+#grid td.flagged {
+  background-color: #444;
+  cursor: default;
+}
+
+#grid td:hover {
+  background-color: #555;
+}
+</style>
+</head>
+<body oncontextmenu="return false;">
+  <div id="game-container">
+    <h1> MineSweep </h1>
+    <div class="info">Time Elapsed: <span id="timer">0</span> seconds</div>
+    <div class="info">Remaining Mines: <span id="mines-remaining">10</span></div>
+    <table id="grid">
+    </table>
+    <button onclick="generateGrid(); playClockAudio();">Start Game</button>
+  </div>
+  <audio id="clock-audio" src="clock.mp3" preload="auto" volume="0.5" loop></audio>
+  <script>
+     var grid = document.getElementById("grid");
+    var startTime = null;
+    var timerInterval = null;
+    var minesRemaining = 10;
+    var gameOver = false;
+    var clockAudioPlaying = false;
+
+    function startTimer() {
+      startTime = new Date();
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+  var currentTime = new Date();
+  var elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
+  document.getElementById("timer").textContent = elapsedSeconds;
+
+  var flaggedCells = document.querySelectorAll(".flagged").length;
+  var remaining = 10 - flaggedCells;
+
+  if (elapsedSeconds >= 60 && remaining > 0) {
+    var clockAudio = document.getElementById("clock-audio");
+    clockAudio.pause();
+    clockAudio.currentTime = 0;
+    clearInterval(timerInterval);
+    revealMines();
+    alert("Game Over - Time's up!");
+    gameOver = true;
+  }
+}
+
+function endGame() {
+  clearInterval(timerInterval);
+  var clockAudio = document.getElementById("clock-audio");
+  clockAudio.pause();
+  clockAudio.currentTime = 0;
+  revealMines();
+  alert("Game Over! You took too long!");
+  gameOver = true;
+}
+
+    function updateMinesRemaining() {
+      var flaggedCells = document.querySelectorAll(".flagged").length;
+      var remaining = 10 - flaggedCells;
+      document.getElementById("mines-remaining").textContent = remaining;
+    }
+
+    function addMines() {
+  var minePositions = [];
+  while (minePositions.length < 10) {
+    var row = Math.floor(Math.random() * 10);
+    var col = Math.floor(Math.random() * 10);
+    var position = row * 10 + col;
+    if (!minePositions.includes(position)) {
+      minePositions.push(position);
+      var cell = grid.rows[row].cells[col];
+      cell.setAttribute("data-mine", "true");
+    }
+  }
+}
+
+    function revealMines() {
+  for (var i = 0; i < 10; i++) {
+    for (var j = 0; j < 10; j++) {
+      var cell = grid.rows[i].cells[j];
+      if (cell.getAttribute("data-mine") == "true") {
+        cell.classList.add("mine");
+        cell.innerHTML = "💣";
+      }
+    }
+  }
+}
+
+var grid = document.getElementById("grid");
+    var startTime = null;
+    var timerInterval = null;
+    var minesRemaining = 10;
+    var gameOver = false;
+    var clockAudio = document.getElementById("clock-audio");
+    clockAudio.volume = 0.5;
+
+    function playClockAudio() {
+  var clockAudio = document.getElementById("clock-audio");
+  clockAudio.currentTime = 0;
+  clockAudio.play();
+  clockAudioPlaying = true;
+}
+
+function stopClockAudio() {
+  if (clockAudioPlaying) {
+    var clockAudio = document.getElementById("clock-audio");
+    clockAudio.pause();
+    clockAudioPlaying = false;
+  }
+}
+
+function checkLevelCompletion() {
+  var allTilesRevealed = true;
+  var allBombsFlagged = true;
+
+  for (var i = 0; i < 10; i++) {
+    for (var j = 0; j < 10; j++) {
+      var cell = grid.rows[i].cells[j];
+      var isMine = cell.getAttribute("data-mine") === "true";
+      var isFlagged = cell.classList.contains("flagged");
+      var isRevealed = cell.classList.contains("revealed");
+
+      if (!isRevealed && !isFlagged && !isMine) {
+        allTilesRevealed = false;
+      }
+
+      if (!isRevealed && !isFlagged && isMine) {
+        allBombsFlagged = false;
+      }
+    }
+  }
+
+  if (allTilesRevealed) {
+    clearInterval(timerInterval);
+    alert("Congratulations! You cleared all tiles! You Win!");
+    revealMines();
+    stopClockAudio(); // Stop the clock audio when you win
+  }
+
+  if (allBombsFlagged) {
+    clearInterval(timerInterval);
+    alert("Congratulations! You flagged all bombs! You Win!");
+    stopClockAudio(); // Stop the clock audio when you win
+  }
+}
+
+function generateGrid() {
+  grid.innerHTML = "";
+  startTime = null;
+  if (!clockAudioPlaying) {
+    playClockAudio();
+  }
+  clearInterval(timerInterval);
+  minesRemaining = 10;
+  document.getElementById("timer").textContent = 0;
+  document.getElementById("mines-remaining").textContent = minesRemaining;
+
+  for (var i = 0; i < 10; i++) {
+    var row = grid.insertRow(i);
+    for (var j = 0; j < 10; j++) {
+      var cell = row.insertCell(j);
+      cell.setAttribute("data-state", "hidden");
+      cell.addEventListener("mousedown", function (event) {
+        if (!startTime) {
+          startTimer();
+        }
+
+        if (event.button === 0) {
+          clickCell(this, event);
+        } else if (event.button === 2) {
+          toggleFlag(this);
+        }
+
+        event.preventDefault();
+      });
+
+      var mine = document.createAttribute("data-mine");
+      mine.value = "false";
+      cell.setAttributeNode(mine);
+    }
+  }
+  addMines();
+}
+
+function toggleFlag(cell) {
+  if (!cell.classList.contains("revealed")) {
+    if (cell.getAttribute("data-state") === "hidden" && minesRemaining > 0) {
+      cell.setAttribute("data-state", "flagged");
+      cell.innerHTML = "🚩";
+
+      if (cell.getAttribute("data-mine") === "true") {
+        minesRemaining--;
+        document.getElementById("mines-remaining").textContent = minesRemaining;
+      }
+    } else if (cell.getAttribute("data-state") === "flagged") {
+      cell.setAttribute("data-state", "hidden");
+      cell.innerHTML = "";
+
+      if (cell.getAttribute("data-mine") === "true") {
+        minesRemaining++;
+        document.getElementById("mines-remaining").textContent = minesRemaining;
+      }
+    }
+    checkLevelCompletion();
+  }
+}
+
+function clickCell(cell, event) {
+  if (!cell.classList.contains("revealed")) {
+    if (cell.getAttribute("data-mine") == "true") {
+      var clockAudio = document.getElementById("clock-audio");
+      clockAudio.pause();
+      revealMines();
+      alert("Game Over");
+      clearInterval(timerInterval);
+      gameOver = true;
+    } else {
+      cell.classList.add("revealed");
+      var mineCount = 0;
+      var cellRow = cell.parentNode.rowIndex;
+      var cellCol = cell.cellIndex;
+
+      for (var i = Math.max(cellRow - 1, 0); i <= Math.min(cellRow + 1, 9); i++) {
+        for (var j = Math.max(cellCol - 1, 0); j <= Math.min(cellCol + 1, 9); j++) {
+          if (grid.rows[i].cells[j].getAttribute("data-mine") == "true") {
+            mineCount++;
+          }
+        }
+      }
+
+      cell.innerHTML = mineCount;
+
+      if (mineCount == 0) {
+        for (var i = Math.max(cellRow - 1, 0); i <= Math.min(cellRow + 1, 9); i++) {
+          for (var j = Math.max(cellCol - 1, 0); j <= Math.min(cellCol + 1, 9); j++) {
+            var adjacentCell = grid.rows[i].cells[j];
+            if (!adjacentCell.classList.contains("revealed") && !adjacentCell.classList.contains("flagged")) {
+              clickCell(adjacentCell, event);
+            }
+          }
+        }
+      }
+      checkLevelCompletion();
+    }
+  }
+}
+    generateGrid();
+  </script>
+</body>
+</html>
