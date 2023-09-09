@@ -1,3 +1,5 @@
+## Updated 9/9/23: Put in the html for the game the ability to switch backgrounds randomly through refresh between the stone and grass without messing up the start game animation finally!
+
 # Creep Annihilator
 
 - Creep Annihilator is an exciting browser-based game where you control a robotic arm on a mission to eliminate creeps, drawing inspiration from Minecraft. Created by Jason Leisure, this game offers thrilling arrow-shooting action, challenging levels, and a unique gameplay experience.
