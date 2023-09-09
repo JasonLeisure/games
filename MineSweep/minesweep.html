@@ -314,13 +314,13 @@ function checkLevelCompletion() {
     clearInterval(timerInterval);
     alert("Congratulations! You cleared all tiles! You Win!");
     revealMines();
-    stopClockAudio(); // Stop the clock audio when you win
+    stopClockAudio();
   }
 
   if (allBombsFlagged) {
     clearInterval(timerInterval);
     alert("Congratulations! You flagged all bombs! You Win!");
-    stopClockAudio(); // Stop the clock audio when you win
+    stopClockAudio(); 
   }
 }
 
