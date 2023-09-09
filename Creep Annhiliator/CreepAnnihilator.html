@@ -13,7 +13,6 @@
     background-color: #f0f0f0;
   }
 
-
   canvas {
     border: 2px solid #000;
     background-image: url('stone.jpg');
@@ -100,20 +99,34 @@ h1.title::before {
 </head>
 <body>
   <canvas id="gameCanvas" width="800" height="600"></canvas>
-<div id="gameOverScreen" style="display: none; position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); z-index: 2;">
-  <h1 class="title" data-title="Creep Annihilator">Creep Annihilator</h1>
-  <button id="startButton" style="background-color: green; color: white; padding: 10px 20px; font-size: 24px;">Start</button>
-</div>
-<script>
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-const startButton = document.getElementById("startButton");
-startButton.addEventListener("click", () => {
-  resetGame();
-  startNextLevel();
-  draw();
-  document.getElementById("gameOverScreen").style.display = "none";
-});
+  <div id="gameOverScreen" style="display: none; position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); z-index: 2;">
+    <h1 class="title" data-title="Creep Annihilator">Creep Annihilator</h1>
+    <button id="startButton" style="background-color: green; color: white; padding: 10px 20px; font-size: 24px;">Start</button>
+  </div>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const startButton = document.getElementById("startButton");
+
+
+    function setBackgroundImage() {
+      const backgroundImages = ["stone.jpg", "grass.jpg"];
+      const randomBackground = backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
+      const backgroundImage = new Image();
+      backgroundImage.src = randomBackground;
+      backgroundImage.onload = () => {
+        canvas.style.backgroundImage = `url('${randomBackground}')`;
+      };
+    }
+
+    setBackgroundImage();
+
+    startButton.addEventListener("click", () => {
+      resetGame();
+      startNextLevel();
+      draw();
+      document.getElementById("gameOverScreen").style.display = "none";
+    });
 
 class Player {
   constructor(x, y, width, height) {
