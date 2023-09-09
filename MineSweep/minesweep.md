@@ -33,5 +33,5 @@
 ## Created by:
 
 - Jason Leisure
-- Languages Used: HTML, CSS, JavaScript, Canvas
+- Languages and Tools Used: HTML, CSS, JavaScript, Canvas
 - Background Music: "clock.mp3" by StudioKolomna on Pixabay used freely
