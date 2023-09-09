@@ -1,4 +1,4 @@
-### Updates to files 9/9/2023. Added in MineSweep game to the games folder along with the markdown and mp3. I had finished this game but never figured out the flagging until last night so I decided to upload it as the final game during this project. I am still trying to fix the animated maze game red wall issue so it transfers the player to the next level it is the only project not fully working yet.
+### Updates to files 9/9/2023. Added in MineSweep game to the games folder along with the markdown and mp3. I had finished this game but never figured out the flagging until last night, so I decided to upload it as the final game for this project. I am still trying to fix the animated maze game red wall issue so it transfers the player to the next level it is the only project not fully working yet.
 
 ### Updates to files 9/8/2023. Updated Physics Animation, Colorsplosion game and water animations 4-7 with the colors from my colorsplosion game (Added a lot more vibrant colors to Colorsplosion bricks and particles also).
 
