@@ -28,11 +28,7 @@
 - Progressive difficulty with increasing numbers of creeps and faster movement.
 - Life indicators for tracking your remaining lives that are 3D and animated with beating realisticness.
 - Engaging gameplay that hones your aiming and timing skills.
-- In the css in the canvas {
-    border: 2px solid #000;
-    background-image: url('stone.jpg');<---- change to grass.jpg if you want grass or stone.jpg for stone for the background.
-    background-size: cover;
-  }
+- Randomly choose between stone or grass background through refreshing the page.
   
 ## Gameplay:
 
