@@ -1,4 +1,4 @@
-### Updates to files 9/11/2023. Addin in Games Tetriz. A tetris inspired clone that had been 90% finished but I couldn't figure out the flipping shapes and dropping. I figured those out last night. I present the final game in the project. Still working on the 3d animated maze game.
+### Updates to files 9/11/2023. Addin in Games Tetriz. A tetris inspired clone that had been 90% finished but I couldn't figure out the flipping shapes and dropping. I figured those out last night. I present the final game in the project. Still working on the 3d animated maze game issues with the red wall and telporting to the 2nd level, may have to carry that project forward to unreal and blender possibly.
 
 ### Updates to files 9/10/2023. Added in to Animations vanilla code a audio animation player that takes any mp3 and converts the sound, music and voice to realistic synth waves each in a retro design. Working on a bigger project but threw this together in 30 minutes and it soothes me. Might do the same for someone else.
 
