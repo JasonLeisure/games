@@ -1,3 +1,5 @@
+### Updates to files 9/11/2023. Addin in Games Tetriz. A tetris inspired clone that had been 90% finished but I couldn't figure out the flipping shapes and dropping. I figured those out last night. I present the final game in the project. Still working on the 3d animated maze game.
+
 ### Updates to files 9/10/2023. Added in to Animations vanilla code a audio animation player that takes any mp3 and converts the sound, music and voice to realistic synth waves each in a retro design. Working on a bigger project but threw this together in 30 minutes and it soothes me. Might do the same for someone else.
 
 ### Updates to files 9/9/2023. Added in MineSweep game to the games folder along with the markdown and mp3. I had finished this game but never figured out the flagging until last night, so I decided to upload it as the final game for this project. I am still trying to fix the animated maze game red wall issue so it transfers the player to the next level it is the only project not fully working yet. For Creep Annihilator I added in the option to refresh the page to choose between the stone and grass backgrounds without the needing of changing the code. Enjoy!
