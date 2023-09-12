@@ -31,6 +31,7 @@
 - Interactive canvas-drawn door: A distinctive door to reach for each level's exit.
 - 3D canvas-drawn walls: Walls with shading and texture for a realistic look.
 - Visual feedback on level completion and game over scenarios.
+- Music for transversing the random mazes.
 
 ## Carpets in the Maze
 
