@@ -29,6 +29,7 @@
 - Life indicators for tracking your remaining lives that are 3D and animated with beating realisticness.
 - Engaging gameplay that hones your aiming and timing skills.
 - Randomly choose between stone or grass background through refreshing the page.
+- Music for taking on the aramade of creeper roombas!
   
 ## Gameplay:
 
