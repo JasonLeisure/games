@@ -44,4 +44,5 @@
 - **Game Creator**: Jason Leisure
 - **Game Engine**: HTML5 Canvas and JavaScript
 - **Design and Art**: Custom design and art elements by Jason Leisure
+- **Music** by Spencer Y.K. from Pixabay
 - **Font**: Arial, sans-serif
