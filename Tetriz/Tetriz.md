@@ -22,6 +22,10 @@
 
 9. Faster level response: Each level the tetromonios come down 5% faster to give you a bit more of a challenge.
 
+10. Ghost piece showing where you drop.
+
+11. Particle effect for line clear.
+
 ## Instructions
 
 - Press the "Start Game" button to begin the game. The game will start automatically.
