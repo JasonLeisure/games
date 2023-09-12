@@ -110,11 +110,11 @@
     <button id="startButton">Start</button>
   </div>
   <canvas id="gameCanvas" width="600" height="400"></canvas>
-  <div class="lavaLampContainer">
-    <div class="lavaLamp">
-      <div class="lavaInside"></div>
+  <audio id="audioPlayer" src="mazesprinter.mp3" preload="auto" loop="true"></audio>
   <div id="timer"></div>
   <script>
+    const audioPlayer = document.getElementById("audioPlayer");
+    audioPlayer.volume = 0.5; // Set the initial volume to 50%.
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const fiberSize = 5;
@@ -416,6 +416,8 @@ function drawCarpet(col, row) {
   drawMaze();
   document.addEventListener("keydown", handleKeyDown);
   startTimer();
+
+  audioPlayer.play();
 }
 
     function handleKeyDown(event) {
@@ -465,7 +467,7 @@ function drawCarpet(col, row) {
     }
 
 
-function resetGame() {
+    function resetGame() {
   clearInterval(timerInterval);
   timeLeft = 30;
   document.removeEventListener("keydown", handleKeyDown);
@@ -474,8 +476,10 @@ function resetGame() {
   playerX = 0;
   playerY = 0;
   gameStarted = false;
-}
 
+  audioPlayer.pause();
+  audioPlayer.currentTime = 0;
+}
 document.getElementById("startButton").addEventListener("click", () => {
   if (!gameStarted) {
     resetGame();
