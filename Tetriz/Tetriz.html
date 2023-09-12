@@ -257,6 +257,9 @@ function placeTetromino() {
       clearedLines++;
       playfield.splice(row, 1);
       playfield.unshift(Array(10).fill(0));
+
+      const lineParticles = createLineClearParticles(row);
+      particles.push(...lineParticles);
     } else {
       row--;
     }
@@ -266,6 +269,65 @@ function placeTetromino() {
   tetromino = getNextTetromino();
 }
 
+
+function createLineClearParticles(clearedRow) {
+  const particleCount = 50;
+  const particleSize = 5;
+  const particles = [];
+
+  for (let i = 0; i < particleCount; i++) {
+    const x = Math.random() * canvas.width;
+    const y = clearedRow * grid + Math.random() * grid;
+    const dx = Math.random() * 2 - 1;
+    const dy = Math.random() * -2 - 1;
+    const color = colors[tetromino.name];
+
+    particles.push({ x, y, dx, dy, size: particleSize, color });
+  }
+
+  return particles;
+}
+
+function drawParticles(particles) {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const particle = particles[i];
+    context.fillStyle = particle.color;
+    context.fillRect(particle.x, particle.y, particle.size, particle.size);
+
+    particle.x += particle.dx;
+    particle.y += particle.dy;
+
+    if (particle.x < 0 || particle.x > canvas.width || particle.y > canvas.height) {
+      particles.splice(i, 1);
+    }
+  }
+}
+    function renderParticles() {
+  for (let i = 0; i < particles.length; i++) {
+    const particle = particles[i];
+    context.fillStyle = particle.color;
+    context.fillRect(particle.x, particle.y, particle.size, particle.size);
+  }
+}
+function drawGhostPiece() {
+  const ghostTetromino = { ...tetromino };
+  while (isValidMove(ghostTetromino.matrix, ghostTetromino.row + 1, ghostTetromino.col)) {
+    ghostTetromino.row++;
+  }
+
+  for (let row = 0; row < ghostTetromino.matrix.length; row++) {
+    for (let col = 0; col < ghostTetromino.matrix[row].length; col++) {
+      if (ghostTetromino.matrix[row][col]) {
+        const x = (ghostTetromino.col + col) * grid;
+        const y = (ghostTetromino.row + row) * grid;
+
+        context.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        context.lineWidth = 2;
+        context.strokeRect(x + 1, y + 1, grid - 3, grid - 3);
+      }
+    }
+  }
+}
 function showGameOver() {
   cancelAnimationFrame(rAF);
   gameOver = true;
@@ -350,12 +412,22 @@ const colors = {
   'J': 'blue',
   'L': 'orange'
 };
+
 let score = 0;
 let count = 0;
 let tetromino = getNextTetromino();
 let rAF = null;
 let gameStarted = false;
 let gameOver = false;
+const particles = [
+  { x: 50, y: 50, size: 5, dx: 2, dy: 1, color: 'red' },
+  { x: 100, y: 100, size: 6, dx: -1, dy: 2, color: 'orange' },
+  { x: 150, y: 150, size: 7, dx: 1, dy: -2, color: 'yellow' },
+  { x: 200, y: 200, size: 8, dx: -2, dy: 1, color: 'green' },
+  { x: 250, y: 250, size: 9, dx: 1, dy: -2, color: 'blue' },
+  { x: 300, y: 300, size: 10, dx: -2, dy: 1, color: 'indigo' },
+  { x: 350, y: 350, size: 11, dx: 2, dy: -1, color: 'violet' },
+];
 
 function updateScore(clearedLines) {
   if (clearedLines === 1) {
@@ -408,7 +480,7 @@ function startGame() {
   }
 }
 
-    function loop() {
+function loop() {
   if (!gameStarted) {
     return;
   }
@@ -432,7 +504,6 @@ function startGame() {
       if (playfield[row][col]) {
         const name = playfield[row][col];
         context.fillStyle = colors[name];
-
         context.fillRect(col * grid, row * grid, grid - 1, grid - 1);
       }
     }
@@ -455,6 +526,17 @@ function startGame() {
       }
     }
   }
+
+  drawGhostPiece();
+
+  for (let row = 0; row < playfield.length; row++) {
+    if (playfield[row].every(cell => !!cell)) {
+      const lineClearParticles = createLineClearParticles(row);
+      particles.push(...lineClearParticles);
+    }
+  }
+
+  drawParticles(particles);
 }
 
 document.addEventListener('keydown', function(e) {
@@ -495,3 +577,4 @@ rAF = requestAnimationFrame(loop);
 </script>
 </body>
 </html>
+
