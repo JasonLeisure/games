@@ -22,9 +22,9 @@
 
 9. Faster level response: Each level the tetromonios come down 5% faster to give you a bit more of a challenge.
 
-10. Ghost piece showing where you drop.
+10. Guiding Ghost Piece: Your constant companion, the ghost piece, is a guiding light in your Tetris voyage. It materializes to gently show you where your tetromino will touch down, an invaluable aide in your quest for Tetris perfection.
 
-11. Particle effect for line clear.
+11. Colorful Line Clear Particles: Whether it's a single line or multiple lines cleared with finesse, the screen erupts with a burst of colorful square particles. This dynamic display celebrates your Tetris triumph with a vibrant symphony of light.
 
 ## Instructions
 
