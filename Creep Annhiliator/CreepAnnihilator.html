@@ -10,7 +10,7 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #f0f0f0;
+    background-color: #070707;
   }
 
   canvas {
@@ -41,6 +41,7 @@
     transform: scale(0.95);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
+
   h1.title {
     text-align: center;
     margin-bottom: 20px;
@@ -51,18 +52,20 @@
     color: #2ecc71;
     position: relative;
     animation: pulse 2s infinite alternate;
-}
-
-@keyframes pulse {
-  from {
-    transform: scale(1);
   }
-  to {
-    transform: scale(1.1);
-  }
-}
 
-h1.title::before {
+  @keyframes pulse {
+    from {
+      transform: scale(1);
+      text-shadow: 2px 2px 4px black;
+    }
+    to {
+      transform: scale(1.1);
+      text-shadow: 4px 4px 6px black;
+    }
+  }
+
+  h1.title::before {
     content: attr(data-title);
     position: absolute;
     top: -2px;
@@ -72,27 +75,16 @@ h1.title::before {
     font-family: 'Impact', sans-serif;
     letter-spacing: 3px;
     color: #27ae60;
-}
+  }
 
-@media (max-width: 768px) {
+  @media (max-width: 768px) {
     h1.title {
-        font-size: 36px;
+      font-size: 36px;
     }
     h1.title::before {
-        font-size: 36px;
+      font-size: 36px;
     }
-}
-.title {
-  text-align: center;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-  font-size: 48px;
-  font-family: 'Impact', sans-serif;
-  letter-spacing: 3px;
-  color: #2ecc71;
-  position: relative;
-  animation: pulse 2s infinite alternate;
-}
+  }
 
 </style>
 <title>Creep Annihilator</title>
@@ -110,6 +102,7 @@ h1.title::before {
     const startButton = document.getElementById("startButton");
     const creepAudio = document.getElementById("creepAudio");
 
+    
     function playCreepAudio() {
     creepAudio.volume = 0.5;
     creepAudio.play();
