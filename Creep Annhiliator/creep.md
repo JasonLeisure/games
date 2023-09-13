@@ -1,3 +1,5 @@
+## Updated 9/12/2023: Added in black background, changed the style and css of the game over screen and added in music. 
+
 ## Updated 9/9/23: Put in the html for the game the ability to switch backgrounds randomly through refresh between the stone and grass without messing up the start game animation finally!
 
 # Creep Annihilator
