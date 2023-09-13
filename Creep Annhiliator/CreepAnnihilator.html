@@ -95,14 +95,14 @@
     <h1 class="title" data-title="Creep Annihilator">Creep Annihilator</h1>
     <button id="startButton" style="background-color: green; color: white; padding: 10px 20px; font-size: 24px;">Start</button>
     <audio id="creepAudio" src="creep.mp3" preload="auto"></audio>
-  </div>
+</div>
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const startButton = document.getElementById("startButton");
     const creepAudio = document.getElementById("creepAudio");
 
-    
+
     function playCreepAudio() {
     creepAudio.volume = 0.5;
     creepAudio.play();
@@ -480,12 +480,27 @@ function checkCollisions() {
     document.getElementById("gameOverScreen").style.display = "block";
     return;
   } else if (lives <= 0) {
-    ctx.fillStyle = "#000";
-    ctx.font = "48px Arial";
-    ctx.fillText("Game Over", canvas.width / 2 - 120, canvas.height / 2);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#2ecc71";
+    ctx.font = "48px 'Impact', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const text = "Game Over";
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 5;
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    for (let i = -ctx.lineWidth; i <= ctx.lineWidth; i++) {
+      for (let j = -ctx.lineWidth; j <= ctx.lineWidth; j++) {
+        ctx.strokeText(text, centerX + i, centerY + j);
+      }
+    }
+
+    ctx.fillText(text, centerX, centerY);
     document.getElementById("gameOverScreen").style.display = "block";
     return;
-  }
+}
 
   requestAnimationFrame(draw);
 }
@@ -534,6 +549,7 @@ function resetGame() {
   canShoot = true;
   isShooting = false;
 }
+
 function startNextLevel() {
   level++;
 
@@ -545,13 +561,6 @@ function startNextLevel() {
     return;
   }
 
-  if (lives <= 0) {
-    ctx.fillStyle = "#000";
-    ctx.font = "48px Arial";
-    ctx.fillText("Game Over", canvas.width / 2 - 120, canvas.height / 2);
-    document.getElementById("gameOverScreen").style.display = "block";
-    return;
-  }
 
   creepers.length = 0;
   for (let i = 0; i < level * 2; i++) {
