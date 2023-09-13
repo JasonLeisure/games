@@ -12,7 +12,7 @@
       justify-content: center;
       height: 100vh;
       margin: 0;
-      background-color: #f5f5f5;
+      background-color: black;
       font-family: Arial, sans-serif;
     }
 
@@ -110,11 +110,11 @@
     <button id="startButton">Start</button>
   </div>
   <canvas id="gameCanvas" width="600" height="400"></canvas>
-  <audio id="audioPlayer" src="mazesprinter.mp3" preload="auto" loop="true"></audio>
+  <audio id="audioPlayer" src="mazesprinter.mp3" preload="auto" loop="true" volume="0.4"></audio>
   <div id="timer"></div>
   <script>
     const audioPlayer = document.getElementById("audioPlayer");
-    audioPlayer.volume = 0.5; // Set the initial volume to 50%.
+    audioPlayer.volume = 0.4; // Set the initial volume to 50%.
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const fiberSize = 5;
@@ -392,24 +392,25 @@ function drawCarpet(col, row) {
 
 
     function startTimer() {
+  clearInterval(timerInterval);
+  timeLeft = 30;
+
+  const timerElement = document.getElementById("timer");
+  timerElement.textContent = `Time Left: ${timeLeft} seconds`;
+  timerElement.style.color = "white"; // Change text color to white
+
+  timerInterval = setInterval(() => {
+    timerElement.textContent = `Time Left: ${timeLeft} seconds`;
+
+    if (timeLeft === 0) {
       clearInterval(timerInterval);
-      timeLeft = 30;
-
-      const timerElement = document.getElementById("timer");
-      timerElement.textContent = `Time Left: ${timeLeft} seconds`;
-
-      timerInterval = setInterval(() => {
-        timerElement.textContent = `Time Left: ${timeLeft} seconds`;
-
-        if (timeLeft === 0) {
-          clearInterval(timerInterval);
-          alert("Time's up! Game over.");
-          resetGame();
-        } else {
-          timeLeft--;
-        }
-      }, 1000);
+      alert("Time's up! Game over.");
+      resetGame();
+    } else {
+      timeLeft--;
     }
+  }, 1000);
+}
 
     function startGame() {
   generateRandomMaze();
@@ -490,3 +491,4 @@ document.getElementById("startButton").addEventListener("click", () => {
   </script>
 </body>
 </html>
+
