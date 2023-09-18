@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Comments</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #222;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .forum-container {
+      max-width: 800px;
+      margin: 20px auto;
+      background-color: #333;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .forum-header {
+      padding: 20px;
+      background-color: #111;
+      color: #fff;
+      font-size: 24px;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    .post-container {
+      padding: 20px;
+    }
+
+    .post {
+      margin-bottom: 20px;
+      padding: 20px;
+      background-color: #444;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .post .author {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .post .content {
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .post .timestamp {
+      font-size: 12px;
+      color: #888;
+    }
+
+    .post .options {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    .post .option {
+      margin-left: 10px;
+      padding: 5px 10px;
+      background-color: #111;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .post .like-button {
+      background-color: #007bff;
+    }
+
+    .post .edit-button {
+      background-color: #ffc107;
+    }
+
+    .post .delete-button {
+      background-color: #dc3545;
+    }
+
+    .reply-form {
+      padding: 20px;
+      background-color: #555;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .reply-form textarea {
+     width: 100%;
+     max-width: 100%;
+     padding: 10px;
+     resize: vertical;
+     box-sizing: border-box;
+     border: 1px solid #ccc;
+     border-radius: 4px;
+     margin-bottom: 10px;
+     background-color: #fff;
+     color: #333;
+    }
+
+    .reply-form button {
+      padding: 8px 16px;
+      background-color: #111;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .login-form {
+      padding: 20px;
+      background-color: #555;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-form input[type="text"],
+    .login-form input[type="password"],
+    .login-form button {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    }
+
+    .login-form button {
+      width: 100%;
+      padding: 10px;
+      background-color: #111;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .user-info {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .logout-button {
+      padding: 8px 16px;
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+</style>
+</head>
+<body>
+  <div class="forum-container">
+    <h1 class="forum-header">Comments</h1>
+
+    <div class="post-container">
+      <div id="posts-container"></div>
+
+      <div class="reply-form">
+        <textarea id="reply-textarea" placeholder="Write your reply"></textarea>
+        <button id="submit-reply">Submit</button>
+      </div>
+
+      <div id="login-container">
+        <h3>Login</h3>
+        <form class="login-form">
+          <input type="text" id="username-input" placeholder="Username">
+          <input type="password" id="password-input" placeholder="Password">
+          <button id="login-button">Login</button>
+        </form>
+      </div>
+
+      <div id="registration-container">
+        <h3>Register</h3>
+        <form class="registration-form">
+          <input type="text" id="new-username-input" placeholder="New Username">
+          <input type="password" id="new-password-input" placeholder="New Password">
+          <button id="register-button">Register</button>
+        </form>
+      </div>
+
+      <div id="user-info-container"></div>
+    </div>
+  </div>
+
+  <script>
+    let posts = [];
+    let users = [{ username: "admin", password: "adminpassword", isAdmin: true }];
+    let loggedInUser = null;
+    let isAdmin = false;
+
+    function renderPosts() {
+      const postsContainer = document.getElementById("posts-container");
+      postsContainer.innerHTML = "";
+
+      posts.forEach((post, index) => {
+        const postElement = document.createElement("div");
+        postElement.className = "post";
+
+        const authorElement = document.createElement("div");
+        authorElement.className = "author";
+        authorElement.textContent = post.author;
+
+        const contentElement = document.createElement("div");
+        contentElement.className = "content";
+        contentElement.textContent = post.content;
+
+        const timestampElement = document.createElement("div");
+        timestampElement.className = "timestamp";
+        timestampElement.textContent = post.timestamp;
+
+        const optionsElement = document.createElement("div");
+        optionsElement.className = "options";
+
+        const likeButton = document.createElement("button");
+        likeButton.className = "option like-button";
+        likeButton.textContent = `Like (${post.likes})`;
+        likeButton.addEventListener("click", () => handleLikePost(index));
+        likeButton.disabled = !loggedInUser;
+
+      if (!loggedInUser) {
+        likeButton.disabled = true;
+      } else {
+        likeButton.disabled = false;
+      }
+        optionsElement.appendChild(likeButton);
+
+         if (loggedInUser && (loggedInUser.username === post.author || isAdmin || loggedInUser.isAdmin)) {
+          const editButton = document.createElement("button");
+          editButton.className = "option edit-button";
+          editButton.textContent = "Edit";
+          editButton.addEventListener("click", () => handleEditPost(index));
+          optionsElement.appendChild(editButton);
+
+          const deleteButton = document.createElement("button");
+          deleteButton.className = "option delete-button";
+          deleteButton.textContent = "Delete";
+          deleteButton.addEventListener("click", () => handleDeletePost(index));
+          optionsElement.appendChild(deleteButton);
+        }
+
+        postElement.appendChild(authorElement);
+        postElement.appendChild(contentElement);
+        postElement.appendChild(timestampElement);
+        postElement.appendChild(optionsElement);
+
+        postsContainer.appendChild(postElement);
+      });
+    }
+
+    function handleFormSubmit(event) {
+      event.preventDefault();
+
+      if (!loggedInUser) {
+        alert("You must be logged in to post a reply.");
+        return;
+      }
+
+      const replyTextarea = document.getElementById("reply-textarea");
+      const replyContent = replyTextarea.value.trim();
+
+      if (replyContent !== "") {
+        const newPost = {
+          id: Date.now(),
+          author: loggedInUser.username,
+          content: replyContent,
+          timestamp: new Date().toLocaleString(),
+          likes: 0,
+        };
+
+        posts.push(newPost);
+        renderPosts();
+        replyTextarea.value = "";
+      }
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+
+      const usernameInput = document.getElementById("username-input");
+      const passwordInput = document.getElementById("password-input");
+
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (username === "" || password === "") {
+        alert("Please enter both username and password.");
+        return;
+      }
+
+      const user = users.find(user => user.username === username && user.password === password);
+
+      if (user) {
+        loggedInUser = { username };
+        isAdmin = user.isAdmin || false;
+        usernameInput.value = "";
+        passwordInput.value = "";
+        showLoggedInUser();
+      } else {
+        alert("Invalid username or password.");
+      }
+    }
+
+    function handleRegistration(event) {
+      event.preventDefault();
+
+      const newUsernameInput = document.getElementById("new-username-input");
+      const newPasswordInput = document.getElementById("new-password-input");
+
+      const newUsername = newUsernameInput.value.trim();
+      const newPassword = newPasswordInput.value.trim();
+
+      if (newUsername === "" || newPassword === "") {
+        alert("Please enter both a username and password for registration.");
+        return;
+      }
+
+      const usernameTaken = users.some(user => user.username === newUsername);
+
+      if (usernameTaken) {
+        alert("The username is already taken. Please choose a different one.");
+        return;
+      }
+
+      const newUser = { username: newUsername, password: newPassword, isAdmin: false };
+      users.push(newUser);
+
+      newUsernameInput.value = "";
+      newPasswordInput.value = "";
+
+      loggedInUser = { username: newUsername };
+      showLoggedInUser();
+    }
+
+    function handleEditPost(index) {
+      if (!loggedInUser) {
+        alert("You must be logged in to perform this action.");
+        return;
+      }
+
+      const updatedContent = prompt("Enter updated content:");
+
+      if (updatedContent !== null) {
+        posts[index].content = updatedContent.trim();
+        renderPosts();
+      }
+    }
+
+    function handleDeletePost(index) {
+      if (!loggedInUser) {
+        alert("You must be logged in to perform this action.");
+        return;
+      }
+
+
+      if (isAdmin) {
+        const confirmed = confirm("Are you sure you want to delete this post?");
+
+        if (confirmed) {
+          posts.splice(index, 1);
+          renderPosts();
+        }
+      } else if (loggedInUser.username === posts[index].author) {
+        const confirmed = confirm("Are you sure you want to delete this post?");
+
+        if (confirmed) {
+          posts.splice(index, 1);
+          renderPosts();
+        }
+      } else {
+        alert("You do not have permission to delete this post.");
+      }
+    }
+
+    function handleLikePost(index) {
+      posts[index].likes++;
+      renderPosts();
+    }
+
+    function showLoggedInUser() {
+      const loginContainer = document.getElementById("login-container");
+      loginContainer.style.display = "none";
+
+      const registrationContainer = document.getElementById("registration-container");
+      registrationContainer.style.display = "none";
+
+      const userInfoContainer = document.getElementById("user-info-container");
+      userInfoContainer.innerHTML = `
+        <div class="user-info">Logged in as: ${loggedInUser.username}</div>
+        <button class="logout-button" id="logout-button">Logout</button>
+      `;
+
+      const logoutButton = document.getElementById("logout-button");
+      logoutButton.addEventListener("click", handleLogout);
+    }
+
+    function handleLogout() {
+      loggedInUser = null;
+      isAdmin = false;
+      const userInfoContainer = document.getElementById("user-info-container");
+      userInfoContainer.innerHTML = "";
+
+      const loginContainer = document.getElementById("login-container");
+      loginContainer.style.display = "block";
+
+      const registrationContainer = document.getElementById("registration-container");
+      registrationContainer.style.display = "block";
+    }
+
+    const submitButton = document.getElementById("submit-reply");
+    submitButton.addEventListener("click", handleFormSubmit);
+
+    const loginButton = document.getElementById("login-button");
+    loginButton.addEventListener("click", handleLogin);
+
+    const registerButton = document.getElementById("register-button");
+    registerButton.addEventListener("click", handleRegistration);
+
+    const savedPosts = localStorage.getItem("forumPosts");
+    if (savedPosts) {
+      posts = JSON.parse(savedPosts);
+      renderPosts();
+    }
+
+    window.addEventListener("unload", () => {
+      localStorage.setItem("forumPosts", JSON.stringify(posts));
+    });
+  </script>
+</body>
+</html>

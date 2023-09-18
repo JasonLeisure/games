@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat Room</title>
+  <style>
+    #chatbox {
+      width: 400px;
+      height: 300px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      overflow-y: scroll;
+    }
+  </style>
+</head>
+<body>
+  <div id="chatbox"></div>
+  <input type="text" id="message" placeholder="Type your message..." />
+  <button onclick="sendMessage()">Send</button>
+  <input type="text" id="usernameInput" placeholder="Change your username..." />
+  <button onclick="changeUsername()">Change Username</button>
+
+  <script>
+    const chatbox = document.getElementById('chatbox');
+    const messageInput = document.getElementById('message');
+    const usernameInput = document.getElementById('usernameInput');
+    let username = prompt('Enter your username') || 'Guest';
+    let typingTimeout;
+    let usersTyping = [];
+    let messages = [];
+    let scrambledWord = '';
+    const wordList = [
+  'algorithm',
+  'database',
+  'variable',
+  'function',
+  'programming',
+  'debugging',
+  'framework',
+  'repository',
+  'versioning',
+  'javascript',
+  'frontend',
+  'backend',
+  'interface',
+  'middleware',
+  'encryption',
+  'authentication',
+  'authorization',
+  'framework',
+  'responsive',
+  'agile',
+  'repository',
+  'refactoring',
+  'inheritance',
+  'polymorphism',
+  'iteration',
+  'testing',
+  'deployment',
+  'scalability',
+  'abstraction',
+  'exception'
+];
+    function sendMessage() {
+  const message = messageInput.value;
+  if (message) {
+    if (!processCommand(message)) {
+      const timestamp = new Date().toLocaleTimeString();
+      displayMessage(username, message, timestamp);
+      messages.push({ sender: username, message: message, timestamp: timestamp });
+      messageInput.value = '';
+    }
+  }
+}
+
+    function displayMessage(sender, message, timestamp) {
+      const messageElement = document.createElement('div');
+      messageElement.innerHTML = `<strong>${sender}</strong> (${timestamp}): ${message}`;
+      chatbox.appendChild(messageElement);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function changeUsername() {
+      const newUsername = usernameInput.value.trim();
+      if (newUsername !== '') {
+        const oldUsername = username;
+        username = newUsername;
+        displaySystemMessage(`${oldUsername} changed their username to ${newUsername}`);
+        updateChatHistoryUsername(oldUsername, newUsername);
+        usernameInput.value = '';
+      } else {
+        alert('Invalid username. Please enter a non-empty username.');
+      }
+    }
+
+    function displaySystemMessage(message) {
+      const messageElement = document.createElement('div');
+      messageElement.innerHTML = `<em>${message}</em>`;
+      chatbox.appendChild(messageElement);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function updateChatHistoryUsername(oldUsername, newUsername) {
+      const messageElements = chatbox.querySelectorAll('div');
+      messageElements.forEach((element) => {
+        const messageText = element.innerText;
+        if (messageText.includes(oldUsername)) {
+          element.innerHTML = messageText.replace(oldUsername, newUsername);
+        }
+      });
+    }
+
+    function handleTyping() {
+      clearTimeout(typingTimeout);
+      if (!usersTyping.includes(username)) {
+        usersTyping.push(username);
+        updateTypingStatus();
+      }
+      typingTimeout = setTimeout(() => {
+        const index = usersTyping.indexOf(username);
+        if (index > -1) {
+          usersTyping.splice(index, 1);
+          updateTypingStatus();
+        }
+      }, 1000);
+    }
+
+    function updateTypingStatus() {
+      const status = document.getElementById('status');
+      if (usersTyping.length > 0) {
+        const typingUsers = usersTyping.join(', ');
+        status.innerText = `${typingUsers} ${usersTyping.length > 1 ? 'are' : 'is'} typing...`;
+      } else {
+        status.innerText = '';
+      }
+    }
+
+    function handleKeyDown() {
+      clearTimeout(typingTimeout);
+      const status = document.getElementById('status');
+      const index = usersTyping.indexOf(username);
+      if (index > -1) {
+        usersTyping.splice(index, 1);
+        updateTypingStatus();
+      }
+      status.innerText = '';
+    }
+
+    function displayPreviousMessages() {
+      if (messages.length > 0) {
+        displaySystemMessage('--- Chat History ---');
+        messages.forEach(({ sender, message, timestamp }) => {
+          displayMessage(sender, message, timestamp);
+        });
+        displaySystemMessage('-------------------');
+      }
+    }
+
+    function clearChat() {
+      chatbox.innerHTML = '';
+      messages = [];
+    }
+
+    function changeUsername() {
+  const newUsername = prompt('Enter your new username:');
+  if (newUsername !== null && newUsername.trim() !== '') {
+    const oldUsername = username;
+    username = newUsername;
+    updateChatHistoryUsername(oldUsername, newUsername);
+  } else {
+    alert('Invalid username. Please enter a non-empty username.');
+  }
+}
+
+function updateChatHistoryUsername(oldUsername, newUsername) {
+  const messageElements = chatbox.querySelectorAll('div');
+  messageElements.forEach((element) => {
+    const messageText = element.innerText;
+    if (messageText.includes(oldUsername)) {
+      element.innerHTML = messageText.replace(oldUsername, newUsername);
+    }
+  });
+}
+
+function showHelp() {
+  displaySystemMessage('--- Available Commands ---');
+  displaySystemMessage('/clear - Clear the chat');
+  displaySystemMessage('/username - Change your username');
+  displaySystemMessage('/help - Show available commands');
+  displaySystemMessage('/count - Display the number of messages');
+  displaySystemMessage('/active - Display the number of active users');
+  displaySystemMessage('/search <keyword> - Search for messages containing a keyword');
+  displaySystemMessage('/delete <messageIndex> - Delete a message by its index');
+  displaySystemMessage('/edit <messageIndex> <newMessage> - Edit a message by its index');
+  displaySystemMessage('/timestamp - Display the current timestamp');
+  displaySystemMessage('/private <recipient> <message> - Send a private message to a recipient');
+  displaySystemMessage('/code <codeSnippet> - Display a code snippet');
+  displaySystemMessage('/quote <messageIndex> - Quote a message by its index');
+  displaySystemMessage('/mute <username> - Mute notifications from a user');
+  displaySystemMessage('/unmute <username> - Unmute notifications from a user');
+  displaySystemMessage('/ban <username> - Ban a user from the chat');
+  displaySystemMessage('/unban <username> - Unban a user from the chat');
+  displaySystemMessage('/broadcast <message> - Send a broadcast message to all users');
+  displaySystemMessage('/roll - Roll a 20-sided dice once');
+  displaySystemMessage('/magic8ball - Ask the Magic 8-Ball a question');
+  displaySystemMessage('/flip - Flip a coin (Heads or Tails)');
+  displaySystemMessage('/scramble <word> - Scramble a word');
+  displaySystemMessage('------------------------');
+}
+
+    function displayMessageCount() {
+      displaySystemMessage(`Total messages: ${messages.length}`);
+    }
+
+    function displayActiveUsers() {
+      displaySystemMessage(`Active users: ${usersTyping.length}`);
+    }
+
+    function searchMessages(keyword) {
+      const matchedMessages = messages.filter(({ message }) => message.includes(keyword));
+      if (matchedMessages.length > 0) {
+        displaySystemMessage(`--- Messages containing "${keyword}" ---`);
+        matchedMessages.forEach(({ sender, message, timestamp }) => {
+          displayMessage(sender, message, timestamp);
+        });
+        displaySystemMessage('------------------------');
+      } else {
+        displaySystemMessage(`No messages found containing "${keyword}".`);
+      }
+    }
+
+    function deleteMessage(index) {
+      if (index >= 0 && index < messages.length) {
+        const deletedMessage = messages.splice(index, 1)[0];
+        displaySystemMessage(`Message by ${deletedMessage.sender} (${deletedMessage.timestamp}) deleted.`);
+        refreshChatbox();
+      }
+    }
+
+    function editMessage(index, newMessage) {
+      if (index >= 0 && index < messages.length) {
+        const editedMessage = messages[index];
+        editedMessage.message = newMessage;
+        const messageElement = chatbox.childNodes[index];
+        messageElement.innerHTML = `<strong>${editedMessage.sender}</strong> (${editedMessage.timestamp}): ${newMessage}`;
+        displaySystemMessage(`Message by ${editedMessage.sender} (${editedMessage.timestamp}) edited.`);
+      }
+    }
+
+    function refreshChatbox() {
+      chatbox.innerHTML = '';
+      displayPreviousMessages();
+    }
+
+    function displayTimestamp() {
+      const timestamp = new Date().toLocaleTimeString();
+      displaySystemMessage(`Current timestamp: ${timestamp}`);
+    }
+
+    function sendPrivateMessage(recipient, privateMessage) {
+      const timestamp = new Date().toLocaleTimeString();
+      displaySystemMessage(`[Private Message] ${username} to ${recipient} (${timestamp}): ${privateMessage}`);
+    }
+
+
+    function displayCode(codeSnippet) {
+      const codeElement = document.createElement('pre');
+      codeElement.innerText = codeSnippet;
+      chatbox.appendChild(codeElement);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+
+   function rollTwentySidedDice() {
+  return Math.floor(Math.random() * 20) + 1;
+}
+
+function getRandom8BallResponse() {
+  const responses = [
+    "It is certain.",
+    "It is decidedly so.",
+    "Without a doubt.",
+    "Yes - definitely.",
+    "You may rely on it.",
+    "As I see it, yes.",
+    "Most likely.",
+    "Outlook good.",
+    "Yes.",
+    "Signs point to yes.",
+    "Reply hazy, try again.",
+    "Ask again later.",
+    "Better not tell you now.",
+    "Cannot predict now.",
+    "Concentrate and ask again.",
+    "Don't count on it.",
+    "My reply is no.",
+    "My sources say no.",
+    "Outlook not so good.",
+    "Very doubtful."
+  ];
+
+  const randomIndex = Math.floor(Math.random() * responses.length);
+  return responses[randomIndex];
+}
+
+function processMagic8BallCommand() {
+  const response = getRandom8BallResponse();
+  const magic8BallMessage = `Magic 8-Ball says: ${response}`;
+  displaySystemMessage(magic8BallMessage);
+}
+
+
+function processRollCommand() {
+  const rollResult = rollTwentySidedDice();
+  const message = `${username} rolled a 20-sided dice and got: ${rollResult}`;
+  displaySystemMessage(message);
+}
+
+function handleUserInput(input) {
+  const commandInput = document.getElementById('commandInput');
+  if (input.startsWith('/roll')) {
+    processRollCommand();
+    commandInput.value = '';
+  } else if (input.startsWith('/')) {
+    processCommand(commandInput.value);
+    commandInput.value = '';
+  } else {
+    sendMessage();
+  }
+}
+function scrambleWord(word) {
+  const wordArray = word.split('');
+  for (let i = wordArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [wordArray[i], wordArray[j]] = [wordArray[j], wordArray[i]];
+  }
+  return wordArray.join('');
+}
+
+function startWordScramble() {
+  const randomIndex = Math.floor(Math.random() * wordList.length);
+  const wordToScramble = wordList[randomIndex];
+  scrambledWord = scrambleWord(wordToScramble);
+  const scrambleMessage = `Scrambled word: ${scrambledWord}`;
+  displaySystemMessage(scrambleMessage);
+}
+
+function processWordScrambleCommand(commandParts) {
+  if (commandParts.length === 1) {
+    startWordScramble();
+  } else if (commandParts.length === 2) {
+    const guess = commandParts[1].toLowerCase();
+    if (scrambledWord && guess === scrambledWord.toLowerCase()) {
+      const winMessage = `Congratulations, ${username}! You guessed the word correctly: ${scrambledWord}`;
+      displaySystemMessage(winMessage);
+      scrambledWord = '';
+    } else {
+      displaySystemMessage('Incorrect guess. Try again.');
+    }
+  } else {
+    displaySystemMessage('Usage: /scramble or /scramble <guess>');
+  }
+}
+
+    function quoteMessage(messageIndex) {
+  if (!isNaN(messageIndex) && messageIndex >= 1 && messageIndex <= messages.length) {
+    const quotedMessage = messages[messageIndex - 1];
+    const quote = `--- Quoted Message ---\n${quotedMessage.sender} (${quotedMessage.timestamp}): ${quotedMessage.message}\n--- End of Quote ---\n`;
+    messageInput.value += quote;
+  } else {
+    displaySystemMessage(`Invalid message index. Please use /quote <validMessageIndex>.`);
+  }
+}
+function flipCoin() {
+  const result = Math.random() < 0.5 ? 'Heads' : 'Tails';
+  return result;
+}
+
+function processCoinFlipCommand() {
+  const result = flipCoin();
+  const coinFlipMessage = `The coin landed on: ${result}`;
+  displaySystemMessage(coinFlipMessage);
+}
+    function muteUser(username) {
+      const index = usersTyping.indexOf(username);
+      if (index > -1) {
+        usersTyping.splice(index, 1);
+        updateTypingStatus();
+      }
+      displaySystemMessage(`You have muted notifications from ${username}.`);
+    }
+
+    function unmuteUser(username) {
+      if (!usersTyping.includes(username)) {
+        usersTyping.push(username);
+        updateTypingStatus();
+      }
+      displaySystemMessage(`You have unmuted notifications from ${username}.`);
+    }
+
+    function banUser(username) {
+      muteUser(username);
+      displaySystemMessage(`You have banned ${username} from the chat.`);
+    }
+
+    function unbanUser(username) {
+      unmuteUser(username);
+      displaySystemMessage(`You have unbanned ${username} from the chat.`);
+    }
+
+    function broadcastMessage(message) {
+      const timestamp = new Date().toLocaleTimeString();
+      displaySystemMessage(`[Broadcast] ${username} (${timestamp}): ${message}`);
+    }
+
+    messageInput.addEventListener('keypress', function(event) {
+      if (event.keyCode === 13) {
+        const message = messageInput.value;
+        if (!processCommand(message)) {
+          sendMessage();
+        }
+      } else {
+        handleTyping();
+      }
+    });
+
+    messageInput.addEventListener('keydown', function() {
+      handleKeyDown();
+    });
+
+    function processCommand(message) {
+  if (message.startsWith('/')) {
+    const command = message.substring(1).toLowerCase();
+    const commandParts = command.split(' ');
+    switch (commandParts[0]) {
+      case 'clear':
+        clearChat();
+        break;
+      case 'username':
+        changeUsername();
+        break;
+      case 'help':
+        showHelp();
+        break;
+        case 'magic8ball':
+  processMagic8BallCommand();
+  break;
+      case 'count':
+        displayMessageCount();
+        break;
+      case 'active':
+        displayActiveUsers();
+        break;
+      case 'search':
+        searchMessages(commandParts[1]);
+        break;
+      case 'delete':
+        deleteMessage(parseInt(commandParts[1]) - 1);
+        break;
+      case 'edit':
+        const messageIndex = parseInt(commandParts[1]) - 1;
+        const newMessage = commandParts.slice(2).join(' ');
+        editMessage(messageIndex, newMessage);
+        break;
+      case 'timestamp':
+        displayTimestamp();
+        break;
+      case 'private':
+        const recipient = commandParts[1];
+        const privateMessage = commandParts.slice(2).join(' ');
+        sendPrivateMessage(recipient, privateMessage);
+        break;
+      case 'code':
+        const codeSnippet = commandParts.slice(1).join(' ');
+        displayCode(codeSnippet);
+        break;
+      case 'quote':
+        const quotedMessageIndex = parseInt(commandParts[1]) - 1;
+        quoteMessage(quotedMessageIndex);
+        break;
+      case 'mute':
+        const muteUsername = commandParts[1];
+        muteUser(muteUsername);
+        break;
+        case 'flip':
+  processCoinFlipCommand();
+  break;
+  case 'scramble':
+  processWordScrambleCommand(commandParts);
+  break;
+      case 'unmute':
+        const unmuteUsername = commandParts[1];
+        unmuteUser(unmuteUsername);
+        break;
+      case 'ban':
+        const banUsername = commandParts[1];
+        banUser(banUsername);
+        break;
+      case 'unban':
+        const unbanUsername = commandParts[1];
+        unbanUser(unbanUsername);
+        break;
+      case 'broadcast':
+        const broadcastMessageText = commandParts.slice(1).join(' ');
+        broadcastMessage(broadcastMessageText);
+        break;
+      case 'roll':
+        const rollResult = rollTwentySidedDice();
+        const rollMessage = `${username} rolled a 20-sided dice and got: ${rollResult}`;
+        displaySystemMessage(rollMessage);
+        break;
+      default:
+        displaySystemMessage(`Unknown command: ${command}`);
+        return false;
+    }
+    messageInput.value = '';
+    return true;
+  }
+  return false;
+}
+
+    displayPreviousMessages();
+  </script>
+</body>
+</html>
