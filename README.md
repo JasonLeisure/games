@@ -1,3 +1,5 @@
+### Updates to files 9/18/2023. I created a comments app, chat room app and resume builder application and placed them in the Vanilla Code folder under Applications. 
+
 ### Updates to files 9/17/2023. I created a calculator app and added it to Vanilla Code Animations. So now that folder has a synthwave audio app and a calculator app.
 
 ### Updates to files 9/12/2023. Final updates for Games Tetriz. Added into the game particle effects during line clear and ghost piece to show where your piece is going to drop. I felt the game needed a few more features to make it really pop. I also added music to Creep Annihilator game and Maze Sprinter game. I also raised Creep Annihilator levels from only 20 to 50. These will be the final additions to this project of 7 Browser Games and 13 animations unless someone lets me know about bugs or fixes needed.
