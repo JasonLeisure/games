@@ -58,3 +58,6 @@
 1. Division by zero will result in an "Error" message displayed on the screen.
 2. The calculator can handle both integer and decimal inputs.
 3. The calculator can be used for simple mathematical calculations.
+
+## Created by: Jason Leisure
+- Using HTML5, CSS, JavaScript, and Canvas.
