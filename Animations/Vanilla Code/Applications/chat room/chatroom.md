@@ -4,58 +4,58 @@
 
 ## Key Features:
 
-# Messaging
+## Messaging
 - Users can send messages in real-time.
 - Messages include sender usernames, timestamps, and content.
 - Messages are automatically scrolled to ensure the latest messages are visible.
-# Username Management:
+## Username Management:
 - Users can change their displayed usernames.
 - Improved user identification.
-# System Messages:
+## System Messages:
 - Important notifications are displayed in italics as system messages.
-# Typing Indicator:
+## Typing Indicator:
 - Users receive live notifications when others are typing.
-# Chat History:
+## Chat History:
 - Access and view the entire chat history.
-# Clear Chat:
+## Clear Chat:
 - Use the /clear command to remove all messages and clear the chat room.
-# Help Command:
+## Help Command:
 -Access a list of available commands and their descriptions using /help.
-# Message Count:
+## Message Count:
 - Use /count to display the total number of messages sent.
-# Active Users:
+## Active Users:
 - Utilize /active to show the number of currently active users.
-# Message Search:
+## Message Search:
 - Find messages containing specific keywords using /search <keyword>.
-# Delete Messages:
+## Delete Messages:
 - Delete specific messages by index with /delete <messageIndex>.
-# Edit Messages:
+## Edit Messages:
 - Edit messages by index with /edit <messageIndex> <newMessage>.
-# Timestamp:
+## Timestamp:
 - Display the current timestamp with /timestamp.
-# Private Messages:
+## Private Messages:
 - Send private messages with /private <recipient> <message>.
-# Code Snippets:
+## Code Snippets:
 - Display code snippets in preformatted blocks using /code <codeSnippet>.
-# Quoting Messages:
+## Quoting Messages:
 - Quote messages by index with /quote <messageIndex>.
-# Muting Users:
+## Muting Users:
 - Mute notifications from specific users using /mute <username>.
-# Unmuting Users:
+## Unmuting Users:
 - Unmute notifications from previously muted users with /unmute <username>.
-# Banning Users:
+## Banning Users:
 - Ban specific users from the chat with /ban <username>.
-# Unbanning Users:
+## Unbanning Users:
 - Unban previously banned users using /unban <username>.
-# Broadcast Messages:
+## Broadcast Messages:
 - Send broadcast messages to all users using /broadcast <message>.
-# Rolling Dice:
+## Rolling Dice:
 - Roll a 20-sided dice with /roll.
-# Magic 8-Ball:
+## Magic 8-Ball:
 - Ask the Magic 8-Ball a question using /magic8ball to receive a random response.
-# Coin Flip:
+## Coin Flip:
 - Flip a coin (Heads or Tails) with /flip.
-# Word Scramble:
+## Word Scramble:
 - Start a word scramble game with /scramble.
 - Guess the scrambled word with /scramble <guess> for a congratulatory message upon correct guessing.
 
