@@ -1,4 +1,6 @@
-### Updates to files 9/18/2023. I created a comments app, chat room app, and resume builder application and placed them in the Vanilla Code folder under Applications. These are the final additions to this project. 
+### Updates to files 9/20/2023. Added final game Ai Connect Four to games. This will be the final update to this project as I am now tapped of ideas.
+
+### Updates to files 9/18/2023. I created a comments app, chat room app, and resume builder application and placed them in the Vanilla Code folder under Applications.
 
 ### Updates to files 9/17/2023. I created a calculator app and added it to Vanilla Code Animations. So now that folder has a synthwave audio app and a calculator app.
 
@@ -12,7 +14,7 @@
 
 ### Updates to files 9/8/2023. Updated Physics Animation, Colorsplosion game and water animations 4-7 with the colors from my colorsplosion game (Added a lot more vibrant colors to Colorsplosion bricks and particles also).
 
-## 7 html5 browser games and 13 Animations. 1 3D animated game. 5 applications. Using as little assets and libraries as possible to create these. Timeframe ranging from July 1st -September 18th of 2023. Upgrading my animations and game development from 2000-2010 to current time. Last time I did any of this was back in 2010. Next I am working on Unreal Game Engine and Blender to advance my game development and animations.
+## 8 html5 browser games and 13 Animations. 1 3D animated game. 5 applications. Using as little assets and libraries as possible to create these. Timeframe ranging from July 1st -September 18th of 2023. Upgrading my animations and game development from 2000-2010 to current time. Last time I did any of this was back in 2010. Next I am working on Unreal Game Engine and Blender to advance my game development and animations.
 
 * Used throughout these projects are the following. Three.JS, Cannon.JS, JavaScript, CSS, HTML5, Webgl, Canvas, JavaScript,
 Creative Concept Design, Game Development, Game Design. Very few images or sounds were imported but if they were they were credited in the readme's. Not every project took everything listed above.
