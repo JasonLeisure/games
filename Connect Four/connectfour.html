@@ -508,7 +508,7 @@ function setAIPlayerMove() {
     let bestScore = -Infinity;
     let bestColumn = null;
     let depth = 6;
-    let randomThreshold = 0.5; // Adjust this for desired randomness
+    let randomThreshold = 0.5; 
 
     for (let column = 0; column < columns; column++) {
         if (currColumns[column] >= 0) {
@@ -551,8 +551,6 @@ function setAIPlayerMove() {
         dropPiece(bestColumn);
     }
 }
-
-// Add code to detect the player's potential winning moves and block them.
 
 setInterval(setAIPlayerMove, 2000);
 
