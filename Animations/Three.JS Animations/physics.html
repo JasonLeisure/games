@@ -42,7 +42,9 @@
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
         scene.add(ground);
-
+        
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
 
         const sphereColors = [
         "#FF0000",   // Red
