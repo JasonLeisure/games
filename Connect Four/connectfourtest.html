@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Connect 4</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+            background-color: black;
+            padding: 20px;
+        }
+
+        h1 {
+  font-family: "Your Preferred Font", sans-serif;
+  font-size: 48px;
+  font-weight: bold;
+  color: #ff6600;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  animation: bounceThrob 2s ease-in-out infinite;
+  text-shadow: 0 0 10px rgba(255, 102, 0, 0.5);
+}
+
+@keyframes bounceThrob {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  30%, 70% {
+    transform: translateY(-20px) scale(1.1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1);
+  }
+}
+
+h2 {
+  font-family: "Your Preferred Font", sans-serif;
+  font-size: 48px;
+  font-weight: bold;
+  color: #ff6600;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  animation: bounceThrob 2s ease-in-out infinite;
+  text-shadow: 0 0 10px rgba(255, 102, 0, 0.5);
+}
+
+@keyframes bounceThrob {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  30%, 70% {
+    transform: translateY(-20px) scale(1.1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1);
+  }
+}
+        #board-container {
+    display: inline-block;
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.5);
+    position: relative;
+    transform: perspective(100px) rotateX(10deg);
+    overflow: hidden;
+    margin-top: -80px;
+}
+
+#board {
+    height: 740px;
+    width: 630px;
+    background-color: #1976D2;
+    border: 10px solid #1565C0;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    transform: rotateX(-10deg);
+}
+        .board-leg {
+            width: 30px;
+            height: 160px;
+            background-color: #1565C0;
+            position: absolute;
+            bottom: 0;
+        }
+
+        .left-leg {
+            left: 0;
+        }
+
+        .right-leg {
+            right: 0;
+        }
+
+        .middle-leg {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #board {
+            height: 540px;
+            width: 630px;
+            background-color: #1976D2;
+            border: 10px solid #1565C0;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+    .tile {
+    height: 70px;
+    width: 70px;
+    margin: 5px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border: 5px solid navy;
+    cursor: pointer;
+    transform: translateY(0);
+    transition: transform 0.5s ease-in-out;
+}
+
+      .red-piece {
+    background-color: red;
+    background-image: radial-gradient(circle at 30% 30%, #ff3333, transparent 50%);
+    border: 4px solid #8b0000;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 2px 2px 4px rgba(255, 255, 255, 0.2);
+    animation: fallAnimation 0.5s ease-in-out forwards;
+    transform: skew(-15deg);
+}
+
+.yellow-piece {
+    background-color: yellow;
+    background-image: radial-gradient(circle at 30% 30%, #ffff33, transparent 50%);
+    border: 4px solid #b8860b;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset -2px -2px 4px rgba(255, 255, 0, 0.2);
+    animation: fallAnimation 0.5s ease-in-out forwards;
+    transform: skew(-15deg);
+}
+
+        .falling-piece {
+            transform: translateY(-550px);
+        }
+
+        @keyframes fallAnimation {
+    0% {
+        transform: translateY(-540px);
+    }
+    50% {
+        transform: translateY(0);
+    }
+    70% {
+        transform: translateY(-10px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+#reset-button-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#reset-button {
+    background-color: #3498db;
+    color: #ffffff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.winning-red-piece {
+    background-color: red;
+    background-image: radial-gradient(circle at 30% 30%, #ff3333, transparent 50%);
+    border: 4px solid #8b0000;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 2px 2px 4px rgba(255, 255, 255, 0.2), 0 0 20px rgba(255, 0, 0, 0.9);
+    animation: glow 1s infinite alternate;
+    transform: skew(-15deg);
+}
+
+.winning-yellow-piece {
+    background-color: yellow;
+    background-image: radial-gradient(circle at 30% 30%, #ffff33, transparent 50%);
+    border: 4px solid #b8860b;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset -2px -2px 4px rgba(255, 255, 0, 0.2), 0 0 20px rgba(255, 255, 0, 0.9);
+    animation: glow 1s infinite alternate;
+    transform: skew(-15deg);
+}
+
+@keyframes glow {
+    0% {
+        transform: skew(-15deg) scale(1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 2px 2px 4px rgba(255, 255, 255, 0.2), 0 0 20px rgba(255, 0, 0, 0.9);
+    }
+    100% {
+        transform: skew(-15deg) scale(1.05);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 2px 2px 4px rgba(255, 255, 255, 0.2), 0 0 20px rgba(255, 0, 0, 0.9);
+    }
+}
+#reset-button:hover {
+    background-color: #2980b9;
+}
+
+        #slider-container {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #slider {
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Connect 4</h1>
+    <h2 id="winner"></h2>
+    <div id="reset-button-container">
+        <button id="reset-button">Reset Game</button>
+    </div>
+
+    <div id="slider-container">
+        <input type="range" id="slider" min="0" max="100" step="1" value="0">
+    </div>
+
+    <h2 id="winner"></h2>
+
+    <div id="board-container">
+        <div class="board-leg left-leg"></div>
+        <div class="board-leg right-leg"></div>
+        <div id="board"></div>
+    </div>
+    <script>
+        var playerRed = "R";
+        var playerYellow = "Y";
+        var currPlayer = playerRed;
+
+        var gameOver = false;
+        var board;
+
+        var rows = 6;
+        var columns = 7;
+        var currColumns = [];
+
+        window.onload = function() {
+            setGame();
+            document.getElementById("reset-button").addEventListener("click", resetGame);
+        }
+
+        function setGame() {
+            board = [];
+            currColumns = [5, 5, 5, 5, 5, 5, 5];
+
+            for (let r = 0; r < rows; r++) {
+                let row = [];
+                for (let c = 0; c < columns; c++) {
+                    row.push(' ');
+                    let tile = document.createElement("div");
+                    tile.id = r.toString() + "-" + c.toString();
+                    tile.classList.add("tile");
+                    tile.addEventListener("click", setPiece);
+                    document.getElementById("board").append(tile);
+                }
+                board.push(row);
+            }
+        }
+
+        function setPiece() {
+    if (gameOver) {
+        return;
+    }
+
+    let coords = this.id.split("-");
+    let r = parseInt(coords[0]);
+    let c = parseInt(coords[1]);
+    let emptyRow = currColumns[c];
+
+    if (emptyRow < 0) {
+        return;
+    }
+
+    board[emptyRow][c] = currPlayer;
+    let tile = document.getElementById(emptyRow.toString() + "-" + c.toString());
+
+    if (currPlayer == playerRed) {
+        tile.classList.add("red-piece", "falling-piece");
+        currPlayer = playerYellow;
+    } else {
+        tile.classList.add("yellow-piece", "falling-piece");
+        currPlayer = playerRed;
+    }
+
+    emptyRow -= 1;
+    currColumns[c] = emptyRow;
+    checkWinner();
+}
+        document.getElementById("board").addEventListener("transitionend", function (event) {
+            if (event.propertyName === "transform") {
+                let fallingPieces = document.querySelectorAll(".falling-piece");
+                fallingPieces.forEach(function (piece) {
+                    piece.classList.remove("falling-piece");
+                });
+                setAIPlayerMove();
+            }
+        });
+
+        function clearBoard() {
+    for (let c = 0; c < columns; c++) {
+        for (let r = 0; r < rows; r++) {
+            let tile = document.getElementById(r.toString() + "-" + c.toString());
+            tile.classList.add("falling-piece");
+        }
+        setTimeout(() => {
+            for (let r = 0; r < rows; r++) {
+                board[r][c] = ' ';
+                let tile = document.getElementById(r.toString() + "-" + c.toString());
+                tile.classList.remove("red-piece", "yellow-piece", "falling-piece");
+            }
+            currColumns[c] = 5;
+        }, 500);
+    }
+}
+
+        function checkWinner() {
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < columns - 3; c++) {
+                    if (board[r][c] != ' ') {
+                        if (board[r][c] == board[r][c + 1] && board[r][c + 1] == board[r][c + 2] && board[r][c + 2] == board[r][c + 3]) {
+                            setWinner(r, c);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            for (let c = 0; c < columns; c++) {
+                for (let r = 0; r < rows - 3; r++) {
+                    if (board[r][c] != ' ') {
+                        if (board[r][c] == board[r + 1][c] && board[r + 1][c] == board[r + 2][c] && board[r + 2][c] == board[r + 3][c]) {
+                            setWinner(r, c);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            for (let r = 0; r < rows - 3; r++) {
+                for (let c = 0; c < columns - 3; c++) {
+                    if (board[r][c] != ' ') {
+                        if (board[r][c] == board[r + 1][c + 1] && board[r + 1][c + 1] == board[r + 2][c + 2] && board[r + 2][c + 2] == board[r + 3][c + 3]) {
+                            setWinner(r, c);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            for (let r = 3; r < rows; r++) {
+                for (let c = 0; c < columns - 3; c++) {
+                    if (board[r][c] != ' ') {
+                        if (board[r][c] == board[r - 1][c + 1] && board[r - 1][c + 1] == board[r - 2][c + 2] && board[r - 2][c + 2] == board[r - 3][c + 3]) {
+                            setWinner(r, c);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            if (board.flat().every(cell => cell !== ' ')) {
+                setDraw();
+            }
+        }
+
+      function setWinner(r, c) {
+    let winner = document.getElementById("winner");
+    if (board[r][c] == playerRed) {
+        winner.innerText = "Red Wins";
+        for (let i = 0; i < 4; i++) {
+            let tile = document.getElementById((r + i).toString() + "-" + c.toString());
+            tile.classList.add("winning-red-piece");
+        }
+    } else {
+        winner.innerText = "Yellow Wins";
+        for (let i = 0; i < 4; i++) {
+            let tile = document.getElementById((r + i).toString() + "-" + c.toString());
+            tile.classList.add("winning-yellow-piece");
+        }
+    }
+    gameOver = true;
+}
+
+        function setDraw() {
+            let winner = document.getElementById("winner");
+            winner.innerText = "It's a Draw!";
+            gameOver = true;
+        }
+
+        function resetGame() {
+    gameOver = false;
+    currPlayer = playerRed;
+    board = [];
+    currColumns = [];
+    document.getElementById("winner").innerText = "";
+    document.getElementById("board").innerHTML = "";
+    setGame();
+}
+
+function dropPiece(column) {
+    let row = currColumns[column];
+    if (row >= 0) {
+        board[row][column] = currPlayer;
+        let tile = document.getElementById(row.toString() + "-" + column.toString());
+
+        if (currPlayer === playerRed) {
+            tile.classList.add("red-piece", "falling-piece");
+            currPlayer = playerYellow;
+        } else {
+            tile.classList.add("yellow-piece", "falling-piece");
+            currPlayer = playerRed;
+        }
+
+        currColumns[column] = row - 1;
+        checkWinner();
+    }
+}
+
+function setAIPlayerMove() {
+    if (gameOver || currPlayer !== playerYellow) {
+        return;
+    }
+
+    let bestScore = -Infinity;
+    let bestColumn = null;
+    let depth = 6;
+
+    for (let column = 0; column < columns; column++) {
+        if (currColumns[column] >= 0) {
+            let row = currColumns[column];
+            board[row][column] = playerYellow;
+
+
+            if (checkWin(board) === playerRed) {
+                dropPiece(column);
+                return;
+            }
+
+
+            board[row][column] = playerRed;
+
+
+            if (checkWin(board) === playerRed) {
+                dropPiece(column);
+                return;
+            }
+
+
+            board[row][column] = ' ';
+
+
+            let score = minimax(board, depth, false, -Infinity, Infinity);
+
+            board[row][column] = ' ';
+
+            if (score > bestScore || (score === bestScore && Math.random() < 0.5)) {
+                bestScore = score;
+                bestColumn = column;
+            }
+        }
+    }
+
+    if (bestColumn !== null) {
+        dropPiece(bestColumn);
+    }
+}
+
+
+function minimax(board, depth, isMaximizingPlayer, alpha, beta) {
+    let result = checkWin(board);
+    if (result !== null) {
+        if (result === playerYellow) return 1;
+        if (result === playerRed) return -1;
+        return 0;
+    }
+
+    if (depth === 0) {
+        return evaluateBoard(board);
+    }
+
+    if (isMaximizingPlayer) {
+        let bestScore = -Infinity;
+        for (let column = 0; column < columns; column++) {
+            if (currColumns[column] >= 0) {
+                let row = currColumns[column];
+                board[row][column] = playerYellow;
+                let score = minimax(board, depth - 1, false, alpha, beta);
+                board[row][column] = ' ';
+                bestScore = Math.max(bestScore, score);
+                alpha = Math.max(alpha, score);
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+        }
+        return bestScore;
+    } else {
+        let bestScore = Infinity;
+        for (let column = 0; column < columns; column++) {
+            if (currColumns[column] >= 0) {
+                let row = currColumns[column];
+                board[row][column] = playerRed;
+                let score = minimax(board, depth - 1, true, alpha, beta);
+                board[row][column] = ' ';
+                bestScore = Math.min(bestScore, score);
+                beta = Math.min(beta, score);
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+        }
+        return bestScore;
+    }
+}
+
+function evaluateBoard(board, aiPiece, playerPiece) {
+    let aiScore = 0;
+    let playerScore = 0;
+
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < columns - 3; c++) {
+            let window = [board[r][c], board[r][c + 1], board[r][c + 2], board[r][c + 3]];
+            aiScore += evaluateWindow(window, aiPiece, playerPiece);
+            playerScore += evaluateWindow(window, playerPiece, aiPiece);
+        }
+    }
+
+    for (let c = 0; c < columns; c++) {
+        for (let r = 0; r < rows - 3; r++) {
+            let window = [board[r][c], board[r + 1][c], board[r + 2][c], board[r + 3][c]];
+            aiScore += evaluateWindow(window, aiPiece, playerPiece);
+            playerScore += evaluateWindow(window, playerPiece, aiPiece);
+        }
+    }
+
+    for (let r = 0; r < rows - 3; r++) {
+        for (let c = 0; c < columns - 3; c++) {
+            let window = [board[r][c], board[r + 1][c + 1], board[r + 2][c + 2], board[r + 3][c + 3]];
+            aiScore += evaluateWindow(window, aiPiece, playerPiece);
+            playerScore += evaluateWindow(window, playerPiece, aiPiece);
+        }
+    }
+
+    for (let r = 3; r < rows; r++) {
+        for (let c = 0; c < columns - 3; c++) {
+            let window = [board[r][c], board[r - 1][c + 1], board[r - 2][c + 2], board[r - 3][c + 3]];
+            aiScore += evaluateWindow(window, aiPiece, playerPiece);
+            playerScore += evaluateWindow(window, playerPiece, aiPiece);
+        }
+    }
+
+    return aiScore - playerScore;
+}
+function evaluateWindow(window, aiPiece, playerPiece) {
+    let aiCount = window.filter(piece => piece === aiPiece).length;
+    let playerCount = window.filter(piece => piece === playerPiece).length;
+
+    if (aiCount === 4) return 100;
+    if (playerCount === 4) return -100;
+
+    let score = 0;
+    if (aiCount === 3 && playerCount === 0) {
+        score += 5;
+    } else if (aiCount === 2 && playerCount === 0) {
+        score += 2;
+    } else if (playerCount === 3 && aiCount === 0) {
+        score -= 5;
+    } else if (playerCount === 2 && aiCount === 0) {
+        score -= 2;
+    }
+
+    return score;
+}
+
+        function checkWin(board) {
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < columns - 3; c++) {
+            if (board[r][c] !== ' ') {
+                if (board[r][c] === board[r][c + 1] && board[r][c + 1] === board[r][c + 2] && board[r][c + 2] === board[r][c + 3]) {
+                    return board[r][c];
+                }
+            }
+        }
+    }
+
+    for (let c = 0; c < columns; c++) {
+        for (let r = 0; r < rows - 3; r++) {
+            if (board[r][c] !== ' ') {
+                if (board[r][c] === board[r + 1][c] && board[r + 1][c] === board[r + 2][c] && board[r + 2][c] === board[r + 3][c]) {
+                    return board[r][c];
+                }
+            }
+        }
+    }
+
+    for (let r = 0; r < rows - 3; r++) {
+        for (let c = 0; c < columns - 3; c++) {
+            if (board[r][c] !== ' ') {
+                if (board[r][c] === board[r + 1][c + 1] && board[r + 1][c + 1] === board[r + 2][c + 2] && board[r + 2][c + 2] === board[r + 3][c + 3]) {
+                    return board[r][c];
+                }
+            }
+        }
+    }
+
+    for (let r = 3; r < rows; r++) {
+        for (let c = 0; c < columns - 3; c++) {
+            if (board[r][c] !== ' ') {
+                if (board[r][c] === board[r - 1][c + 1] && board[r - 1][c + 1] === board[r - 2][c + 2] && board[r - 2][c + 2] === board[r - 3][c + 3]) {
+                    return board[r][c];
+                }
+            }
+        }
+    }
+
+    return null;
+}
+document.getElementById("slider").addEventListener("input", function() {
+    clearBoard();
+})
+        setInterval(setAIPlayerMove, 2000);
+    </script>
+</body>
+</html>
