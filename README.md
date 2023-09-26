@@ -1,3 +1,5 @@
+### Updates to files 9/26/2023. Fixed connect four board at the bottom and added another realistic calculator to the folder. Felt the calculator and connect four were not up to my normal standards so I updated them.
+
 ### Updates to files 9/20/2023. Added final game Ai Connect Four to games. This will be the final update to this project as I am now tapped of ideas.
 
 ### Updates to files 9/18/2023. I created a comments app, chat room app, and resume builder application and placed them in the Vanilla Code folder under Applications.
