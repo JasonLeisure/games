@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock</title>
+    <style>
+    body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #000;
+}
+
+.watch-container {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    background-color: black;
+    border-radius: 50%;
+    box-shadow: 0px 0px 50px rgba(0, 0, 0, 0.7);
+    transform: perspective(1200px) rotateX(25deg);
+}
+
+.watch-hands {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+        }
+
+
+.minute-hand, .hour-hand, .second-hand {
+            position: absolute;
+            transform-origin: bottom center;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
+        }
+
+
+.minute-hand {
+    background: linear-gradient(90deg, #555 0%, #222 100%);
+    height: 60px;
+    width: 2px;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%) rotate(180deg);
+    z-index: 4;
+    box-shadow:
+        0px 0px 10px rgba(0, 0, 0, 0.7),
+        0px 0px 10px rgba(0, 0, 0, 0.7) inset,
+        0px 0px 5px rgba(255, 255, 255, 0.2) inset;
+}
+
+.hour-hand {
+    background: linear-gradient(90deg, #555 0%, #222 100%);
+    height: 40px;
+    width: 3px;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%) rotate(90deg);
+    z-index: 4;
+    box-shadow:
+        0px 0px 10px rgba(0, 0, 0, 0.7),
+        0px 0px 10px rgba(0, 0, 0, 0.7) inset,
+        0px 0px 5px rgba(255, 255, 255, 0.2) inset;
+}
+
+.second-hand {
+    background: linear-gradient(90deg, #f00 0%, #f00 100%);
+    height: 55px;
+    width: 1px;
+    top: 35px;
+    left: 50%;
+    transform: translateX(-50%) rotate(270deg);
+    z-index: 5;
+    box-shadow:
+        0px 0px 10px rgba(0, 0, 0, 0.7),
+        0px 0px 10px rgba(0, 0, 0, 0.7) inset,
+        0px 0px 5px rgba(255, 255, 255, 0.2) inset;
+}
+
+        .center-point {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #222;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 6;
+        }
+
+.watch-container:before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    border: 10px solid rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    z-index: 2;
+}
+
+.watch-container:after {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border: 5px solid rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+</style>
+</head>
+<body>
+    <div class="watch-face-container">
+        <canvas id="watch" width="300" height="300"></canvas>
+    </div>
+    <style>
+        @font-face {
+            font-family: 'WatchFont';
+            src: url('path-to-your-font.woff2') format('woff2');
+        }
+
+        canvas {
+            font-family: 'WatchFont', Arial, sans-serif;
+        }
+    </style>
+      <script>
+        const canvas = document.getElementById('watch');
+        const ctx = canvas.getContext('2d');
+
+        function drawWatchFace() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.beginPath();
+ctx.arc(canvas.width / 2, canvas.height / 2, 150, 0, 2 * Math.PI);
+ctx.fillStyle = '#000';
+ctx.fill();
+    const gradient = ctx.createRadialGradient(
+        canvas.width / 2,
+        canvas.height / 2,
+        140,
+        canvas.width / 2,
+        canvas.height / 2,
+        150
+    );
+    gradient.addColorStop(0, 'rgb(100, 100, 100)');
+    gradient.addColorStop(0.5, 'rgb(60, 60, 60)');
+    gradient.addColorStop(1, 'rgb(100, 100, 100)');
+    ctx.fillStyle = gradient;
+    ctx.fill();
+    ctx.font = 'bold 24px Arial, sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (let i = 1; i <= 12; i++) {
+        const angle = ((i - 3) * 30 * Math.PI) / 180;
+        const x = canvas.width / 2 + 100 * Math.cos(angle);
+        const y = canvas.height / 2 + 100 * Math.sin(angle);
+        ctx.save();
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 5;
+        ctx.fillText(i, x, y);
+        ctx.restore();
+        ctx.save();
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 5;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.fillRect(x - 10, y + 5, 20, 10);
+        ctx.restore();
+    }
+
+ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+ctx.lineWidth = 4;
+ctx.lineCap = 'round';
+
+for (let i = 0; i < 60; i++) {
+    const angle = ((i - 15) * 6 * Math.PI) / 180;
+    const startX = canvas.width / 2 + 130 * Math.cos(angle);
+    const startY = canvas.height / 2 + 130 * Math.sin(angle);
+    const endX = canvas.width / 2 + 140 * Math.cos(angle);
+    const endY = canvas.height / 2 + 140 * Math.sin(angle);
+    const shadowOffsetX = 5 * Math.cos(angle);
+    const shadowOffsetY = 5 * Math.sin(angle);
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowBlur = 5;
+    ctx.lineTo(endX + shadowOffsetX, endY + shadowOffsetY);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.fillRect(endX + shadowOffsetX - 2, endY + shadowOffsetY - 10, 4, 20);
+}
+
+
+ctx.shadowColor = 'rgba(0, 0, 0, 0)';
+ctx.shadowBlur = 0;
+
+    const now = new Date();
+    const hours = now.getHours() % 12;
+    const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
+    ctx.lineCap = 'round';
+    const hourAngle = ((hours - 3) * 30 * Math.PI) / 180 + ((minutes / 60) * 30 * Math.PI) / 180;
+    const hourX = canvas.width / 2 + 40 * Math.cos(hourAngle);
+    const hourY = canvas.height / 2 + 40 * Math.sin(hourAngle);
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowBlur = 5;
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, canvas.height / 2);
+    ctx.lineTo(hourX, hourY);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.lineWidth = 8;
+    ctx.stroke();
+    ctx.restore();
+    const minuteAngle = ((minutes - 15) * 6 * Math.PI) / 180 + ((seconds / 60) * 6 * Math.PI) / 180;
+    const minuteX = canvas.width / 2 + 60 * Math.cos(minuteAngle);
+    const minuteY = canvas.height / 2 + 60 * Math.sin(minuteAngle);
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowBlur = 5;
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, canvas.height / 2);
+    ctx.lineTo(minuteX, minuteY);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+    ctx.restore();
+
+
+    const secondAngle = ((seconds - 15) * 6 * Math.PI) / 180;
+    const secondX = canvas.width / 2 + 70 * Math.cos(secondAngle);
+    const secondY = canvas.height / 2 + 70 * Math.sin(secondAngle);
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowBlur = 5;
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, canvas.height / 2);
+    ctx.lineTo(secondX, secondY);
+    ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+}
+
+setInterval(drawWatchFace, 1);
+drawWatchFace();
+    </script>
+</body>
+</html>
