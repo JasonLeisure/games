@@ -1,4 +1,4 @@
-### Updates to files 9/30/2023. Added a fractal tree animation randomly generated and a clock application to the files.
+### Updates to files 9/30/2023. Added a fractal tree animation randomly generated, polaroid demon app, and a clock application to the files.
 
 ### Updates to files 9/26/2023. Fixed connect four board at the bottom and added another realistic calculator to the folder. Felt the calculator and connect four were not up to my normal standards so I updated them.
 
@@ -18,7 +18,7 @@
 
 ### Updates to files 9/8/2023. Updated Physics Animation, Colorsplosion game and water animations 4-7 with the colors from my colorsplosion game (Added a lot more vibrant colors to Colorsplosion bricks and particles also).
 
-## 8 html5 browser games and 14 Animations. 1 3D animated game. 7 applications. Using as little assets and libraries as possible to create these. Timeframe ranging from July 1st -September 18th of 2023. Upgrading my animations and game development from 2000-2010 to current time. Last time I did any of this was back in 2010. Next I am working on Unreal Game Engine and Blender to advance my game development and animations.
+## 8 html5 browser games and 14 Animations. 1 3D animated game. 9 applications. Using as little assets and libraries as possible to create these. Timeframe ranging from July 1st -September 18th of 2023. Upgrading my animations and game development from 2000-2010 to current time. Last time I did any of this was back in 2010. Next I am working on Unreal Game Engine and Blender to advance my game development and animations.
 
 * Used throughout these projects are the following. Three.JS, Cannon.JS, JavaScript, CSS, HTML5, Webgl, Canvas, JavaScript,
 Creative Concept Design, Game Development, Game Design. Very few images or sounds were imported but if they were they were credited in the readme's. Not every project took everything listed above.
