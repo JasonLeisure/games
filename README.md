@@ -1,4 +1,4 @@
-### Updates to files 9/30/2023. Added a fractal tree animation randomly generated, polaroid demon app, and a clock application to the files.
+### Updates to files 9/30/2023. Added a fractal tree animation randomly generated, polaroid demo app, and a clock application to the files.
 
 ### Updates to files 9/26/2023. Fixed connect four board at the bottom and added another realistic calculator to the folder. Felt the calculator and connect four were not up to my normal standards so I updated them.
 
