@@ -27,7 +27,7 @@ Creative Concept Design, Game Development, Game Design. Very few images or sound
 
 ## NOTE ABOUT THESE GAMES AND ANIMATIONS BELOW:
 
-* In July 2023, I resumed my creative journey in game and animation development after a hiatus since 2010. Returning to the familiar tools of CSS, JavaScript, and HTML5 felt great. I took it upon myself to use very few external resources for these projects I had in mind to add to my portfolio just like I had in my youth. I wanted to limit what I could use and see what I could create. The browser games I made were versions I had created growing up...along with some new ones.
+* In August 2023, I resumed my creative journey in game and animation development after a hiatus since 2010. Returning to the familiar tools of CSS, JavaScript, and HTML5 felt great. I took it upon myself to use very few external resources for these projects I had in mind to add to my portfolio just like I had in my youth. I wanted to limit what I could use and see what I could create. The browser games I made were versions I had created growing up...along with some new ones.
 
 * These animations tested the boundaries and limits of what I was using by integrating WebGL, Three.js, and Cannon.js for complex tasks. 98% of these projects were crafted exclusively through code.
 
