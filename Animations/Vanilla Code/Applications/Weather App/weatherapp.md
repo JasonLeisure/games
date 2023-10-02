@@ -40,6 +40,8 @@
 
 - In case of errors, such as entering an invalid city name, an error message will be shown.
 
+- Make sure to enter in the html file your api key in the correct place or the app will not work.
+
 ### Credits:
 
 - This Weather App project was created by Jason Leisure and utilizes the OpenWeatherMap API for weather data.
