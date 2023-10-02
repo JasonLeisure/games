@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #3498db, #2980b9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 400px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+            transform-style: preserve-3d;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 92%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .weather-info {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .weather-details {
+            text-align: left;
+            margin-top: 10px;
+            color: #333;
+        }
+
+        .temperature-toggle {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .temperature-toggle label {
+            margin-right: 10px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+    <title>Weather App</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Weather App</h1>
+        <input type="text" id="cityInput" placeholder="Enter city">
+        <button id="searchButton">Search</button>
+        <div class="weather-info" id="weatherInfo">
+            <div class="weather-details">
+                <p id="temperature"></p>
+                <p id="description"></p>
+                <p id="humidity"></p>
+                <p id="windSpeed"></p>
+                <p id="pressure"></p>
+                <p id="sunrise"></p>
+                <p id="sunset"></p>
+                <p id="cloudiness"></p>
+                <p id="visibility"></p>
+                <p id="minTemp"></p>
+                <p id="maxTemp"></p>
+            </div>
+        </div>
+        <div class="temperature-toggle">
+            <label><input type="radio" name="temperatureUnit" value="metric" checked>Celsius</label>
+            <label><input type="radio" name="temperatureUnit" value="imperial">Fahrenheit</label>
+        </div>
+        <p id="errorMessage" class="error-message"></p>
+    </div>
+    <script>
+        const apiKey = 'e6e25cb97b44009030e4a4264330ea3c'; // Replace with your OpenWeatherMap API key
+        const cityInput = document.getElementById('cityInput');
+        const searchButton = document.getElementById('searchButton');
+        const weatherInfo = document.getElementById('weatherInfo');
+        const temperature = document.getElementById('temperature');
+        const description = document.getElementById('description');
+        const humidity = document.getElementById('humidity');
+        const windSpeed = document.getElementById('windSpeed');
+        const pressure = document.getElementById('pressure');
+        const sunrise = document.getElementById('sunrise');
+        const sunset = document.getElementById('sunset');
+        const cloudiness = document.getElementById('cloudiness');
+        const visibility = document.getElementById('visibility');
+        const minTemp = document.getElementById('minTemp');
+        const maxTemp = document.getElementById('maxTemp');
+        const errorMessage = document.getElementById('errorMessage');
+        const temperatureToggle = document.querySelectorAll('input[name="temperatureUnit"]');
+
+        searchButton.addEventListener('click', () => {
+            const city = cityInput.value.trim();
+            if (city === '') {
+                showError('Please enter a city.');
+            } else {
+                getWeather(city);
+            }
+        });
+
+        temperatureToggle.forEach(radio => {
+            radio.addEventListener('change', () => {
+                getWeather(cityInput.value.trim());
+            });
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            weatherInfo.style.display = 'none';
+        }
+
+        function clearError() {
+            errorMessage.textContent = '';
+        }
+
+        function getWeather(city) {
+            clearError();
+            const temperatureUnit = document.querySelector('input[name="temperatureUnit"]:checked').value;
+            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${temperatureUnit}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('City not found.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const { main, weather, wind, sys, clouds, visibility: vis } = data;
+                    const temperatureValue = main.temp;
+                    const weatherDescription = weather[0].description;
+                    const humidityValue = main.humidity;
+                    const windSpeedValue = wind.speed;
+                    const pressureValue = main.pressure;
+                    const sunriseTime = new Date(sys.sunrise * 1000).toLocaleTimeString();
+                    const sunsetTime = new Date(sys.sunset * 1000).toLocaleTimeString();
+                    const cloudinessValue = clouds.all;
+                    const visibilityValue = vis / 1000;
+                    const minTempValue = main.temp_min;
+                    const maxTempValue = main.temp_max;
+
+                    temperature.textContent = `Temperature: ${temperatureValue.toFixed(1)}°${temperatureUnit === 'imperial' ? 'F' : 'C'}`;
+                    description.textContent = `Description: ${weatherDescription}`;
+                    humidity.textContent = `Humidity: ${humidityValue}%`;
+                    windSpeed.textContent = `Wind Speed: ${windSpeedValue} m/s`;
+                    pressure.textContent = `Pressure: ${pressureValue} hPa`;
+                    sunrise.textContent = `Sunrise: ${sunriseTime}`;
+                    sunset.textContent = `Sunset: ${sunsetTime}`;
+                    cloudiness.textContent = `Cloudiness: ${cloudinessValue}%`;
+                    visibility.textContent = `Visibility: ${visibilityValue.toFixed(2)} km`;
+                    minTemp.textContent = `Min Temp: ${minTempValue.toFixed(1)}°${temperatureUnit === 'imperial' ? 'F' : 'C'}`;
+                    maxTemp.textContent = `Max Temp: ${maxTempValue.toFixed(1)}°${temperatureUnit === 'imperial' ? 'F' : 'C'}`;
+
+                    weatherInfo.style.display = 'block';
+                })
+                .catch(error => {
+                    showError(error.message);
+                });
+        }
+    </script>
+</body>
+</html>
