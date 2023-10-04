@@ -1,3 +1,5 @@
+### Updates to files 10/4/2023. Added a new game Red VS Blue to the games folder. Really proud of this one. This isn't part of the september project. This is a three.js game.
+
 ### Updates to files 9/30/2023. Added a fractal tree animation randomly generated, polaroid demo app, weather app, and a clock application to the files.
 
 ### Updates to files 9/26/2023. Fixed connect four board at the bottom and added another realistic calculator to the folder. Felt the calculator and connect four were not up to my normal standards so I updated them.
