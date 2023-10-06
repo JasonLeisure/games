@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>Typing Speed Game</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+  <style>
+    /* Reset Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Font Styles */
+body {
+  font-family: 'Arial', sans-serif;
+}
+
+/* Body Styles */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #121212;
+  margin: 0;
+  padding: 0;
+  color: #f5f5f5; /* Changed text color to light gray */
+}
+
+/* Text Selection Styles */
+::selection {
+  color: #fff;
+  background-color: #3498db;
+}
+
+/* Wrapper Styles */
+.wrapper {
+  max-width: 600px;
+  padding: 40px;
+  background-color: #1e1e1e;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+/* Input Field Styles */
+.wrapper .input-field {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 2px solid #3498db;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #2e2e2e;
+  color: #f5f5f5; /* Changed input text color to light gray */
+}
+
+/* Content Box Styles */
+.wrapper .content-box {
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #3498db;
+  font-size: 18px;
+  line-height: 1.4;
+  color: #f5f5f5; /* Changed content text color to light gray */
+}
+
+/* Typing Text Styles */
+.content-box .typing-text {
+  overflow: hidden;
+  max-height: 256px;
+}
+
+.typing-text::-webkit-scrollbar {
+  width: 8px;
+}
+
+.typing-text::-webkit-scrollbar-thumb {
+  background-color: #44aaff;
+  border-radius: 4px;
+}
+
+.typing-text::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.typing-text p {
+  font-size: 20px;
+  text-align: justify;
+  letter-spacing: 1px;
+  word-break: break-all;
+  color: #00ff00;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.typing-text p span {
+  position: relative;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Text Highlight Styles */
+.typing-text p span.correct {
+  color: #44aaff;
+}
+
+.typing-text p span.incorrect {
+  color: #ff4466;
+  outline: 1px solid #444;
+  background: #ffaacb;
+  border-radius: 4px;
+}
+
+.typing-text p span.active {
+  color: #44ffaa;
+  background-color: rgba(68, 255, 170, 0.2);
+}
+
+.typing-text p span.active::before {
+  position: absolute;
+  content: "";
+  height: 2px;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  opacity: 0.8;
+  border-radius: 5px;
+  background: #44ffaa;
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Content Styles */
+.content-box .content {
+  margin-top: 17px;
+  display: flex;
+  padding: 12px 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #555;
+}
+
+/* Button Styles */
+.content button {
+  outline: none;
+  border: none;
+  width: 105px;
+  color: #fff;
+  padding: 8px 0;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  background: #44aaff;
+  transition: background 0.3s ease, transform 0.2s ease; /* Add transform transition */
+  position: relative;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Add text-shadow for 3D effect */
+}
+
+.content button:active {
+  transform: scale(0.97);
+  background: #3399cc; /* Change background color when pressed */
+}
+
+/* Add a Pseudo-element for the Animation */
+.content button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.content button:active::after {
+  opacity: 1;
+}
+
+/* Result Details Styles */
+.content .result-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  width: calc(100% - 140px);
+  justify-content: space-between;
+}
+
+.result-details li {
+  display: flex;
+  height: 20px;
+  list-style: none;
+  position: relative;
+  align-items: center;
+}
+
+.result-details li:not(:first-child) {
+  padding-left: 22px;
+  border-left: 1px solid #555;
+}
+
+.result-details li p {
+  font-size: 19px;
+}
+
+.result-details li span {
+  display: block;
+  font-size: 20px;
+  margin-left: 10px;
+}
+
+/* Font Weight Styles */
+li span b {
+  font-weight: 500;
+}
+
+li:not(:first-child) span {
+  font-weight: 500;
+}
+
+/* Media Queries */
+@media (max-width: 745px) {
+  .wrapper {
+    padding: 20px;
+  }
+
+  .content-box .content {
+    padding: 20px 0;
+  }
+
+  /* Typing Text Styles */
+.content-box .typing-text {
+  overflow: hidden;
+  max-height: 256px;
+  background: linear-gradient(to bottom, #333, #444); /* Add a gradient background */
+}
+
+.typing-text p {
+  font-size: 19px;
+  text-align: left;
+  color: #fff; /* Change text color to white */
+  padding: 10px; /* Add padding for spacing */
+  margin: 5px 0; /* Add margin for spacing */
+  background: linear-gradient(to top, #555, #333); /* Add a gradient background */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4); /* Add a text shadow for the 3D effect */
+  border-radius: 5px; /* Add border-radius for rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Add a box shadow for additional depth */
+}
+
+
+  .content button {
+    width: 100%;
+    font-size: 15px;
+    padding: 10px 0;
+    margin-top: 20px;
+  }
+
+  .content .result-details {
+    width: 100%;
+  }
+
+  .result-details li:not(:first-child) {
+    border-left: 0;
+    padding: 0;
+  }
+
+  .result-details li p,
+  .result-details li span {
+    font-size: 17px;
+  }
+}
+
+@media (max-width: 518px) {
+  .wrapper .content-box {
+    padding: 10px 15px 0;
+  }
+
+  .typing-text p {
+    font-size: 18px;
+  }
+
+  .result-details li {
+    margin-bottom: 10px;
+  }
+
+  .content button {
+    margin-top: 10px;
+  }
+}
+/* Centering Styles */
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #121212;
+  color: #00ff00; /* Neon green text color (#00ff00) */
+}
+
+/* Game Title Styles */
+.game-title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.game-title h1 {
+  font-size: 36px;
+  text-transform: uppercase;
+  font-weight: bold;
+  background: linear-gradient(45deg, #3498db, #ff6b6b, #3498db, #ff6b6b, #3498db);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+  transform: skew(-5deg);
+  display: inline-block;
+  padding: 10px 20px;
+  border: 2px solid #00ff00; /* Neon green border (#00ff00) */
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+  </style>
+</head>
+<body>
+    <div class="container">
+        <div class="game-title">
+            <h1>Typing Speed Game</h1>
+        </div>
+  <div class="wrapper">
+    <input type="text" class="input-field">
+    <div class="content-box">
+      <div class="typing-text">
+        <p></p>
+      </div>
+      <div class="content">
+        <ul class="result-details">
+          <li class="time">
+            <p>Time Left:</p>
+            <span><b>60</b>s</span>
+          </li>
+          <li class="mistake">
+            <p>Mistakes:</p>
+            <span>0</span>
+          </li>
+          <li class="wpm">
+            <p>WPM:</p>
+            <span>0</span>
+          </li>
+          <li class="cpm">
+            <p>CPM:</p>
+            <span>0</span>
+          </li>
+        </ul>
+        <button>Try Again</button>
+      </div>
+    </div>
+  </div>
+  <div id="audio-player">
+    <audio controls>
+      <source src="lifeeternal.ogg" type="audio/ogg">
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+
+  <script>
+    const paragraphs = [
+  "The mysterious forest was shrouded in mist, and the ancient trees whispered secrets to those who dared to listen. A lone wolf howled in the distance, its mournful cry echoing through the night.",
+  "In a distant galaxy, two starships engaged in an epic space battle. Laser beams and plasma cannons lit up the cosmic battlefield as they fought for control of a wormhole that could reshape the universe.",
+  "The chef carefully sprinkled saffron onto the simmering paella, infusing the dish with a rich golden hue and a tantalizing aroma that made mouths water.",
+  "As the sun dipped below the horizon, the city skyline transformed into a breathtaking display of twinkling lights, casting a warm glow over the bustling streets below.",
+  "In a hidden underground laboratory, a team of scientists worked tirelessly to unlock the secrets of time travel, hoping to rewrite history and prevent past tragedies.",
+  "Deep within the enchanted forest, a mischievous gnome played pranks on unsuspecting creatures, causing laughter and chaos in the magical realm.",
+  "A daring explorer embarked on a perilous journey to the heart of the Amazon rainforest, where undiscovered species and ancient civilizations awaited discovery.",
+  "Amidst the bustling market, the street performer captivated the crowd with a mesmerizing fire dance, twirling flaming poi in a hypnotic rhythm.",
+  "The ancient castle stood atop a rugged cliff, overlooking the stormy sea below. Legends spoke of a hidden treasure buried within its stone walls, waiting for a brave adventurer to claim it.",
+  "In the game loop, our protagonist's position is updated based on user input. They move forward with 'W', strafe left with 'A', strafe right with 'D', and jump with the spacebar. Collision detection ensures they don't pass through solid objects.",
+"The boss battle script includes a complex state machine with phases like 'vulnerable,' 'charging,' and 'berserk.' During the 'charging' phase, the boss gains energy, while in 'berserk,' it unleashes devastating attacks. Players must strategize to defeat it.",
+"Using a finite state machine, the enemy AI alternates between 'patrolling,' 'chasing,' and 'attacking' states. When within range, the AI fires projectiles with raycasting, ensuring accurate hits on the player character.",
+"The procedural terrain generation algorithm employs Perlin noise to create realistic landscapes. Different biomes are defined by color maps, and the terrain's heightmap influences player movement and interactions.",
+"In the inventory system, items are stored in an array of structures. Each item has properties like 'name,' 'description,' and 'damage.' The UI displays these items, allowing players to equip, use, or drop them.",
+"The multiplayer lobby uses a client-server architecture with TCP/IP sockets. Players can join or create rooms, and server messages handle player synchronization, ensuring a seamless multiplayer experience.",
+"To enhance graphics, a shader program renders dynamic lighting effects. The shader calculates light intensity based on player position and scene objects, providing realistic shadows and reflections.",
+"Achievements and trophies are tracked through an event-driven system. When a specific condition is met, an event triggers, and the corresponding achievement is unlocked, adding to the player's profile.",
+"In the quest system, quests are defined with JSON files. Each quest has objectives, rewards, and dependencies, allowing for a branching narrative with optional side quests.",
+"The procedural dungeon generation algorithm creates maze-like layouts with rooms and corridors. The algorithm ensures that dungeons are coherent, solvable, and challenging for players to explore.",
+  "In a futuristic cityscape, hovercars zipped through neon-lit streets, and holographic billboards advertised the latest innovations in technology.",
+  "Beneath the surface of the ocean, colorful coral reefs teemed with exotic marine life, creating a vibrant and otherworldly underwater paradise.",
+  "The animation system employs a blend tree to smoothly transition between character animations. States like 'idle,' 'walking,' and 'attacking' are blended based on player input and character state.",
+"To optimize performance, occlusion culling is implemented using a spatial partitioning technique. Objects outside the player's field of view are automatically culled from rendering to reduce GPU load.",
+"The AI pathfinding algorithm utilizes A* search to find the shortest path from the enemy's current position to the player's location. The grid-based map ensures efficient navigation through the game world.",
+"In the dialogue system, conversations are scripted using XML files. Nodes represent dialogue options, and branching paths are determined by player choices, influencing the game's narrative.",
+"The physics engine simulates realistic rigid body dynamics. Objects can have different mass and collision shapes, enabling realistic interactions like rolling, bouncing, and stacking.",
+"In the shader graph, procedural textures are generated using noise functions. These textures are used to create visually appealing effects like fire, water, and the distortion of reality in magical realms.",
+"The crafting system combines item recipes through an inventory crafting interface. Players drag and drop components to create new items, with crafting success determined by the recipe and player skills.",
+"Dynamic audio is implemented using a spatial audio system. Sound sources emit audio based on their position and orientation relative to the player, creating immersive 3D audio experiences.",
+"The save game system serializes game data into binary files. Player progress, character stats, and world state are stored and loaded, allowing players to resume their adventures seamlessly.",
+"In the procedural loot generation system, items have rarity levels and random modifiers. Loot tables determine the distribution of items, ensuring a diverse range of gear for players to discover.",
+  "In a medieval castle, the ghostly echoes of centuries-old battles could still be heard, and brave souls ventured on ghost tours to uncover the mysteries of the past.",
+  "Beside a tranquil river, a campfire crackled, casting flickering shadows on the faces of friends gathered to share stories and roast marshmallows.",
+  "In a futuristic metropolis, holographic billboards displayed the latest fashion trends, while hoverboards glided effortlessly through the futuristic cityscape.",
+  "Inside a hidden cave, ancient cave paintings told the stories of a long-forgotten civilization, offering a glimpse into the lives of those who came before.",
+  "Amongst the skyscrapers of a bustling city, street performers captivated passersby with their talents, from mesmerizing magic tricks to soulful saxophone melodies.",
+  "In a tropical paradise, the crystal-clear waters of the ocean revealed a kaleidoscope of colorful coral and playful dolphins, inviting snorkelers into an underwater wonderland.",
+  "At the edge of a dense forest, a wise old owl perched on a moss-covered branch, observing the nocturnal activities of the creatures that called the woods their home.",
+  "Inside a high-tech laboratory, scientists worked diligently to unlock the secrets of renewable energy, aiming to create a sustainable future for generations to come.",
+  "In a charming village, a cobbler carefully crafted custom-made shoes, each pair a work of art designed to provide comfort and style to its wearer.",
+  "In a fast-paced software development environment, full-stack engineers are responsible for building and maintaining both the front-end and back-end components of web applications. They work with programming languages like JavaScript, Python, and Ruby, utilizing frameworks like React, Django, and Ruby on Rails to create seamless user experiences.",
+  "Full-stack engineers are the Swiss Army knives of the tech world, equipped with the skills to handle both front-end and back-end development tasks. They're proficient in languages like HTML, CSS, JavaScript, Python, and more, making them versatile problem solvers in the digital realm.",
+  "One of the challenges full-stack engineers often face is finding the right balance between user experience and server performance. They optimize code for faster load times while ensuring a seamless and responsive interface for users.",
+  "In a rapidly evolving tech landscape, full-stack engineers must adapt to new frameworks and libraries continuously. Staying on top of industry trends and learning new tools is a part of their professional journey.",
+  "From e-commerce websites to social media platforms, full-stack engineers contribute to building a wide range of applications. Their work can impact millions of users, making scalability and robustness essential aspects of their job.",
+  "Full-stack engineers often work in Agile or Scrum teams, collaborating closely with other developers, designers, and product owners. Effective teamwork and clear communication are vital to delivering successful projects.",
+  "In the realm of cybersecurity, full-stack engineers play a crucial role in protecting applications from malicious attacks. They implement security measures, including encryption, to safeguard user data and privacy.",
+  "The debugging skills of full-stack engineers are unparalleled. They use various debugging tools and techniques to identify and resolve issues, ensuring that the software runs smoothly without errors.",
+  "Full-stack engineers are passionate about creating user-centric applications. They conduct user testing and gather feedback to improve the user experience continually, making data-driven decisions to enhance their projects.",
+  "Automation is a significant part of a full-stack engineer's toolkit. They write scripts to automate repetitive tasks, saving time and reducing the risk of human error in deployment and maintenance processes.",
+  "A full-stack engineer's work extends beyond coding. They are problem solvers, critical thinkers, and lifelong learners who thrive in a dynamic field where innovation is the norm.",
+  "Full-stack engineers are skilled in database management, designing efficient database schemas, and using tools like SQL and NoSQL databases to store and retrieve data. They also work on optimizing application performance, ensuring that web pages load quickly and efficiently.",
+  "Security is a top priority for full-stack engineers. They implement security best practices, protect against common vulnerabilities like SQL injection and Cross-Site Scripting (XSS), and use authentication and authorization mechanisms to safeguard user data and sensitive information.",
+  "Collaboration is key in the world of full-stack development. Engineers often work closely with UI/UX designers, product managers, and other team members to bring ideas to life. Effective communication and the ability to understand different perspectives are crucial skills for success.",
+  "Full-stack engineers are always learning and adapting to new technologies. They stay up-to-date with industry trends, experiment with emerging tools and frameworks, and continually seek ways to improve their coding skills and stay at the forefront of web development.",
+  "Beneath the starry night sky, a campfire flickered, illuminating the faces of storytellers who shared tales of mythical creatures and epic adventures.",
+];
+
+    const typingText = document.querySelector(".typing-text p");
+    const inpField = document.querySelector(".wrapper .input-field");
+    const tryAgainBtn = document.querySelector(".content button");
+    const timeTag = document.querySelector(".time span b");
+    const mistakeTag = document.querySelector(".mistake span");
+    const wpmTag = document.querySelector(".wpm span");
+    const cpmTag = document.querySelector(".cpm span");
+
+    let timer;
+    let maxTime = 60;
+    let timeLeft = maxTime;
+    let charIndex = 0;
+    let mistakes = 0;
+    let isTyping = 0;
+
+    function loadParagraph() {
+      const ranIndex = Math.floor(Math.random() * paragraphs.length);
+      typingText.innerHTML = "";
+      paragraphs[ranIndex].split("").forEach(char => {
+        let span = `<span>${char}</span>`
+        typingText.innerHTML += span;
+      });
+      typingText.querySelectorAll("span")[0].classList.add("active");
+      document.addEventListener("keydown", () => inpField.focus());
+      typingText.addEventListener("click", () => inpField.focus());
+    }
+
+    function initTyping() {
+      let characters = typingText.querySelectorAll("span");
+      let typedChar = inpField.value.split("")[charIndex];
+      if (charIndex < characters.length - 1 && timeLeft > 0) {
+        if (!isTyping) {
+          timer = setInterval(initTimer, 1000);
+          isTyping = true;
+        }
+        if (typedChar == null) {
+          if (charIndex > 0) {
+            charIndex--;
+            if (characters[charIndex].classList.contains("incorrect")) {
+              mistakes--;
+            }
+            characters[charIndex].classList.remove("correct", "incorrect");
+          }
+        } else {
+          if (characters[charIndex].innerText == typedChar) {
+            characters[charIndex].classList.add("correct");
+          } else {
+            mistakes++;
+            characters[charIndex].classList.add("incorrect");
+          }
+          charIndex++;
+        }
+        characters.forEach(span => span.classList.remove("active"));
+        characters[charIndex].classList.add("active");
+
+        let wpm = Math.round(((charIndex - mistakes) / 5) / (maxTime - timeLeft) * 60);
+        wpm = wpm < 0 || !wpm || wpm === Infinity ? 0 : wpm;
+
+        wpmTag.innerText = wpm;
+        mistakeTag.innerText = mistakes;
+        cpmTag.innerText = charIndex - mistakes;
+      } else {
+        clearInterval(timer);
+        inpField.value = "";
+      }
+    }
+
+    function initTimer() {
+      if (timeLeft > 0) {
+        timeLeft--;
+        timeTag.innerText = timeLeft;
+        let wpm = Math.round(((charIndex - mistakes) / 5) / (maxTime - timeLeft) * 60);
+        wpmTag.innerText = wpm;
+      } else {
+        clearInterval(timer);
+      }
+    }
+
+    function resetGame() {
+      loadParagraph();
+      clearInterval(timer);
+      timeLeft = maxTime;
+      charIndex = mistakes = isTyping = 0;
+      inpField.value = "";
+      timeTag.innerText = timeLeft;
+      wpmTag.innerText = 0;
+      mistakeTag.innerText = 0;
+      cpmTag.innerText = 0;
+    }
+
+    loadParagraph();
+    inpField.addEventListener("input", initTyping);
+    tryAgainBtn.addEventListener("click", resetGame);
+  </script>
+</body>
+</html>
