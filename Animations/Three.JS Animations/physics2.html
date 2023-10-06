@@ -29,7 +29,6 @@
         const world = new CANNON.World();
         world.gravity.set(0, -20, 0);
 
-// Create a more accurate time step
 const fixedTimeStep = 1 / 160; // 60 FPS
         const maxSubSteps = 30; // Maximum number of simulation steps per frame
 
@@ -96,7 +95,6 @@ const fixedTimeStep = 1 / 160; // 60 FPS
 "#DC143C"    // Crimson
 ];
 
-        // Realistic sphere properties
         const minBalls = 100; // Minimum number of balls
         const maxBalls = 700; // Maximum number of balls
         const numSpheres = Math.floor(Math.random() * (maxBalls - minBalls + 1)) + minBalls;
@@ -122,10 +120,9 @@ const fixedTimeStep = 1 / 160; // 60 FPS
 
             sphereBody.position.set(x, y, z);
 
-            // Realistic material properties
             sphereBody.material = new CANNON.Material();
-            sphereBody.material.friction = 0.3; // Adjust friction
-            sphereBody.material.restitution = 0.7; // Adjust restitution
+            sphereBody.material.friction = 0.3; 
+            sphereBody.material.restitution = 0.7; 
 
             spheres.push({ mesh: sphere, body: sphereBody });
             sphere.castShadow = true;
@@ -135,7 +132,6 @@ const fixedTimeStep = 1 / 160; // 60 FPS
             world.addBody(sphereBody);
         }
 
-        // Add directional light
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
         directionalLight.position.set(10, 20, 10);
         directionalLight.castShadow = true;
@@ -149,7 +145,6 @@ const fixedTimeStep = 1 / 160; // 60 FPS
         scene.add(directionalLight);
 
 
-        // Function to handle sphere-to-sphere collisions
         const handleSphereCollisions = () => {
             const numSpheres = sphereBodies.length;
             for (let i = 0; i < numSpheres; i++) {
@@ -167,8 +162,7 @@ const fixedTimeStep = 1 / 160; // 60 FPS
 
                         const normal = contactPointA.unit(contactPointA); // Get collision normal
 
-                        // Apply an impulse to resolve the collision
-                        const impulse = new CANNON.Vec3(0, 0, 0.5); // Adjust the impulse for desired effect
+                        const impulse = new CANNON.Vec3(0, 0, 0.5); 
                         bodyA.applyImpulse(impulse, contactPointA);
                         bodyB.applyImpulse(impulse.negate(), contactPointB);
                     }
