@@ -29,8 +29,8 @@
         const world = new CANNON.World();
         world.gravity.set(0, -20, 0);
 
-const fixedTimeStep = 1 / 160; // 60 FPS
-        const maxSubSteps = 30; // Maximum number of simulation steps per frame
+const fixedTimeStep = 1 / 160; // 160 FPS
+        const maxSubSteps = 60; // Maximum number of simulation steps per frame
 
 
         const groundShape = new CANNON.Plane();
