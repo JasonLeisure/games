@@ -1,3 +1,5 @@
+### Updates to files 10/7/2023. Added 3 files to animations vanilla code, sine wave, particle flow field, and perlin noise experiment.
+
 ### Updates to files 10/5/2023. Added PingPong game to the games folder. Added Typing Speed Game.
 
 ### Updates to files 10/4/2023. Added a new game Red VS Blue to the games folder. Really proud of this one. This isn't part of the september project. This is a three.js game. Added a canvas, html5, css, and javascript game called match3 to games folder.
