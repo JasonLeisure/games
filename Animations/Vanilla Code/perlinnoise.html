@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perlin Noise Flow Field</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <button id="randomizeButton">Randomize</button>
+    <label for="waveSpeedSlider">Wave Speed:</label>
+    <input type="range" id="waveSpeedSlider" min="0.01" max="1" step="0.01" value="0.1">
+    <label for="patternSlider">Pattern Adjustment:</label>
+    <input type="range" id="patternSlider" min="0.01" max="0.5" step="0.01" value="0.05">
+    <label for="colorScheme">Color Scheme:</label>
+    <select id="colorScheme">
+        <option value="random">Random</option>
+        <option value="blue">Blue</option>
+        <option value="rainbow">Rainbow</option>
+        <option value="green">Green</option>
+        <option value="red">Red</option>
+        <option value="purple">Purple</option>
+        <option value="yellow">Yellow</option>
+        <option value="orange">Orange</option>
+        <option value="pink">Pink</option>
+        <option value="brown">Brown</option>
+        <option value="teal">Teal</option>
+        <option value="cyan">Cyan</option>
+        <option value="magenta">Magenta</option>
+        <option value="lime">Lime</option>
+        <option value="gold">Gold</option>
+        <option value="silver">Silver</option>
+        <option value="violet">Violet</option>
+        <option value="indigo">Indigo</option>
+        <option value="maroon">Maroon</option>
+        <option value="olive">Olive</option>
+        <option value="aquamarine">Aquamarine</option>
+<option value="coral">Coral</option>
+<option value="orchid">Orchid</option>
+<option value="slategray">Slate Gray</option>
+<option value="sienna">Sienna</option>
+<option value="turquoise">Turquoise</option>
+<option value="salmon">Salmon</option>
+<option value="dodgerblue">Dodger Blue</option>
+<option value="navy">Navy</option>
+<option value="palegreen">Pale Green</option>
+    </select>
+    <label for="lineWidth">Line Width:</label>
+    <input type="range" id="lineWidth" min="1" max="5" step="1" value="2">
+    <label for="particleSize">Particle Size:</label>
+    <input type="range" id="particleSize" min="1" max="10" step="0.1" value="2">
+    <label for="backgroundColor">Background Color:</label>
+    <input type="color" id="backgroundColor" value="#ffffff">
+    <label for="particleCount">Particle Count:</label>
+    <input type="range" id="particleCount" min="100" max="2000" step="100" value="1000">
+    <button id="resetButton">Reset</button>
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const randomizeButton = document.getElementById("randomizeButton");
+        const waveSpeedSlider = document.getElementById("waveSpeedSlider");
+        const patternSlider = document.getElementById("patternSlider");
+        const colorSchemeSelect = document.getElementById("colorScheme");
+        const lineWidthSlider = document.getElementById("lineWidth");
+        const particleSizeSlider = document.getElementById("particleSize");
+        const backgroundColorInput = document.getElementById("backgroundColor");
+        const particleCountSlider = document.getElementById("particleCount");
+        const resetButton = document.getElementById("resetButton");
+
+        const cols = 100;
+        const rows = 100;
+        let increment = 0.05;
+        let flowField = generateFlowField(cols, rows, increment);
+        let time = 0;
+        let waveSpeed = 0.1;
+        const particles = [];
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function generateFlowField(cols, rows, increment) {
+            const field = new Array(cols).fill(0).map(() => new Array(rows).fill(0));
+            let xOff = 0;
+            for (let i = 0; i < cols; i++) {
+                let yOff = 0;
+                for (let j = 0; j < rows; j++) {
+                    const angle = Math.sin(xOff) * Math.PI;
+                    field[i][j] = angle;
+                    yOff += increment;
+                }
+                xOff += increment;
+            }
+            return field;
+        }
+
+        function drawFlowField() {
+            const cellSizeX = canvas.width / cols;
+            const cellSizeY = canvas.height / rows;
+
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    const x = i * cellSizeX;
+                    const y = j * cellSizeY;
+                    const angle = flowField[i][j];
+
+                    const x2 = x + Math.cos(angle) * cellSizeX * 2;
+                    const y2 = y + Math.sin(angle) * cellSizeY * 2;
+
+                    const newX = x2 + Math.cos(angle) * Math.sin(time * waveSpeed) * 10;
+                    const newY = y2 + Math.sin(angle) * Math.sin(time * waveSpeed) * 10;
+
+                    const selectedColorScheme = colorSchemeSelect.value;
+                    const selectedLineWidth = parseFloat(lineWidthSlider.value);
+                    const selectedParticleSize = parseFloat(particleSizeSlider.value);
+
+                    ctx.beginPath();
+                    ctx.strokeStyle = getLineColor(selectedColorScheme);
+                    ctx.lineWidth = selectedLineWidth;
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(newX, newY);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function createParticle(x, y) {
+            return {
+                x,
+                y,
+                size: parseFloat(particleSizeSlider.value),
+                speed: Math.random() * 2 + 1,
+                angle: Math.random() * Math.PI * 2,
+                color: getLineColor(colorSchemeSelect.value),
+            };
+        }
+
+        function updateParticles() {
+            for (const particle of particles) {
+                particle.x += Math.cos(particle.angle) * particle.speed;
+                particle.y += Math.sin(particle.angle) * particle.speed;
+
+                if (particle.x < 0 || particle.x > canvas.width || particle.y < 0 || particle.y > canvas.height) {
+                    particle.x = Math.random() * canvas.width;
+                    particle.y = Math.random() * canvas.height;
+                }
+            }
+        }
+
+        function drawParticles() {
+            for (const particle of particles) {
+                ctx.fillStyle = particle.color;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            time += 0.02;
+            drawFlowField();
+            updateParticles();
+            drawParticles();
+            requestAnimationFrame(animate);
+        }
+
+        for (let i = 0; i < 1000; i++) {
+            particles.push(createParticle(Math.random() * canvas.width, Math.random() * canvas.height));
+        }
+
+        animate();
+
+        randomizeButton.addEventListener("click", () => {
+            increment = Math.random() * 0.1 + 0.01;
+            flowField = generateFlowField(cols, rows, increment);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawFlowField();
+        });
+
+        waveSpeedSlider.addEventListener("input", (e) => {
+            waveSpeed = parseFloat(e.target.value);
+        });
+
+        patternSlider.addEventListener("input", (e) => {
+            increment = parseFloat(e.target.value);
+            flowField = generateFlowField(cols, rows, increment);
+        });
+
+        function getLineColor(colorScheme) {
+
+    const colorSchemes = {
+        random: `rgba(${Math.random() * 256},${Math.random() * 256},${Math.random() * 256}, 0.8)`,
+        blue: "blue",
+        rainbow: `hsl(${Math.random() * 360}, 100%, 50%)`,
+        green: "green",
+        red: "red",
+        purple: "purple",
+        yellow: "yellow",
+        orange: "orange",
+        pink: "pink",
+        brown: "brown",
+        teal: "teal",
+        cyan: "cyan",
+        magenta: "magenta",
+        lime: "lime",
+        gold: "gold",
+        silver: "silver",
+        violet: "violet",
+        indigo: "indigo",
+        maroon: "maroon",
+        olive: "olive",
+        aquamarine: "aquamarine",
+        coral: "coral",
+        orchid: "orchid",
+        slategray: "slategray",
+        sienna: "sienna",
+        turquoise: "turquoise",
+        salmon: "salmon",
+        dodgerblue: "dodgerblue",
+        navy: "navy",
+        palegreen: "palegreen",
+    };
+
+    return colorSchemes[colorScheme] || "black";
+}
+
+particleSizeSlider.addEventListener("input", (e) => {
+    const newSize = parseFloat(e.target.value);
+    for (const particle of particles) {
+        particle.size = newSize;
+    }
+});
+
+function updateParticleSize(size) {
+    for (const particle of particles) {
+        particle.size = size;
+    }
+}
+updateParticleSize(parseFloat(particleSizeSlider.value));
+        backgroundColorInput.addEventListener("input", (e) => {
+            canvas.style.backgroundColor = e.target.value;
+        });
+
+        particleCountSlider.addEventListener("input", (e) => {
+            const newCount = parseInt(e.target.value);
+            if (newCount < particles.length) {
+                particles.splice(newCount);
+            } else {
+                for (let i = particles.length; i < newCount; i++) {
+                    particles.push(createParticle(Math.random() * canvas.width, Math.random() * canvas.height));
+                }
+            }
+        });
+
+        resetButton.addEventListener("click", () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            time = 0;
+
+            waveSpeedSlider.value = "0.1";
+            patternSlider.value = "0.05";
+            colorSchemeSelect.value = "random";
+            lineWidthSlider.value = "2";
+            backgroundColorInput.value = "#ffffff";
+            particleSizeSlider.value = "2";
+            particleCountSlider.value = "1000";
+
+            particles.length = 0;
+
+            for (let i = 0; i < parseInt(particleCountSlider.value); i++) {
+                particles.push(createParticle(Math.random() * canvas.width, Math.random() * canvas.height));
+            }
+
+            increment = parseFloat(patternSlider.value);
+            flowField = generateFlowField(cols, rows, increment);
+
+            isDragging = false;
+
+            canvas.style.backgroundColor = backgroundColorInput.value;
+
+            drawFlowField();
+        });
+    </script>
+</body>
+</html>

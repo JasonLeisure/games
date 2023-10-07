@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particle Flow Field</title>
+    <style>
+       canvas {
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <button id="randomizeButton">Randomize</button>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const randomizeButton = document.getElementById("randomizeButton");
+        const cols = 100;
+        const rows = 100;
+        const increment = 0.05;
+        let flowField = generateFlowField(cols, rows, increment);
+        let time = 0;
+        let waveSpeed = 0.1;
+        const particles = [];
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function generateFlowField(cols, rows, increment) {
+            const field = new Array(cols).fill(0).map(() => new Array(rows).fill(0));
+            let xOff = 0;
+            for (let i = 0; i < cols; i++) {
+                let yOff = 0;
+                for (let j = 0; j < rows; j++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    field[i][j] = angle;
+                    yOff += increment;
+                }
+                xOff += increment;
+            }
+            return field;
+        }
+
+        function drawFlowField() {
+
+        }
+
+        function createParticle(x, y) {
+            return {
+                x,
+                y,
+                speed: Math.random() * 2 + 1,
+                angle: Math.random() * Math.PI * 2,
+                color: `rgba(${Math.random() * 256},${Math.random() * 256},${Math.random() * 256}, 0.8)`,
+            };
+        }
+
+        randomizeButton.addEventListener("click", () => {
+            flowField = generateFlowField(cols, rows, increment);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            changeParticles();
+            drawFlowField();
+        });
+
+        function changeParticles() {
+            for (const particle of particles) {
+                particle.color = `rgba(${Math.random() * 256},${Math.random() * 256},${Math.random() * 256}, 0.8)`;
+                particle.shape = Math.random() > 0.5 ? 'circle' : 'square';
+            }
+        }
+
+        function updateParticles() {
+            for (const particle of particles) {
+                particle.x += Math.cos(particle.angle) * particle.speed;
+                particle.y += Math.sin(particle.angle) * particle.speed;
+
+                if (particle.x < 0 || particle.x > canvas.width || particle.y < 0 || particle.y > canvas.height) {
+                    particle.x = Math.random() * canvas.width;
+                    particle.y = Math.random() * canvas.height;
+                }
+            }
+        }
+
+        function drawParticles() {
+            for (const particle of particles) {
+                ctx.fillStyle = particle.color;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            time += 0.02;
+            drawFlowField();
+            updateParticles();
+            drawParticles();
+            requestAnimationFrame(animate);
+        }
+
+        for (let i = 0; i < 1000; i++) {
+            particles.push(createParticle(Math.random() * canvas.width, Math.random() * canvas.height));
+        }
+
+        animate();
+    </script>
+</body>
+</html>
