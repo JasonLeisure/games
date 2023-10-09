@@ -1,3 +1,5 @@
+### Updates to files 10/9/2023 Added Flappy Box game to games folder and working on a trivia game next.
+
 ### Updates to files 10/7/2023. Added 3 files to animations vanilla code, sine wave, particle flow field, and perlin noise experiment. Added rain demo to vanilla code animations.
 
 ### Updates to files 10/5/2023. Added PingPong game to the games folder. Added Typing Speed Game.
