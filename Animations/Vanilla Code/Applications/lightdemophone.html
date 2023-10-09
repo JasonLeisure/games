@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #000;
+            margin: 0;
+        }
+
+        .torch {
+            width: 200px;
+            height: 400px;
+            background-color: #222;
+            border: 5px solid #111;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .torch-body {
+            width: 40%;
+            height: 100%;
+            background-color: #222;
+            position: absolute;
+            left: 30%;
+            top: 0;
+            border-top-left-radius: 50%;
+            border-top-right-radius: 50%;
+            z-index: 2;
+        }
+
+
+
+        .flame {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #ff6600, transparent);
+            border-radius: 50% 50% 0 0;
+            position: absolute;
+            bottom: -40px;
+            animation: flicker 0.1s infinite alternate;
+            z-index: 1;
+        }
+
+        @keyframes flicker {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+                background: radial-gradient(circle, #ff6600, transparent);
+            }
+            25% {
+                opacity: 0.8;
+                transform: translateY(-5px);
+                background: radial-gradient(circle, #ffaa00, transparent);
+            }
+            50% {
+                opacity: 0.6;
+                transform: translateY(-10px);
+                background: radial-gradient(circle, #ffcc00, transparent);
+            }
+            75% {
+                opacity: 0.8;
+                transform: translateY(-5px);
+                background: radial-gradient(circle, #ffaa00, transparent);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+                background: radial-gradient(circle, #ff6600, transparent);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="torch">
+        <div class="torch-body">
+            <div class="torch-handle"></div>
+        </div>
+        <div class="flame"></div>
+    </div>
+    <script>
+        const torch = document.querySelector('.torch');
+        const flame = document.querySelector('.flame');
+        let isTorchOn = true;
+
+        torch.addEventListener('click', () => {
+            if (isTorchOn) {
+                flame.style.animation = 'none';
+                flame.style.opacity = 0;
+            } else {
+                flame.style.animation = 'flicker 0.1s infinite alternate';
+                flame.style.opacity = 1;
+            }
+            isTorchOn = !isTorchOn;
+        });
+    </script>
+</body>
+</html>
