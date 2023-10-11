@@ -2,39 +2,62 @@
 <html>
 <head>
 <style>
-  body {
-    background-color: #1e1e1e;
-    color: #fff;
-    font-family: 'Arial', sans-serif;
-    text-align: center;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-  }
+  * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
 
-  h1 {
-    font-size: 36px;
-    font-weight: bold;
-    margin: 20px 0;
-    color: #FFD700;
-    position: relative;
-    animation: bubbleOut 2s ease-in-out infinite;
-  }
+        body {
+            background: #0A0A0A; /* Updated background color to dark gray */
+        }
 
-  @keyframes bubbleOut {
-    0% {
-      transform: scale(1);
-      opacity: 0;
-    }
-    50% {
-      transform: scale(1.2);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(1);
-      opacity: 0;
-    }
-  }
+        svg {
+            font-family: 'Monoton', cursive;
+            width: 100%;
+            height: 100%;
+            margin-top: 2%;
+        }
+
+        svg text {
+            animation: stroke 5s infinite alternate;
+            stroke-width: 2;
+            stroke: #FFD700; /* Updated neon color to gold */
+            font-size: 100px;
+            fill: transparent; /* Make text transparent */
+            transition: transform 0.3s ease-in-out; /* Add scaling transition */
+}
+
+svg text:hover {
+    transform: scale(1.2); /* Scale up when hovered */
+}
+        @keyframes stroke {
+            0% {
+                stroke: #FFD700; /* Updated neon color to gold */
+                stroke-dashoffset: 25%;
+                stroke-dasharray: 0 50%;
+                stroke-width: 2;
+            }
+            70% {
+                stroke: #FFD700; /* Updated neon color to gold */
+            }
+            80% {
+                stroke: #FFD700; /* Updated neon color to gold */
+                stroke-width: 3;
+            }
+            100% {
+                stroke: #00CC00; /* Retro green color */
+                stroke-dashoffset: -25%;
+                stroke-dasharray: 50% 0;
+                stroke-width: 2; /* Adjust the stroke width for the green color */
+            }
+        }
+
+        ::selection {
+            color: #fff;
+            background: #FFD700; /* Updated selection color to gold */
+        }
 
   #game-container {
     display: flex;
@@ -183,8 +206,15 @@ button:hover {
 </style>
 </head>
 <body oncontextmenu="return false;">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+  <div class="wrapper">
+          <svg>
+              <text x="50%" y="50%" dy=".35em" text-anchor="middle">
+                  Minesweep
+              </text>
+          </svg>
+          </div>
   <div id="game-container">
-    <h1> MineSweep </h1>
     <div class="info">Time Elapsed: <span id="timer">0</span> seconds</div>
     <div class="info">Remaining Mines: <span id="mines-remaining">10</span></div>
     <table id="grid">
@@ -314,13 +344,13 @@ function checkLevelCompletion() {
     clearInterval(timerInterval);
     alert("Congratulations! You cleared all tiles! You Win!");
     revealMines();
-    stopClockAudio();
+    stopClockAudio(); // Stop the clock audio when you win
   }
 
   if (allBombsFlagged) {
     clearInterval(timerInterval);
     alert("Congratulations! You flagged all bombs! You Win!");
-    stopClockAudio(); 
+    stopClockAudio(); // Stop the clock audio when you win
   }
 }
 
