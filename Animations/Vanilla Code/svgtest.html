@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Realistic Leaves Animation</title>
+</head>
+<body>
+    <svg xmlns="http://www.w3.org/2000/svg" width="800" height="400">
+        <!-- Background -->
+        <rect x="0" y="0" width="800" height="400" fill="#87CEEB" />
+
+       <!-- Realistic Sun -->
+       <defs>
+        <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+            <stop offset="0%" style="stop-color: #FFD700; stop-opacity: 1" />
+            <stop offset="100%" style="stop-color: #FFA500; stop-opacity: 0" />
+        </radialGradient>
+    </defs>
+    <circle cx="100" cy="100" r="50" fill="url(#sunGradient)" />
+
+    <!-- Sun Rays -->
+    <g id="sunRays" fill="#FFD700">
+        <path d="M100 20 L100 40" />
+        <path d="M100 160 L100 180" />
+        <path d="M20 100 L40 100" />
+        <path d="M160 100 L180 100" />
+        <path d="M60 60 L80 80" />
+        <path d="M60 140 L80 120" />
+        <path d="M140 140 L120 120" />
+        <path d="M140 60 L120 80" />
+    </g>
+
+
+        <!-- Ground -->
+        <rect x="0" y="350" width="800" height="50" fill="#228B22" />
+
+        <!-- Tree Trunk -->
+        <rect x="375" y="200" width="50" height="150" fill="#8B4513" />
+
+        <!-- Tree Top -->
+        <ellipse cx="400" cy="180" rx="100" ry="140" fill="#228B22" />
+
+
+
+        <!-- Leaves on the Ground (Updated to Look More Like Tree Leaves) -->
+<g class="ground-leaves">
+    <path d="M50 150 C45 40, 70 20, 70 70 C70 110, 60 130, 50 150" fill="#63AB3D" />
+    <path d="M100 150 C95 40, 120 20, 120 70 C120 110, 110 130, 100 150" fill="#63AB3D" />
+    <path d="M150 150 C145 40, 170 20, 170 70 C170 110, 160 130, 150 150" fill="#63AB3D" />
+    <!-- Add more leaves on the ground as needed -->
+</g>
+
+ <!-- Realistic Cloud 1 -->
+ <g fill="#FFFFFF">
+    <path d="M150 120 Q130 90 170 90 Q190 50 210 90 Q230 50 250 120 Z" />
+    <path d="M170 130 Q150 100 190 100 Q210 60 230 100 Q250 60 270 130 Z" />
+</g>
+
+
+        <!-- Realistic Cloud 2 (Moved to the Right) -->
+        <g fill="#FFFFFF">
+            <path d="M580 120 Q560 90 600 90 Q620 50 640 120 Z" />
+            <path d="M600 130 Q580 100 620 100 Q640 60 660 130 Z" />
+        </g>
+    </svg>
+
+    </svg>
+
+    <script>
+        const treeLeaves = document.querySelectorAll('.tree-leaves path');
+        const groundLeaves = document.querySelectorAll('.ground-leaves path');
+
+        const allLeaves = [...treeLeaves, ...groundLeaves];
+
+        allLeaves.forEach(leaf => {
+            const randomX = Math.random() * 800;
+            const randomY = Math.random() * 50;
+
+            leaf.setAttribute('transform', `translate(${randomX}, ${randomY})`);
+
+            // Animate the leaves
+            animateLeaf(leaf);
+        });
+
+        function animateLeaf(leaf) {
+            const randomSpeed = 1 + Math.random() * 2;
+            const randomDirection = Math.random() < 0.5 ? 1 : -1;
+
+            const animation = () => {
+                const transform = leaf.getAttribute('transform');
+                const parts = transform.match(/translate\(([^,]+), ([^)]+)\)/);
+                let x = parseFloat(parts[1]);
+                let y = parseFloat(parts[2]);
+
+                x += randomSpeed * randomDirection;
+                y += 0.5; // Leaves fall vertically
+
+                leaf.setAttribute('transform', `translate(${x}, ${y})`);
+
+                if (x > 800 || x < 0 || y > 400) {
+                    // Reset leaf when it goes out of bounds
+                    leaf.setAttribute('transform', `translate(${Math.random() * 800}, -10)`);
+                    animateLeaf(leaf);
+                } else {
+                    requestAnimationFrame(animation);
+                }
+            };
+
+            requestAnimationFrame(animation);
+        }
+    </script>
+</body>
+</html>
