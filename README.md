@@ -1,6 +1,8 @@
+### Updates to files 10/11/2023 Added in new game Hangman. 
+
 ### Updates to files 10/10/2023 Added new title to Minesweep think this is visually better.
 
-### Updates to files 10/9/2023 Added Flappy Box game to games folder and working on a trivia game next.
+### Updates to files 10/9/2023 Added Flappy Box game to games folder.
 
 ### Updates to files 10/7/2023. Added 3 files to animations vanilla code, sine wave, particle flow field, and perlin noise experiment. Added rain demo to vanilla code animations.
 
