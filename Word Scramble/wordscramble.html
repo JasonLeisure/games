@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: black;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        #game-container {
+            background-color: #fd07a2;
+            border-radius: 10px;
+            padding: 20px;
+            width: 80%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+
+
+        h1 {
+            font-size: 48px;
+            margin: 0;
+            font-family: 'Pacifico', cursive;
+            animation: rainbow 8s linear infinite, rotate 4s ease-in-out infinite;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            transform: perspective(400px) rotateX(10deg);
+        }
+
+        @keyframes rainbow {
+            0%, 100% {
+                color: #ff0000;
+            }
+            14% {
+                color: #ff9900;
+            }
+            28% {
+                color: #ffff00;
+            }
+            42% {
+                color: #00ff00;
+            }
+            57% {
+                color: #0000ff;
+            }
+            71% {
+                color: #9900ff;
+            }
+            85% {
+                color: #ff00ff;
+            }
+        }
+
+        @keyframes rotate {
+            0%, 100% {
+                transform: perspective(400px) rotateX(10deg);
+            }
+            50% {
+                transform: perspective(400px) rotateX(-10deg);
+            }
+        }
+        p {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        #hint-container {
+    position: relative;
+    top: -20px;
+}
+
+#scrambledWord {
+    font-size: 28px;
+    margin: 10px 0;
+}
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        button {
+        padding: 15px 30px;
+        font-size: 20px;
+        background: linear-gradient(135deg, #ff5757, #db3488);
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 15px;
+        transition: background 0.3s;
+        text-transform: uppercase;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    button:hover {
+        background: linear-gradient(135deg, #db3488, #ff5757);
+    }
+
+        #score {
+            font-size: 24px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #ff5757, #db3488);
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+    </style>
+</head>
+<body>
+    <h1 style="font-size: 60px; font-family: 'Pacifico', cursive; color: #333; text-transform: uppercase; text-shadow: 4px 4px 0 #ff0000, 8px 8px 0 #ff9900, 12px 12px 0 #ffff00;">Word Scramble</h1>
+    <div id="game-container">
+        <canvas id="wordScrambleCanvas" width="600" height="400"></canvas>
+        <p>Unscramble the word:</p>
+        <h2 id="scrambledWord"></h2>
+        <input type="text" id="userGuess" placeholder="Your Guess">
+        <button id="checkGuess">Check</button>
+        <button id="nextWordButton">Next Word</button>
+        <button id="hintButton">Hint</button>
+        <p id="score">Score: 0</p>
+        <div id="hint-container">
+            <p id="scrambledWord"></p>
+            <p id="hint" style="display: none;"></p>
+        </div>
+        <div id="audioPlayer">
+            <audio id="introAudio" preload="auto" loop>
+                <source src="am5intro.mp3" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <div id="audioControls">
+                <button id="playButton">Play</button>
+                <button id="pauseButton">Pause</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('wordScrambleCanvas');
+        const ctx = canvas.getContext('2d');
+        const words = ['nintendo', 'playstation', 'xbox', 'zelda', 'pubg', 'mario',  'minecraft', 'conker', 'call of duty', 'halo', 'lollipop chainsaw', 'stubbs the zombie', 'pong', 'tetris', 'doom', 'resident evil', 'sonic', 'shenmue', 'illbleed', 'overwatch', 'grand theft auto', 'pokemon', 'fortnite', 'fallout', 'dungeons', 'platform', 'adventure', 'strategy', 'character', 'multiplayer', 'respawn', 'leaderboard', 'arcade', 'controller', 'virtual', 'simulation', 'achievements', 'quest', 'joystick', 'bossfight', 'powerup', 'cutscene', 'pixelated', 'highscore'];
+
+const hints = [
+    "Hint: A famous gaming company known for iconic characters like Mario and Zelda.",
+    "Hint: Sony's gaming console with a geometric button layout.",
+    "Hint: Microsoft's gaming console known for its green branding.",
+    "Hint: A legendary hero in the world of Hyrule.",
+    "Hint: Drop into a vast battlefield, scavenge for weapons, and strive to be the last person or team standing in this popular battle royale game.",
+    "Hint: A famous plumber who loves mushrooms and rescuing princesses.",
+    "Hint: A sandbox game where you can build, mine, and survive.",
+    "Hint: This foul-mouthed squirrel embarks on a raunchy adventure filled with bizarre characters and dark humor.",
+    "Hint: Join the frontlines of global conflict in this popular first-person shooter series known for its intense multiplayer battles.",
+    "Hint: Step into the boots of Master Chief to save humanity from an alien threat in this iconic science fiction shooter.",
+    "Hint: In this offbeat game, a high school cheerleader battles hordes of zombies with a sparkly chainsaw, and it's anything but ordinary.",
+    "Hint: Play as a wisecracking zombie who leaves a trail of chaos and destruction in his wake in this humorous action game.",
+    "Hint: This simple yet classic game is often considered the pioneer of video games, featuring a bouncing ball and paddles.",
+    "Hint: Arrange falling blocks to create solid lines in this addictive puzzle game that has captivated players for decades.",
+    "Hint: Rip and tear through hordes of demons in this legendary first-person shooter, known for its fast-paced action and intense gore.",
+    "Hint: Enter the survival horror genre and face off against zombies and other monstrosities in this spine-tingling series",
+    "Hint: A blue hedgehog known for his incredible speed and rings.",
+    "Hint: An action-adventure game about Ryo Hazuki's quest for vengeance.",
+    "Hint: A survival horror game set in a haunted amusement park.",
+    "Hint: A team-based shooter featuring colorful heroes with unique abilities.",
+    "Hint: An open-world game where crime and chaos thrive.",
+    "Hint: Gotta catch 'em all in this creature-catching game.",
+    "Hint: A popular battle royale game with building mechanics.",
+    "Hint: A post-apocalyptic RPG series with a retro-futuristic setting.",
+    "Hint: Often found in role-playing games, filled with monsters and treasure.",
+    "Hint: A game genre that involves jumping and running on various platforms.",
+    "Hint: A genre where you embark on exciting adventures and solve mysteries.",
+    "Hint: Strategy is key in this genre, where you plan and strategize your moves.",
+    "Hint: Create and customize your own character in many role-playing games.",
+    "Hint: Enjoy gaming with friends and others online.",
+    "Hint: Returning to the game after being defeated or completing a task.",
+    "Hint: A feature that ranks and displays the top players.",
+    "Hint: Enjoy classic games like Pac-Man and Donkey Kong in this place.",
+    "Hint: A device used to interact with and control games.",
+    "Hint: Often used with reality to create immersive experiences and simulations.",
+    "Hint: Simulate real-life experiences, from driving to farming and more.",
+    "Hint: Earn in-game awards for various accomplishments and tasks.",
+    "Hint: Complete tasks, missions, or challenges on your journey.",
+    "Hint: A classic controller input often used in flying and arcade games.",
+    "Hint: Engage in epic battles against powerful enemies.",
+    "Hint: Collect items or power-ups to gain new abilities or strength.",
+    "Hint: Watch cinematic sequences that advance the game's story.",
+    "Hint: Old-school graphics characterized by blocky pixels and a retro look.",
+    "Hint: Strive to achieve the highest score in classic games."
+];
+        let currentWord = '';
+        let scrambledWord = '';
+        let score = 0;
+
+        const scrambleWord = (word) => {
+            return word.split('').sort(() => Math.random() - 0.5).join('');
+        };
+
+        const drawGame = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.font = '24px Arial';
+            ctx.fillText(`Unscramble: ${scrambledWord}`, 50, 100);
+        };
+
+        const nextWord = () => {
+            const randomIndex = Math.floor(Math.random() * words.length);
+            currentWord = words[randomIndex];
+            scrambledWord = scrambleWord(currentWord);
+            document.getElementById('scrambledWord').textContent = scrambledWord;
+            document.getElementById('userGuess').value = '';
+            document.getElementById('hintButton').textContent = "Hint";
+        };
+
+        const getHint = () => {
+    const hint = hints[words.indexOf(currentWord)];
+    const hintElement = document.getElementById('hint');
+    hintElement.textContent = hint;
+    hintElement.style.display = 'block';
+    document.getElementById('hintButton').textContent = "Hint (Used)";
+};
+
+        const checkAnswer = () => {
+            const userGuess = document.getElementById('userGuess').value.toLowerCase();
+            if (userGuess === currentWord) {
+                score++;
+            } else {
+                if (score > 0) {
+                    score--;
+                }
+            }
+            document.getElementById('score').textContent = `Score: ${score}`;
+            nextWord();
+        };
+
+        document.getElementById('checkGuess').addEventListener('click', checkAnswer);
+        document.getElementById('userGuess').addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        document.getElementById('nextWordButton').addEventListener('click', nextWord);
+        document.getElementById('hintButton').addEventListener('click', getHint);
+
+        nextWord();
+
+        document.addEventListener("DOMContentLoaded", function () {
+    const introAudio = document.getElementById("introAudio");
+    const playButton = document.getElementById("playButton");
+    const pauseButton = document.getElementById("pauseButton");
+
+    playButton.addEventListener("click", function () {
+        introAudio.play();
+    });
+
+    pauseButton.addEventListener("click", function () {
+        introAudio.pause();
+    });
+});
+    </script>
+</body>
+</html>
