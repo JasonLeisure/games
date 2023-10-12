@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    body {
+      background-color: #3d3d3d;
+    }
+
+    #id {
+      color: inherit;
+    }
+
+
+    .game {
+      width: 720px;
+      border: solid 1px #ddd;
+      margin: 0 auto;
+      background: #007e23;
+      border: solid 10px;
+      text-align: center;
+      min-height: 430px;
+      font-size: 1.5em;
+    }
+
+    .btn {
+  border: none;
+  padding: 15px 30px;
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(45deg, #2ECC71, #3498DB);
+  color: white;
+  font-size: 1.2em;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.btn:hover {
+  background: linear-gradient(45deg, #E74C3C, #E67E22);
+  transform: scale(1.05);
+}
+
+.game h3 {
+  padding: 15px;
+  background: #2C3E50;
+  color: #ECF0F1;
+  border-radius: 10px;
+  text-transform: uppercase;
+  font-size: 1.5em;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s, transform 0.2s;
+}
+
+.game h3:hover {
+  background: #3498DB;
+  transform: rotate(3deg);
+}
+
+
+    .game .game-body {
+      padding: 20px;
+    }
+
+    .game .game-options {
+      text-align: center;
+    }
+
+    .game .card {
+  width: 70px;
+  height: 120px;
+  padding: 20px;
+  border: 3px solid #4A90E2;
+  background-color: #FF6B6B;
+  display: inline-block;
+  border-radius: 20px;
+  font-size: 16pt;
+  color: #2C3E50;
+  text-align: center;
+  margin: 10px;
+
+
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+
+    .game .status {
+      display: inline-block;
+      background: goldenrod;
+      border: solid 5px #222;
+      border-radius: 10px;
+      padding: 5px 20px;
+      margin: 0 auto;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .players {
+      width: 500px;
+      margin: 0 auto;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .player {
+      width: 40%;
+      border: solid 5px #222;
+      border-radius: 10px;
+      padding: 10px;
+      display: inline-block;
+      margin: 1%;
+      vertical-align: top;
+      background: #808080;
+    }
+    .player.active {
+  border: 2px solid #FFD700;
+}
+
+.points {
+  text-align: center;
+  font-size: 24pt;
+  font-weight: bold;
+  margin: 15px;
+  color: #3498DB;
+}
+.deck {
+  display: inline-block;
+  background: conic-gradient(from 0deg, #FFD700, #FFA500, #FFD700);
+  color: #222;
+  padding: 20px;
+  border-radius: 15px;
+  border: 3px solid #FFA500;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  perspective: 600px;
+  transform-style: preserve-3d;
+  transform: rotateY(-10deg) translateZ(0);
+  transition: background 0.3s, transform 0.2s;
+}
+
+.deck:hover {
+  background: conic-gradient(from 0deg, #FFA500, #FF6347, #FFA500);
+  transform: rotateY(10deg) translateZ(0);
+}
+  </style>
+</head>
+
+<body>
+  <div class="game">
+    <h3>Twenty-One!</h3>
+    <div class="game-body">
+      <div class="game-options">
+        <input type="button" id="btnStart" class="btn" value="start" onclick="startblackjack()">
+        <input type="button" class="btn" value="hit me" onclick="hitMe()">
+        <input type="button" class="btn" value="stay" onclick="stay()">
+      </div>
+      <div class="status" id="status"></div>
+      <div id="deck" class="deck">
+        <div id="deckcount">52</div>
+      </div>
+      <div id="players" class="players">
+      </div>
+      <div class="clear"></div>
+    </div>
+  </div>
+  <script>
+    var suits = ["Spades", "Hearts", "Diamonds", "Clubs"];
+    var values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
+    var deck = new Array();
+    var players = new Array();
+    var currentPlayer = 0;
+
+    function createDeck() {
+      deck = new Array();
+      for (var i = 0; i < values.length; i++) {
+        for (var x = 0; x < suits.length; x++) {
+          var weight = parseInt(values[i]);
+          if (values[i] == "J" || values[i] == "Q" || values[i] == "K") weight = 10;
+          if (values[i] == "A") weight = 0;
+          var card = {
+            Value: values[i],
+            Suit: suits[x],
+            Weight: weight
+          };
+          deck.push(card);
+        }
+      }
+    }
+
+    function createPlayers(num) {
+      players = new Array();
+      for (var i = 1; i <= num; i++) {
+        var hand = new Array();
+        var player = {
+          Name: "Player " + i,
+          ID: i,
+          Points: 0,
+          Hand: hand
+        };
+        players.push(player);
+      }
+    }
+
+    function createPlayersUI() {
+      document.getElementById("players").innerHTML = "";
+      for (var i = 0; i < players.length; i++) {
+        var div_player = document.createElement("div");
+        var div_playerid = document.createElement("div");
+        var div_hand = document.createElement("div");
+        var div_points = document.createElement("div");
+
+        div_points.className = "points";
+        div_points.id = "points_" + i;
+        div_player.id = "player_" + i;
+        div_player.className = "player";
+        div_hand.id = "hand_" + i;
+
+        div_playerid.innerHTML = "Player " + players[i].ID;
+        div_player.appendChild(div_playerid);
+        div_player.appendChild(div_hand);
+        div_player.appendChild(div_points);
+        document.getElementById("players").appendChild(div_player);
+      }
+    }
+
+    function shuffle() {
+      for (let i = deck.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * i);
+        let temp = deck[i];
+        deck[i] = deck[j];
+        deck[j] = temp;
+      }
+    }
+
+    function startblackjack() {
+      document.getElementById("btnStart").value = "restart";
+      document.getElementById("status").style.display = "none";
+      currentPlayer = 0;
+      createDeck();
+      shuffle();
+      createPlayers(2);
+      createPlayersUI();
+      dealHands();
+      document.getElementById("player_" + currentPlayer).classList.add("active");
+    }
+
+    function dealHands() {
+      for (var i = 0; i < 2; i++) {
+        for (var x = 0; x < players.length; x++) {
+          var card = deck.pop();
+          players[x].Hand.push(card);
+          renderCard(card, x);
+          updatePoints();
+        }
+      }
+      updateDeck();
+    }
+
+    function renderCard(card, player) {
+      var hand = document.getElementById("hand_" + player);
+      hand.appendChild(getCardUI(card));
+    }
+
+    function getCardUI(card) {
+      var el = document.createElement("div");
+      var icon = "";
+      if (card.Suit == "Hearts") icon = "&hearts;";
+      else if (card.Suit == "Spades") icon = "&spades;";
+      else if (card.Suit == "Diamonds") icon = "&diams;";
+      else icon = "&clubs;";
+
+      el.className = "card";
+      el.innerHTML = card.Value + "<br/>" + icon;
+      return el;
+    }
+
+    function getPoints(player) {
+      var initPoints = 0;
+      var aces = 0;
+      for (var i = 0; i < players[player].Hand.length; i++) {
+        initPoints += players[player].Hand[i].Weight;
+        if (players[player].Hand[i].Value == "A") {
+          aces++;
+        }
+      }
+      var totalPoints = initPoints;
+      if (aces > 0 && initPoints < 11) {
+        totalPoints += 11 * aces;
+      }
+      if (aces > 0 && initPoints > 11) {
+        totalPoints += aces;
+      }
+      players[player].Points = totalPoints;
+      return totalPoints;
+    }
+
+    function updatePoints() {
+      for (var i = 0; i < players.length; i++) {
+        getPoints(i);
+        document.getElementById("points_" + i).innerHTML = players[i].Points;
+      }
+    }
+
+    function hitMe() {
+      var card = deck.pop();
+      players[currentPlayer].Hand.push(card);
+      renderCard(card, currentPlayer);
+      updatePoints();
+      updateDeck();
+      check();
+    }
+
+    function stay() {
+      if (currentPlayer != players.length - 1) {
+        document.getElementById("player_" + currentPlayer).classList.remove("active");
+        currentPlayer += 1;
+        document.getElementById("player_" + currentPlayer).classList.add("active");
+      } else {
+        end();
+      }
+    }
+
+    function end() {
+      var winner = -1;
+      var score = 0;
+
+      for (var i = 0; i < players.length; i++) {
+        if (players[i].Points > score && players[i].Points < 22) {
+          winner = i;
+        }
+
+        score = players[i].Points;
+      }
+
+      document.getElementById("status").innerHTML =
+        "Winner: Player " + players[winner].ID;
+      document.getElementById("status").style.display = "inline-block";
+    }
+
+    function check() {
+      if (players[currentPlayer].Points > 21) {
+        document.getElementById("status").innerHTML =
+          "Player: " + players[currentPlayer].ID + " LOST";
+        document.getElementById("status").style.display = "inline-block";
+        end();
+      }
+    }
+
+    function updateDeck() {
+      document.getElementById("deckcount").innerHTML = deck.length;
+    }
+
+    window.addEventListener("load", function () {
+      createDeck();
+      shuffle();
+      createPlayers(1);
+    });
+  </script>
+</body>
+
+</html>

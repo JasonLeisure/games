@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #game {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        #dealer-hand, #player-hand {
+            margin: 10px;
+            text-align: center;
+        }
+        #dealer-cards, #player-cards {
+            display: flex;
+        }
+        .card {
+            width: 80px;
+            height: 120px;
+            background: white;
+            border: 1px solid #000;
+            margin: 5px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            font-size: 24px;
+        }
+        #result {
+            text-align: center;
+        }
+        #high-stakes-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px; /* Adjust the height as needed */
+    background: linear-gradient(45deg, #ff5733, #e11d74); /* Background gradient colors */
+}
+
+#high-stakes-title h1 {
+    font-family: 'Arial', sans-serif; /* Your chosen font-family */
+    font-size: 64px; /* Adjust the font size as needed */
+    color: #fff; /* Text color */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Text shadow for emphasis */
+    animation: highStakesAnimation 2s linear infinite; /* Animation function below */
+}
+
+@keyframes highStakesAnimation {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+    </style>
+</head>
+<body>
+    <div id="high-stakes-title">
+        <h1 style="font-size: 48px; color: #ff0000; text-align: center;">HIGH STAKES</h1>
+    </div>
+    <div id="game">
+        <div id="dealer-hand">
+            <h2>Dealer's Hand</h2>
+            <div id="dealer-cards"></div>
+            <p>Total: <span id="dealer-total"></span></p>
+        </div>
+        <div id="player-hand">
+            <h2>Your Hand</h2>
+            <div id="player-cards"></div>
+            <p>Total: <span id="player-total"></span></p>
+        </div>
+        <p>Your Balance: $<span id="balance-amount">1000</span></p>
+        <div id="bet-section">
+            <p>Your Bet: $<span id="bet-amount">0</span></p>
+            <button id="bet-10">Bet $10</button>
+            <button id="bet-25">Bet $25</button>
+            <button id="deal-button">Deal</button>
+            <button id="clear-button">Clear</button>
+        </div>
+        <button id="hit-button" disabled>Hit</button>
+        <button id="stand-button" disabled>Stand</button>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        const suits = ['&hearts;', '&diams;', '&clubs;', '&spades;'];
+        const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+        const deck = [];
+
+        let dealerHand = [];
+        let playerHand = [];
+        let bet = 0;
+        let balance = 1000;
+        let gameOver = true;
+
+
+        function createDeck() {
+            for (let suit of suits) {
+                for (let value of values) {
+                    deck.push({ suit, value });
+                }
+            }
+        }
+
+
+        function shuffleDeck() {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+
+        function calculateHandTotal(hand) {
+            let total = 0;
+            let hasAce = false;
+
+            for (let card of hand) {
+                let value = card.value;
+                if (value === 'A') {
+                    hasAce = true;
+                    total += 11;
+                } else if (['K', 'Q', 'J'].includes(value)) {
+                    total += 10;
+                } else {
+                    total += parseInt(value);
+                }
+            }
+
+            if (hasAce && total > 21) {
+                total -= 10;
+            }
+
+            return total;
+        }
+
+
+function dealCard(hand, target) {
+    const card = deck.pop();
+    hand.push(card);
+    const cardElement = document.createElement('div');
+    cardElement.classList.add('card');
+    cardElement.innerHTML = `<span class="value">${card.value}</span><span class="suit">${card.suit}</span>`;
+    document.getElementById(target).appendChild(cardElement);
+}
+
+
+        function placeBet(amount) {
+            if (balance >= amount) {
+                bet += amount;
+                balance -= amount;
+                document.getElementById('bet-amount').textContent = bet;
+            } else {
+                alert('Insufficient balance.');
+            }
+        }
+
+
+        document.getElementById('bet-10').addEventListener('click', () => {
+            placeBet(10);
+        });
+
+        document.getElementById('bet-25').addEventListener('click', () => {
+            placeBet(25);
+        });
+
+        document.getElementById('deal-button').addEventListener('click', () => {
+            if (bet === 0) {
+                alert('Please place a bet.');
+            } else {
+                if (gameOver) {
+                    createDeck();
+                    shuffleDeck();
+                    dealerHand = [];
+                    playerHand = [];
+                    dealCard(playerHand, 'player-cards');
+                    dealCard(dealerHand, 'dealer-cards');
+                    dealCard(playerHand, 'player-cards');
+                    dealCard(dealerHand, 'dealer-cards');
+                    gameOver = false;
+                    document.getElementById('hit-button').disabled = false;
+                    document.getElementById('stand-button').disabled = false;
+                    document.getElementById('deal-button').disabled = true;
+                }
+            }
+        });
+
+        document.getElementById('hit-button').addEventListener('click', () => {
+            if (!gameOver) {
+                dealCard(playerHand, 'player-cards');
+                const playerTotal = calculateHandTotal(playerHand);
+                document.getElementById('player-total').textContent = playerTotal;
+
+                if (playerTotal > 21) {
+                    document.getElementById('result').textContent = 'You busted! Dealer wins.';
+                    balance -= bet;
+                    bet = 0;
+                    gameOver = true;
+                    document.getElementById('bet-amount').textContent = bet;
+                    document.getElementById('hit-button').disabled = true;
+                    document.getElementById('stand-button').disabled = true;
+                    document.getElementById('deal-button').disabled = false;
+                }
+            }
+        });
+
+        document.getElementById('stand-button').addEventListener('click', () => {
+            if (!gameOver) {
+                while (calculateHandTotal(dealerHand) < 17) {
+                    dealCard(dealerHand, 'dealer-cards');
+                }
+
+                const dealerTotal = calculateHandTotal(dealerHand);
+                const playerTotal = calculateHandTotal(playerHand);
+
+                document.getElementById('dealer-total').textContent = dealerTotal;
+
+                if (dealerTotal > 21 || dealerTotal < playerTotal) {
+                    document.getElementById('result').textContent = 'You win!';
+                    balance += bet * 2;
+                } else if (dealerTotal > playerTotal) {
+                    document.getElementById('result').textContent = 'Dealer wins.';
+                } else {
+                    document.getElementById('result').textContent = 'It\'s a tie.';
+                    balance += bet;
+                }
+
+                bet = 0;
+                gameOver = true;
+                document.getElementById('bet-amount').textContent = bet;
+                document.getElementById('hit-button').disabled = true;
+                document.getElementById('stand-button').disabled = true;
+                document.getElementById('deal-button').disabled = false;
+            }
+        });
+
+        <!-- Add this code to your JavaScript section -->
+document.getElementById('clear-button').addEventListener('click', () => {
+    if (!gameOver) {
+        // Clear the player and dealer hands
+        document.getElementById('player-cards').innerHTML = '';
+        document.getElementById('dealer-cards').innerHTML = '';
+        dealerHand = [];
+        playerHand = [];
+
+        // Reset the player and dealer totals
+        document.getElementById('dealer-total').textContent = '';
+        document.getElementById('player-total').textContent = '';
+
+        // Reset the bet
+        balance += bet;
+        bet = 0;
+        document.getElementById('bet-amount').textContent = bet;
+    }
+
+    // Enable the "Deal" button and disable the "Hit" and "Stand" buttons
+    document.getElementById('hit-button').disabled = true;
+    document.getElementById('stand-button').disabled = true;
+    document.getElementById('deal-button').disabled = false;
+
+    // Clear the result message
+    document.getElementById('result').textContent = '';
+
+    gameOver = true;
+});
+    </script>
+</body>
+</html>
