@@ -29,6 +29,10 @@ Word Scramble is a fun and challenging word puzzle game. The goal of the game is
 6. Use the "Hint" button to get hints about the current word.
 7. Try to achieve the highest score and enjoy the game!
 
+## Acknoweledgements
+
+1. Created by: Jason Leisure
+2. Music by: 8 bit menu by David Renda on fesliyanstudios.com
 Feel free to explore and enjoy the Word Scramble game.
 
 Enjoy playing Word Scramble!
