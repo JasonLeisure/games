@@ -1,4 +1,4 @@
-### Updates to files 10/11/2023 Added in new game Hangman. 
+### Updates to files 10/11/2023 Added in new game Hangman. Added in Perlin Noise Generator to animations vanilla folder.
 
 ### Updates to files 10/10/2023 Added new title to Minesweep think this is visually better.
 
