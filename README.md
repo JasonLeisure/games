@@ -1,3 +1,5 @@
+### Updates to files 10/13/2023 Added in Trivia Tasker game.
+
 ### Updates to files 10/12/2023 Added in games two blackjack games high stakes and twenty-one.
 
 ### Updates to files 10/11/2023 Added in new game Hangman. Added in Perlin Noise Generator to animations vanilla folder and also a svgtest animation.
