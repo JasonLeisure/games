@@ -10,7 +10,7 @@
 
 - JavaScript: The game logic is implemented using JavaScript. It handles shuffling and dealing cards, player interactions, opponent moves, and checking for win conditions.
 
-##Game Interface
+## Game Interface
 
 1. The game interface is primarily defined within the HTML and CSS code:
 
@@ -43,7 +43,7 @@
 8. At the end of the game, the player with the most sets of four cards of the same rank wins.
 
 * AI and Logic
-* 
+  
 - The code implements a simple AI for the opponent, who randomly selects cards to request from the player's hand. It also checks for win conditions and counts the number of sets formed by each player.
 
 - The game logic is handled by JavaScript functions, controlling card movements, checking for sets, and determining the winner.
