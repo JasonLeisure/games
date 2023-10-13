@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatbot AI Helper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+
+        #chat-container {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        #chat-output {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column-reverse; /* Display messages in reverse order */
+        }
+
+        .message {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 70%;
+            word-wrap: break-word;
+            margin: 5px;
+            align-self: flex-end; /* User's messages on the right */
+        }
+
+        .bot-message {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 70%;
+            word-wrap: break-word;
+            margin: 5px;
+            align-self: flex-start; /* Bot's messages on the left */
+        }
+
+        .typing-indicator {
+            background-color: #f2f2f2;
+            color: #333;
+            padding: 5px;
+            border-radius: 5px;
+            max-width: 70%;
+            word-wrap: break-word;
+            margin: 5px;
+            align-self: flex-start; /* Typing indicator on the left */
+        }
+
+        #user-input {
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #send-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        #drawing-canvas {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 20px;
+        }
+
+        #drawing-canvas:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-output"></div>
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button id="send-button">Send</button>
+        <button id="clear-button">Clear</button>
+    </div>
+    <canvas id="drawing-canvas" width="400" height="400"></canvas>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const chatOutput = document.getElementById("chat-output");
+            const userInput = document.getElementById("user-input");
+            const sendButton = document.getElementById("send-button");
+            const clearButton = document.getElementById("clear-button");
+            const drawingCanvas = document.getElementById("drawing-canvas");
+            const ctx = drawingCanvas.getContext("2d");
+
+
+let knowledgeBase = {
+    "What is the capital of France?": "The capital of France is Paris.",
+    "How does photosynthesis work?": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize foods with the help of chlorophyll in their cells.",
+    "Tell me a joke": "Why don't scientists trust atoms? Because they make up everything!",
+    "Draw a smiley face": "Drawing a smiley face...",
+    "Who won the World Series in 2020?": "The Los Angeles Dodgers won the World Series in 2020.",
+    "What's the tallest mountain in the world?": "Mount Everest is the tallest mountain in the world, reaching an elevation of 29,032 feet (8,849 meters) above sea level.",
+    "Can you recommend a good book to read?": "Sure! How about 'To Kill a Mockingbird' by Harper Lee? It's a classic novel worth reading.",
+    "What's the meaning of life?": "The meaning of life is a philosophical question and can vary depending on one's beliefs and perspective. Some people find meaning in personal relationships, while others seek it in personal achievements or spiritual pursuits.",
+    "How do I bake a chocolate cake?": "To bake a chocolate cake, you'll need ingredients like flour, cocoa powder, sugar, eggs, and more. It involves mixing, baking, and frosting. Would you like a detailed recipe?",
+    "Tell me about space exploration": "Space exploration is the investigation and discovery of outer space using astronomy and space technology. It has led to numerous discoveries about the universe and our place in it.",
+    "What are the primary colors?": "The primary colors are red, blue, and yellow. They are used as the foundation for mixing a wide range of other colors.",
+    "How does Wi-Fi work?": "Wi-Fi works by sending data wirelessly through radio waves. Devices with Wi-Fi capability connect to a wireless router, which transmits data to and from the internet.",
+    "Can you help me with my math homework?": "Of course! Please provide the math problem you need help with.",
+    "Tell me a fun science fact": "Sure, here's a fun science fact: Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible!",
+    "What's the largest mammal on Earth?": "The largest mammal on Earth is the blue whale, which can grow to be over 98 feet (30 meters) long and weigh as much as 200 tons.",
+    "Who painted the Mona Lisa?": "The Mona Lisa was painted by the Italian artist Leonardo da Vinci during the Renaissance period.",
+    "What's the speed of light?": "The speed of light in a vacuum is approximately 299,792,458 meters per second (about 186,282 miles per second).",
+    "Tell me a famous quote": "Certainly, here's a famous quote from Albert Einstein: 'Imagination is more important than knowledge.'",
+    "What's the difference between weather and climate?": "Weather refers to the short-term atmospheric conditions in a specific location, while climate refers to the long-term patterns and averages of weather in a region.",
+    "Who is the author of '1984'?": "The author of '1984' is George Orwell. It is a dystopian novel published in 1949.",
+    "What are the three branches of the U.S. government?": "The three branches of the U.S. government are the executive branch, legislative branch, and judicial branch.",
+    "Tell me a fascinating historical fact": "Here's a historical fact: Cleopatra VII, the last pharaoh of Egypt, was known for her intelligence and fluency in multiple languages, including Greek and Egyptian.",
+    "What's the chemical symbol for gold?": "The chemical symbol for gold is 'Au,' which comes from the Latin word 'aurum.'",
+    "Draw a circle": "Drawing a circle...",
+                "Draw a square": "Drawing a square...",
+                "Draw a triangle": "Drawing a triangle...",
+                "Draw a star": "Drawing a star...",
+                "Draw a heart": "Drawing a heart...",
+                "Draw a house": "Drawing a house...",
+                "Hi": "Hello! How can I assist you today?",
+                "Hello": "Hi there! What can I do for you?",
+                "How are you?": "I'm just a computer program, so I don't have feelings, but I'm here to help you.",
+                "What's your name?": "I'm just a chatbot, so I don't have a name. You can call me Chatbot!",
+                "What's the weather like today?": "I'm sorry, I don't have access to real-time weather information. You can check a weather website or app for that.",
+                "What's the time?": "I don't have real-time information. You can check your device's clock for the current time.",
+                "Tell me a fun fact": "Sure, here's a fun fact: Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible!",
+                "Can you recommend a movie to watch?": "How about watching 'The Shawshank Redemption'? It's a highly acclaimed movie!",
+                "What's your favorite color?": "I don't have personal preferences, but I like the colors of the rainbow!",
+                "Do you dream?": "No, I don't dream. I'm always awake and ready to assist!",
+                "Tell me a riddle": "Here's a riddle for you: I'm tall when I'm young, and short when I'm old. What am I?",
+                "What's the meaning of life?": "The meaning of life is a philosophical question and can vary depending on one's beliefs and perspective. Some people find meaning in personal relationships, while others seek it in personal achievements or spiritual pursuits.",
+                "How do I bake a chocolate cake?": "To bake a chocolate cake, you'll need ingredients like flour, cocoa powder, sugar, eggs, and more. It involves mixing, baking, and frosting. Would you like a detailed recipe?",
+                "Tell me about space exploration": "Space exploration is the investigation and discovery of outer space using astronomy and space technology. It has led to numerous discoveries about the universe and our place in it.",
+                "What are the primary colors?": "The primary colors are red, blue, and yellow. They are used as the foundation for mixing a wide range of other colors.",
+                "How does Wi-Fi work?": "Wi-Fi works by sending data wirelessly through radio waves. Devices with Wi-Fi capability connect to a wireless router, which transmits data to and from the internet.",
+                "Can you help me with my math homework?": "Of course! Please provide the math problem you need help with.",
+                "Tell me a fun science fact": "Sure, here's a fun science fact: Octopuses have three hearts, two pump blood to the gills, and one pumps it to the rest of the body!",
+                "What's your favorite book?": "I don't have favorites, but 'To Kill a Mockingbird' is a classic book that many people enjoy reading.",
+                "What's your favorite animal?": "I don't have preferences, but dolphins are known for their intelligence and playful nature.",
+                "How do I make a cup of coffee?": "To make a cup of coffee, you'll need coffee grounds and hot water. You can use a coffee maker or a pour-over method. Would you like a detailed recipe?",
+                "What's the largest desert in the world?": "The largest desert in the world is the Antarctic Desert. It's even larger than the Sahara Desert!",
+            };
+
+            function appendMessage(user, message) {
+                const messageElement = document.createElement("div");
+                messageElement.classList.add(user === "You" ? "message" : "bot-message");
+                messageElement.innerHTML = `<strong>${user}:</strong> ${message}`;
+                chatOutput.appendChild(messageElement);
+            }
+
+            function clearCanvas() {
+                ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+            }
+
+            sendButton.addEventListener("click", function() {
+                const userMessage = userInput.value;
+                appendMessage("You", userMessage);
+                userInput.value = "";
+
+                let response = generateChatbotResponse(userMessage);
+                appendMessage("Chatbot", response);
+            });
+
+            clearButton.addEventListener("click", function() {
+                clearCanvas();
+            });
+
+            drawingCanvas.addEventListener("mousedown", function(e) {
+                ctx.beginPath();
+                ctx.moveTo(e.clientX - drawingCanvas.offsetLeft, e.clientY - drawingCanvas.offsetTop);
+                drawingCanvas.addEventListener("mousemove", draw);
+                drawingCanvas.addEventListener("mouseup", stopDrawing);
+            });
+
+            function draw(e) {
+                ctx.lineTo(e.clientX - drawingCanvas.offsetLeft, e.clientY - drawingCanvas.offsetTop);
+                ctx.stroke();
+            }
+
+            function stopDrawing() {
+                drawingCanvas.removeEventListener("mousemove", draw);
+                drawingCanvas.removeEventListener("mouseup", stopDrawing);
+            }
+
+            drawingCanvas.addEventListener("contextmenu", function(e) {
+                e.preventDefault();
+                clearCanvas();
+            });
+
+            function generateChatbotResponse(userMessage) {
+    userMessage = userMessage.toLowerCase();
+    let response = "I'm sorry, I don't understand that. Please ask a different question.";
+
+    if (userMessage in knowledgeBase) {
+        response = knowledgeBase[userMessage];
+    } else if (userMessage.includes("draw a smiley face")) {
+        drawSmileyFace();
+        response = "I've drawn a smiley face for you!";
+    } else if (userMessage.includes("draw a circle")) {
+        drawCircle();
+        response = "I've drawn a circle for you!";
+    } else if (userMessage.includes("draw a square")) {
+        drawSquare();
+        response = "I've drawn a square for you!";
+    } else if (userMessage.includes("draw a triangle")) {
+        drawTriangle();
+        response = "I've drawn a triangle for you!";
+    } else if (userMessage.includes("draw a star")) {
+        drawStar();
+        response = "I've drawn a star for you!";
+    } else if (userMessage.includes("draw a heart")) {
+        drawHeart();
+        response = "I've drawn a heart for you!";
+    } else if (userMessage.includes("draw a house")) {
+        drawHouse();
+        response = "I've drawn a house for you!";
+    } else if (userMessage.includes("draw a flower")) {
+        drawFlower();
+        response = "I've drawn a flower for you!";
+    } else if (userMessage.includes("draw a sun")) {
+        drawSun();
+        response = "I've drawn a sun for you!";
+    } else if (userMessage.includes("draw a rocket")) {
+        drawRocket();
+        response = "I've drawn a rocket for you!";
+    } else if (userMessage === "hi" || userMessage === "hello") {
+        response = "Hi there! What can I do for you?";
+    } else if (userMessage === "how are you?") {
+        response = "I'm just a computer program, so I don't have feelings, but I'm here to help you.";
+    } else if (userMessage === "what's your name?") {
+        response = "I'm just a chatbot, so I don't have a name. You can call me Chatbot!";
+    } else if (userMessage === "what's the weather like today?") {
+        response = "I'm sorry, I don't have access to real-time weather information. You can check a weather website or app for that.";
+    } else if (userMessage === "what's the time?") {
+        response = "I don't have real-time information. You can check your device's clock for the current time.";
+    } else if (userMessage === "tell me a fun fact") {
+        response = "Sure, here's a fun fact: Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible!";
+    } else if (userMessage === "can you recommend a movie to watch?") {
+        response = "How about watching 'The Shawshank Redemption'? It's a highly acclaimed movie!";
+    } else if (userMessage === "what's your favorite color?") {
+        response = "I don't have personal preferences, but I like the colors of the rainbow!";
+    } else if (userMessage === "do you dream?") {
+        response = "No, I don't dream. I'm always awake and ready to assist!";
+    } else if (userMessage === "tell me a riddle") {
+        response = "Here's a riddle for you: I'm tall when I'm young, and short when I'm old. What am I?";
+    } else if (userMessage === "what's the meaning of life?") {
+        response = "The meaning of life is a philosophical question and can vary depending on one's beliefs and perspective. Some people find meaning in personal relationships, while others seek it in personal achievements or spiritual pursuits.";
+    } else if (userMessage === "how do I bake a chocolate cake?") {
+        response = "To bake a chocolate cake, you'll need ingredients like flour, cocoa powder, sugar, eggs, and more. It involves mixing, baking, and frosting. Would you like a detailed recipe?";
+    } else if (userMessage === "tell me about space exploration") {
+        response = "Space exploration is the investigation and discovery of outer space using astronomy and space technology. It has led to numerous discoveries about the universe and our place in it.";
+    } else if (userMessage === "what are the primary colors?") {
+        response = "The primary colors are red, blue, and yellow. They are used as the foundation for mixing a wide range of other colors.";
+    } else if (userMessage === "how does Wi-Fi work?") {
+        response = "Wi-Fi works by sending data wirelessly through radio waves. Devices with Wi-Fi capability connect to a wireless router, which transmits data to and from the internet.";
+    } else if (userMessage === "can you help me with my math homework?") {
+        response = "Of course! Please provide the math problem you need help with.";
+    } else if (userMessage === "what's your favorite book?") {
+        response = "I don't have favorites, but 'To Kill a Mockingbird' is a classic book that many people enjoy reading.";
+    } else if (userMessage === "what's your favorite animal?") {
+        response = "I don't have preferences, but dolphins are known for their intelligence and playful nature.";
+    } else if (userMessage === "how do I make a cup of coffee?") {
+        response = "To make a cup of coffee, you'll need coffee grounds and hot water. You can use a coffee maker or a pour-over method. Would you like a detailed recipe?";
+    } else if (userMessage === "what's the largest desert in the world?") {
+        response = "The largest desert in the world is the Antarctic Desert. It's even larger than the Sahara Desert!";
+    }
+
+    return response;
+}
+
+// Function to draw a flower on the canvas
+function drawFlower() {
+    // Clear the canvas to remove any previous drawings
+    ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+
+    // Get the 2D rendering context of the canvas
+    const ctx = drawingCanvas.getContext('2d');
+
+    // Define flower drawing parameters
+    const flowerCenterX = drawingCanvas.width / 2;
+    const flowerCenterY = drawingCanvas.height / 2;
+    const petalRadius = 20;
+    const numberOfPetals = 6;
+
+    // Draw the flower's center (assuming it's a simple circle)
+    ctx.beginPath();
+    ctx.arc(flowerCenterX, flowerCenterY, petalRadius, 0, 2 * Math.PI);
+    ctx.fillStyle = 'red'; // Set the color of the flower center
+    ctx.fill();
+
+    // Draw the flower's petals
+    for (let i = 0; i < numberOfPetals; i++) {
+        const angle = (2 * Math.PI / numberOfPetals) * i;
+        const petalX = flowerCenterX + petalRadius * Math.cos(angle);
+        const petalY = flowerCenterY + petalRadius * Math.sin(angle);
+
+        // Draw each petal (assuming they are ellipses)
+        ctx.beginPath();
+        ctx.ellipse(petalX, petalY, 2 * petalRadius, petalRadius, angle, 0, 2 * Math.PI);
+        ctx.fillStyle = 'pink'; // Set the color of the petals
+        ctx.fill();
+    }
+}
+
+// Function to draw a sun on the canvas
+function drawSun() {
+    // Clear the canvas to remove any previous drawings
+    ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+
+    // Get the 2D rendering context of the canvas
+    const ctx = drawingCanvas.getContext('2d');
+
+    // Define sun drawing parameters
+    const sunCenterX = drawingCanvas.width / 2;
+    const sunCenterY = drawingCanvas.height / 2;
+    const sunRadius = 40;
+
+    // Draw the sun (assuming it's a simple circle)
+    ctx.beginPath();
+    ctx.arc(sunCenterX, sunCenterY, sunRadius, 0, 2 * Math.PI);
+    ctx.fillStyle = 'yellow'; // Set the color of the sun
+    ctx.fill();
+}
+
+// Function to draw a rocket on the canvas
+function drawRocket() {
+    // Clear the canvas to remove any previous drawings
+    ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+
+    // Get the 2D rendering context of the canvas
+    const ctx = drawingCanvas.getContext('2d');
+
+    // Define rocket drawing parameters
+    const rocketTopX = drawingCanvas.width / 2;
+    const rocketTopY = drawingCanvas.height / 4;
+    const rocketBodyWidth = 30;
+    const rocketBodyHeight = 80;
+
+    // Draw the rocket's body (assuming it's a simple rectangle)
+    ctx.fillStyle = 'gray'; // Set the color of the rocket body
+    ctx.fillRect(rocketTopX - rocketBodyWidth / 2, rocketTopY, rocketBodyWidth, rocketBodyHeight);
+
+    // Draw the rocket's top cone (assuming it's a triangle)
+    ctx.beginPath();
+    ctx.moveTo(rocketTopX - rocketBodyWidth / 2, rocketTopY);
+    ctx.lineTo(rocketTopX + rocketBodyWidth / 2, rocketTopY);
+    ctx.lineTo(rocketTopX, rocketTopY - rocketBodyWidth);
+    ctx.closePath();
+    ctx.fillStyle = 'red'; // Set the color of the rocket cone
+    ctx.fill();
+}
+
+
+function drawSmileyFace() {
+    // Clear the canvas to remove any previous drawings
+    ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+
+    // Get the 2D rendering context of the canvas
+    const ctx = drawingCanvas.getContext('2d');
+
+    // Draw the head (a circle)
+    ctx.beginPath();
+    ctx.arc(200, 200, 100, 0, Math.PI * 2);
+    ctx.strokeStyle = 'black'; // Set the outline color
+    ctx.lineWidth = 2; // Set the line width
+    ctx.stroke();
+
+    // Draw the left eye (a smaller circle)
+    ctx.beginPath();
+    ctx.arc(150, 150, 15, 0, Math.PI * 2);
+    ctx.fillStyle = 'black'; // Set the fill color
+    ctx.fill();
+
+    // Draw the right eye (another smaller circle)
+    ctx.beginPath();
+    ctx.arc(250, 150, 15, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw the smiling mouth (an arc)
+    ctx.beginPath();
+    ctx.arc(200, 220, 60, 0, Math.PI);
+    ctx.stroke();
+}
+
+            function drawCircle() {
+                ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+                ctx.beginPath();
+                ctx.arc(200, 200, 100, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            function drawSquare() {
+                ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+                ctx.rect(150, 150, 100, 100);
+                ctx.stroke();
+            }
+
+            function drawTriangle() {
+                ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+                ctx.beginPath();
+                ctx.moveTo(200, 150);
+                ctx.lineTo(150, 250);
+                ctx.lineTo(250, 250);
+                ctx.closePath();
+                ctx.stroke();
+            }
+
+            function drawStar() {
+                ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+                const x = 200;
+                const y = 200;
+                const outerRadius = 50;
+                const innerRadius = 20;
+                const numPoints = 5;
+                const angle = (Math.PI * 2) / numPoints;
+                ctx.beginPath();
+                for (let i = 0; i < numPoints * 2; i++) {
+                    const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                    const currX = x + Math.cos(i * angle) * radius;
+                    const currY = y + Math.sin(i * angle) * radius;
+                    ctx.lineTo(currX, currY);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+
+            function drawHeart() {
+    // Clear the canvas to remove any previous drawings
+    ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+
+    // Get the 2D rendering context of the canvas
+    const ctx = drawingCanvas.getContext('2d');
+
+    // Define heart shape parameters
+    const x = 200;
+    const y = 200;
+    const width = 100; // Increase the width to make the heart larger
+    const height = 100; // Increase the height to make the heart larger
+    const heartColor = 'red'; // Set the heart color
+
+    ctx.beginPath();
+    ctx.moveTo(x, y + height / 2);
+    ctx.bezierCurveTo(x - width / 2, y - height / 2, x - width, y, x, y + height);
+    ctx.bezierCurveTo(x + width, y, x + width / 2, y - height / 2, x, y + height / 2);
+    ctx.closePath();
+
+    // Fill the heart shape with a solid color
+    ctx.fillStyle = heartColor;
+    ctx.fill();
+
+    // Add an outline to the heart for a more defined look
+    ctx.strokeStyle = 'black'; // Set the outline color
+    ctx.lineWidth = 2; // Set the line width
+    ctx.stroke();
+}
+function drawHouse() {
+    // Clear the canvas to remove any previous drawings
+    ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+
+    // Get the 2D rendering context of the canvas
+    const ctx = drawingCanvas.getContext('2d');
+
+    // Define house parameters
+    const houseX = 150;
+    const houseY = 250;
+    const houseWidth = 100;
+    const houseHeight = 100;
+    const roofColor = 'red';
+    const wallColor = 'lightgray';
+    const doorColor = 'brown';
+    const windowColor = 'lightblue';
+
+    // Draw the base of the house
+    ctx.fillStyle = wallColor;
+    ctx.fillRect(houseX, houseY, houseWidth, houseHeight);
+
+    // Draw the roof
+    ctx.beginPath();
+    ctx.moveTo(houseX - 10, houseY); // Left corner
+    ctx.lineTo(houseX + houseWidth / 2, houseY - 50); // Top
+    ctx.lineTo(houseX + houseWidth + 10, houseY); // Right corner
+    ctx.closePath();
+    ctx.fillStyle = roofColor;
+    ctx.fill();
+
+    // Draw the door
+    const doorWidth = 40;
+    const doorHeight = 80;
+    ctx.fillStyle = doorColor;
+    ctx.fillRect(houseX + houseWidth / 2 - doorWidth / 2, houseY + houseHeight - doorHeight, doorWidth, doorHeight);
+
+    // Draw a window
+    const windowWidth = 30;
+    const windowHeight = 30;
+    const windowX = houseX + 20;
+    const windowY = houseY + 40;
+    ctx.fillStyle = windowColor;
+    ctx.fillRect(windowX, windowY, windowWidth, windowHeight);
+
+    // Add details to the window (border)
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(windowX, windowY, windowWidth, windowHeight);
+
+    // Add a chimney
+    ctx.fillStyle = wallColor;
+    ctx.fillRect(houseX + houseWidth - 15, houseY - 40, 15, 30);
+
+    // Draw the house's doorknob
+    const knobX = houseX + houseWidth / 2 + doorWidth / 4;
+    const knobY = houseY + houseHeight - doorHeight / 2;
+    ctx.beginPath();
+    ctx.arc(knobX, knobY, 3, 0, Math.PI * 2);
+    ctx.fillStyle = 'gold';
+    ctx.fill();
+}
+        });
+    </script>
+</body>
+</html>
