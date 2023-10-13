@@ -1,4 +1,4 @@
-### Updates to files 10/13/2023 Added in Trivia Tasker game.
+### Updates to files 10/13/2023 Added in Trivia Tasker game and Puck Man game. Next game I am working on is with my group.
 
 ### Updates to files 10/12/2023 Added in games two blackjack games high stakes and twenty-one.
 
