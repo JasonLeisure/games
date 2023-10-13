@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trivia Game</title>
+    <style>
+       body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #3498db;
+}
+
+.container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+h1 {
+    font-size: 2rem;
+    color: #3498db;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding: 10px 0;
+    background: linear-gradient(45deg, #3498db, #2666a4);
+    background-clip: text;
+    -webkit-background-clip: text;
+    text-fill-color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: vibrate 0.5s infinite linear, fireworks 3s infinite;
+}
+
+@keyframes fireworks {
+    0% {
+        opacity: 0;
+        transform: scale(0.2);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.5);
+    }
+}
+@keyframes vibrate {
+    0% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-2px);
+    }
+    50% {
+        transform: translateX(2px);
+    }
+    75% {
+        transform: translateX(-2px);
+    }
+    100% {
+        transform: translateX(2px);
+    }
+}
+
+#canvas {
+    border: 2px solid #000;
+}
+
+label {
+    font-size: 1rem;
+    color: #333;
+    display: block;
+    margin-top: 10px;
+}
+
+select {
+    font-size: 1rem;
+    padding: 10px;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    color: #333;
+    width: 100%;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Trivia Game</h1>
+        <select id="category-select">
+            <option value="" disabled selected>Select a category</option>
+            <option value="Science">Science</option>
+            <option value="History">History</option>
+            <option value="Movies">Movies</option>
+            <option value="Sports">Sports</option>
+            <option value="Geography">Geography</option>
+            <option value="Music">Music</option>
+            <option value="Art">Art</option>
+            <option value="Literature">Literature</option>
+            <option value="Video Games">Video Games</option>
+            <option value="Tech">Tech</option>
+            <option value="Food">Food</option>
+        </select>
+        <audio controls>
+            <source src="comeonboy.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        <div id="question-display" style="display: none;">
+            <h2 id="category-name"></h2>
+            <p id="question-text"></p>
+            <input type="text" id="user-answer" placeholder="Your Answer">
+            <button onclick="checkAnswer()">Submit Answer</button>
+        </div>
+    </div>
+
+    <script>
+        const categories = {
+            Science: [
+                { question: 'What is the chemical symbol for water?', answer: 'H2O' },
+                { question: 'How many elements are there in the periodic table?', answer: '118' },
+                { question: 'What is the process by which plants make their food?', answer: 'Photosynthesis' },
+                { question: 'Who is known as the father of modern physics?', answer: 'Albert Einstein' },
+                { question: 'What gas do humans exhale when they breathe?', answer: 'Carbon dioxide' },
+                { question: 'What is the chemical element with the symbol "Fe" on the periodic table?', answer: 'Iron' },
+                { question: 'What is the process by which plants release water vapor into the air?', answer: 'Transpiration' },
+                { question: 'Who is the inventor of the telephone?', answer: 'Alexander Graham Bell' },
+                { question: 'What is the study of the Earth and its features, including the distribution of life on the planet?', answer: 'Geography' },
+                { question: 'Which planet in our solar system is known as the "Red Planet"?', answer: 'Mars' }
+            ],
+            History: [
+                { question: 'Who was the first President of the United States?', answer: 'George Washington' },
+                { question: 'In what year did Christopher Columbus reach the Americas?', answer: '1492' },
+                { question: 'Who was the leader of the Soviet Union during the Cuban Missile Crisis?', answer: 'Nikita Khrushchev' },
+                { question: 'Which empire was known for its terracotta army?', answer: 'The Qin Dynasty' },
+                { question: 'In what year did World War I end?', answer: '1918' },
+                { question: 'Who was the first woman to fly solo across the Atlantic Ocean?', answer: 'Amelia Earhart' },
+                { question: 'What ancient civilization is known for building the pyramids at Giza in Egypt?', answer: 'Ancient Egypt' },
+                { question: 'Who was the first Emperor of Rome and the founder of the Roman Empire?', answer: 'Augustus Caesar' },
+                { question: 'Which U.S. president delivered the Gettysburg Address during the American Civil War?', answer: 'Abraham Lincoln' },
+                { question: 'What event is often considered the beginning of the Renaissance in Europe, marked by a revival of art and learning?', answer: 'The Fall of Constantinople' },
+            ],
+            Movies: [
+                { question: 'Who directed the movie "Jurassic Park"?', answer: 'Steven Spielberg' },
+                { question: 'In "The Lord of the Rings," who is known as the "Dark Lord"?', answer: 'Sauron' },
+                { question: 'Who played the character Jack Dawson in the movie "Titanic"?', answer: 'Leonardo DiCaprio' },
+                { question: 'What film is known for the line "Here\'s looking at you, kid"?', answer: 'Casablanca' },
+                { question: 'In "The Matrix," what is the real name of Neo, the main character?', answer: 'Thomas Anderson' },
+                { question: 'Who directed the science fiction film "Blade Runner" and "Alien"?', answer: 'Ridley Scott' },
+                { question: 'In which movie does a character named Tyler Durden lead an underground fight club?', answer: 'Fight Club' },
+                { question: 'Who portrayed the character of Maximus in the film "Gladiator"?', answer: 'Russell Crowe' },
+                { question: 'What is the highest-grossing animated film of all time, featuring characters like Elsa and Olaf?', answer: 'Frozen' },
+                { question: 'In which epic fantasy film trilogy is there a quest to destroy the One Ring?', answer: 'The Lord of the Rings' },
+
+            ],
+            Sports: [
+                { question: 'In which sport is the term "slam dunk" commonly used?', answer: 'Basketball' },
+                { question: 'Who is considered the greatest basketball player of all time?', answer: 'Michael Jordan' },
+                { question: 'Which country is famous for hosting the Tour de France?', answer: 'France' },
+                { question: 'What is the object that competitors throw in shot put?', answer: 'Shot' },
+                { question: 'In which sport does a player score a "hat-trick"?', answer: 'Cricket' },
+                { question: 'Which sport involves a round ball and is known as "the beautiful game"?', answer: 'Soccer (Football)' },
+                { question: 'Who holds the record for the most home runs in a single Major League Baseball (MLB) season?', answer: 'Barry Bonds' },
+                { question: 'What sport is known as the "king of sports" and features riders on horseback hitting a ball with mallets?', answer: 'Polo' },
+                { question: 'In Olympic diving, what is the highest platform/platform height from which athletes dive?', answer: '10 meters' },
+                { question: 'Which country has won the most FIFA World Cup titles?', answer: 'Brazil' },
+            ],
+            Geography: [
+                { question: 'What is the capital of Australia?', answer: 'Canberra' },
+                { question: 'Which river flows through Cairo?', answer: 'Nile' },
+                { question: 'Which country is the smallest by land area?', answer: 'Vatican City' },
+                { question: 'Which two countries share the longest land border in the world?', answer: 'Russia and China' },
+                { question: 'What is the highest mountain in Africa?', answer: 'Mount Kilimanjaro' },
+                { question: 'Which Asian country is known as the "Land of the Rising Sun"?', answer: 'Japan' },
+                { question: 'What is the longest river in South America?', answer: 'Amazon River' },
+                { question: 'Which African country is known as the "Pearl of Africa" and home to the endangered mountain gorillas?', answer: 'Uganda' },
+                { question: 'What is the largest island in the Mediterranean Sea?', answer: 'Sicily' },
+                { question: 'In which U.S. state would you find the Grand Canyon?', answer: 'Arizona' }
+            ],
+            Music: [
+                { question: 'Who is known as the "Queen of Pop"?', answer: 'Madonna' },
+                { question: 'What Beatles album is often considered one of the greatest of all time?', answer: 'Sgt. Pepper\'s Lonely Hearts Club Band' },
+                { question: 'Who sang the hit song "Bohemian Rhapsody"?', answer: 'Queen' },
+                { question: 'What instrument does Yo-Yo Ma play?', answer: 'Cello' },
+                { question: 'What year did Michael Jackson release his album "Thriller"?', answer: '1982' },
+                { question: 'Who is the British rock band known for hits like "Stairway to Heaven" and "Whole Lotta Love"?', answer: 'Led Zeppelin' },
+                { question: 'Which musical legend is often referred to as the "King of Rock and Roll"?', answer: 'Elvis Presley' },
+                { question: 'What American singer and actress starred in "A Star Is Born" and released hits like "Poker Face" and "Bad Romance"?', answer: 'Lady Gaga' },
+                { question: 'In which decade did the iconic music festival "Woodstock" take place?', answer: '1960s' },
+                { question: 'What musical genre originated in Jamaica and features artists like Bob Marley and Toots and the Maytals?', answer: 'Reggae' },
+            ],
+            Art: [
+                { question: 'Who painted the "Mona Lisa"?', answer: 'Leonardo da Vinci' },
+                { question: 'What art movement includes works like "Starry Night"?', answer: 'Post-Impressionism' },
+                { question: 'Who is known for his sculptures such as "The Thinker"?', answer: 'Auguste Rodin' },
+                { question: 'What artistic technique involves cutting and pasting to create images?', answer: 'Collage' },
+                { question: 'Who is considered one of the pioneers of abstract art?', answer: 'Wassily Kandinsky' },
+                { question: 'Which Dutch artist is famous for his use of light and dark contrast in works like "The Night Watch"?', answer: 'Rembrandt' },
+                { question: 'What art movement is characterized by the use of everyday objects as art, exemplified by Marcel Duchamp\'s "Fountain"?', answer: 'Dadaism' },
+                { question: 'Who painted the iconic mural "The Persistence of Memory" featuring melting clocks?', answer: 'Salvador Dali' },
+                { question: 'Which artist is known for creating large-scale, environmental artworks, such as "The Gates" in Central Park?', answer: 'Christo and Jeanne-Claude' },
+                { question: 'What is the name of the art style that focuses on everyday scenes and subjects, popular in the 19th century?', answer: 'Realism' },
+            ],
+            Literature: [
+                { question: 'Who wrote "Romeo and Juliet"?', answer: 'William Shakespeare' },
+                { question: 'What is the opening line of Charles Dickens\' "A Tale of Two Cities"?', answer: 'It was the best of times, it was the worst of times' },
+                { question: 'Which novel features a character named Atticus Finch?', answer: 'To Kill a Mockingbird' },
+                { question: 'Who wrote the science fiction novel "1984"?', answer: 'George Orwell' },
+                { question: 'What book is known for the phrase "It was the best of times, it was the worst of times"?', answer: 'A Tale of Two Cities' },
+                { question: 'Which author wrote "Pride and Prejudice"?', answer: 'Jane Austen' },
+                { question: 'What novel tells the story of a group of boys stranded on a deserted island, attempting to govern themselves?', answer: 'Lord of the Flies' },
+                { question: 'In which classic novel does the character Jay Gatsby throw extravagant parties in the hopes of winning back his lost love, Daisy Buchanan?', answer: 'The Great Gatsby' },
+                { question: 'Who wrote the epic poem "The Odyssey"?', answer: 'Homer' },
+                { question: 'What classic novel features a group of animals led by Old Major who revolt against their human farmer?', answer: 'Animal Farm' },
+            ],
+            "Video Games": [
+                { question: 'Which video game franchise features an Italian plumber named Mario?', answer: 'Super Mario' },
+                { question: 'What is the best-selling video game of all time?', answer: 'Minecraft' },
+                { question: 'In which game do players build and manage their own virtual world?', answer: 'The Sims' },
+                { question: 'Who is the main character in "The Legend of Zelda" series?', answer: 'Link' },
+                { question: 'What game features a battle royale mode called "Warzone"?', answer: 'Call of Duty' },
+                { question: 'Which video game is set in a post-apocalyptic wasteland and features the Vault Dweller?', answer: 'Fallout' },
+                { question: 'Which game features a fantasy world called Azeroth and has millions of players worldwide?', answer: 'World of Warcraft' },
+                { question: 'In which game do players control a character named Nathan Drake on treasure-hunting adventures?', answer: 'Uncharted' },
+                { question: 'In the first game of the survival horror series developed by Konami, what is the name of the fog-covered town known for its terrifying and nightmarish environments?', answer: 'Silent Hill' },
+                { question: 'Which challenging action RPG series developed by FromSoftware is known for its punishing difficulty and intricate level design?', answer: 'Dark Souls' },
+],
+            "Tech": [
+                { question: 'What company is known for the iPhone and MacBook?', answer: 'Apple' },
+                { question: 'What does CPU stand for in computing?', answer: 'Central Processing Unit' },
+                { question: 'Who co-founded Microsoft along with Bill Gates?', answer: 'Paul Allen' },
+                { question: 'What is the programming language created by Guido van Rossum?', answer: 'Python' },
+                { question: 'What is the World Wide Web based on?', answer: 'Hypertext' },
+                { question: 'Which company is known for its search engine and operates the video-sharing platform YouTube?', answer: 'Google' },
+                { question: 'What is the term for the ability of a computer system or network to resist unauthorized access or hacking?', answer: 'Cybersecurity' },
+                { question: 'Who is the co-founder and CEO of Amazon, one of the world\'s largest e-commerce and cloud computing companies?', answer: 'Jeff Bezos' },
+                { question: 'What open-source operating system is based on the Linux kernel and used in many smartphones, including the Android platform?', answer: 'Android' },
+                { question: 'What technology standard, used for wireless communication between devices, is named after a 10th-century Norwegian king?', answer: 'Bluetooth' },
+            ],
+            "Food": [
+                { question: 'What is the main ingredient in traditional Japanese miso soup?', answer: 'Soybean paste' },
+                { question: 'In which country did the sandwich originate?', answer: 'England' },
+                { question: 'What is the primary ingredient in traditional Indian naan bread?', answer: 'Flour' },
+                { question: 'Which fruit is known as the "king of fruits" and has a strong odor?', answer: 'Durian' },
+                { question: 'What is the name of the Italian dish made of thinly sliced raw meat or fish?', answer: 'Carpaccio' },
+                { question: 'What is the main ingredient in the classic Italian pasta dish "Carbonara"?', answer: 'Eggs and cheese' },
+                { question: 'What type of bread is commonly used to make traditional French toast?', answer: 'Baguette' },
+                { question: 'Which spice, known as "black gold," is derived from the stigmas of a crocus flower?', answer: 'Saffron' },
+                { question: 'What is the traditional Korean dish made of fermented vegetables, primarily napa cabbage, and spices?', answer: 'Kimchi' },
+                { question: 'In which country is the popular dessert "flan" believed to have originated?', answer: 'Spain' },
+        ],
+            // Add more categories and questions here
+        }
+ // Shuffle function to randomize the questions within each category
+ function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    // Shuffle the questions in each category
+    for (const category in categories) {
+        shuffle(categories[category]);
+    }
+        const categorySelect = document.getElementById('category-select');
+        const questionDisplay = document.getElementById('question-display');
+        const categoryName = document.getElementById('category-name');
+        const questionText = document.getElementById('question-text');
+        const userAnswer = document.getElementById('user-answer');
+
+        function checkAnswer() {
+            const selectedCategory = categorySelect.value;
+            const currentQuestion = categories[selectedCategory][0];
+            const userProvidedAnswer = userAnswer.value.trim();
+            if (userProvidedAnswer.toLowerCase() === currentQuestion.answer.toLowerCase()) {
+                alert('Correct! You answered the question correctly.');
+            } else {
+                alert(`Sorry, the correct answer is: ${currentQuestion.answer}`);
+            }
+
+            userAnswer.value = '';
+            categories[selectedCategory].shift();
+            if (categories[selectedCategory].length > 0) {
+                displayQuestion(selectedCategory);
+            } else {
+                questionDisplay.style.display = 'none';
+                alert('No more questions in this category.');
+            }
+        }
+
+        function displayQuestion(category) {
+            questionDisplay.style.display = 'block';
+            categoryName.textContent = category;
+            const currentQuestion = categories[category][0];
+            questionText.textContent = currentQuestion.question;
+        }
+
+        categorySelect.addEventListener('change', () => {
+            const selectedCategory = categorySelect.value;
+            if (selectedCategory) {
+                displayQuestion(selectedCategory);
+            } else {
+                questionDisplay.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
