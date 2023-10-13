@@ -1,48 +1,51 @@
-Go Fish Game Explanation
-This HTML and JavaScript code represents a simple web-based Go Fish card game. Go Fish is a classic card game typically played with a standard deck of 52 cards. The objective of the game is to collect sets of four cards of the same rank.
+### Go Fish Game Explanation
+- This HTML and JavaScript code represents a simple web-based Go Fish card game. Go Fish is a classic card game typically played with a standard deck of 52 cards. The objective of the game is to collect sets of four cards of the same rank.
 
-Key Features
-The code includes the following features:
+* Key Features
+1. The code includes the following features:
 
-HTML: The code uses HTML to structure the game interface, including a game container, a deck of cards, player and opponent hands, and a side panel for instructions and information.
+- HTML: The code uses HTML to structure the game interface, including a game container, a deck of cards, player and opponent hands, and a side panel for instructions and information.
 
-CSS: The code contains embedded CSS styles for formatting the game interface, including card appearance, text styling, and layout.
+- CSS: The code contains embedded CSS styles for formatting the game interface, including card appearance, text styling, and layout.
 
-JavaScript: The game logic is implemented using JavaScript. It handles shuffling and dealing cards, player interactions, opponent moves, and checking for win conditions.
+- JavaScript: The game logic is implemented using JavaScript. It handles shuffling and dealing cards, player interactions, opponent moves, and checking for win conditions.
 
-Game Interface
-The game interface is primarily defined within the HTML and CSS code:
+##Game Interface
 
-The game container is centered on the webpage, and it includes a side panel for instructions and game information.
+1. The game interface is primarily defined within the HTML and CSS code:
 
-The "Your Hand" and "Opponent's Hand" sections display the player's and opponent's cards.
+2. The game container is centered on the webpage, and it includes a side panel for instructions and game information.
 
-The "Draw Card" button allows the player to draw cards from the deck.
+3. The "Your Hand" and "Opponent's Hand" sections display the player's and opponent's cards.
 
-The "Go Fish" button appears when necessary for the player to go fishing (draw a card).
+4. The "Draw Card" button allows the player to draw cards from the deck.
 
-Game Rules
-Here's a brief overview of how the game is played:
+5. The "Go Fish" button appears when necessary for the player to go fishing (draw a card).
 
-The deck is initialized with a standard deck of 52 cards, which are shuffled.
+* Game Rules
+  
+- Here's a brief overview of how the game is played:
 
-Initially, the player and opponent are dealt 5 cards each.
+1. The deck is initialized with a standard deck of 52 cards, which are shuffled.
 
-The player can click on their cards to request cards of a specific rank from the opponent.
+2. Initially, the player and opponent are dealt 5 cards each.
 
-If the opponent has the requested card(s), they give it to the player, and the player's set is formed. The player can continue their turn by asking for another card.
+3. The player can click on their cards to request cards of a specific rank from the opponent.
 
-If the opponent doesn't have the requested card(s), the player goes fishing, drawing a card from the deck.
+4. If the opponent has the requested card(s), they give it to the player, and the player's set is formed. The player can continue their turn by asking for another card.
 
-The opponent then takes its turn, asking for a card from the player or going fishing.
+5. If the opponent doesn't have the requested card(s), the player goes fishing, drawing a card from the deck.
 
-The game continues until the deck is empty, and all sets are formed.
+6. The opponent then takes its turn, asking for a card from the player or going fishing.
 
-At the end of the game, the player with the most sets of four cards of the same rank wins.
+7. The game continues until the deck is empty, and all sets are formed.
 
-AI and Logic
-The code implements a simple AI for the opponent, who randomly selects cards to request from the player's hand. It also checks for win conditions and counts the number of sets formed by each player.
+8. At the end of the game, the player with the most sets of four cards of the same rank wins.
 
-The game logic is handled by JavaScript functions, controlling card movements, checking for sets, and determining the winner.
+* AI and Logic
+* 
+- The code implements a simple AI for the opponent, who randomly selects cards to request from the player's hand. It also checks for win conditions and counts the number of sets formed by each player.
+
+- The game logic is handled by JavaScript functions, controlling card movements, checking for sets, and determining the winner.
 
 Created by: Jason Leisure
