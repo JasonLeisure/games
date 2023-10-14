@@ -98,6 +98,7 @@
         <button id="clear-button">Clear</button>
     </div>
     <canvas id="drawing-canvas" width="400" height="400"></canvas>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const chatOutput = document.getElementById("chat-output");
@@ -161,7 +162,23 @@ let knowledgeBase = {
                 "How do I make a cup of coffee?": "To make a cup of coffee, you'll need coffee grounds and hot water. You can use a coffee maker or a pour-over method. Would you like a detailed recipe?",
                 "What's the largest desert in the world?": "The largest desert in the world is the Antarctic Desert. It's even larger than the Sahara Desert!",
             };
+            function generateRandomResponse() {
+    const responses = [
+        "That's interesting!",
+        "Tell me more!",
+        "I didn't know that!",
+        "You're quite knowledgeable!",
+        "What a fascinating topic!",
+        "I'm here to chat with you!",
+        "What's on your mind today?",
+        "Let's have a fun conversation!",
+        "Ask me anything!",
+        "I'm all ears!",
+    ];
 
+    const randomIndex = Math.floor(Math.random() * responses.length);
+    return responses[randomIndex];
+}
             function appendMessage(user, message) {
                 const messageElement = document.createElement("div");
                 messageElement.classList.add(user === "You" ? "message" : "bot-message");
@@ -285,10 +302,73 @@ let knowledgeBase = {
     } else if (userMessage === "what's the largest desert in the world?") {
         response = "The largest desert in the world is the Antarctic Desert. It's even larger than the Sahara Desert!";
     }
+    if (userMessage in knowledgeBase) {
+    response = knowledgeBase[userMessage];
+} else if (userMessage.includes("draw a smiley face")) {
+    drawSmileyFace();
+    response = "I've drawn a smiley face for you!";
+} else if (userMessage.includes("draw a circle")) {
+    drawCircle();
+    response = "I've drawn a circle for you!";
+} else if (userMessage.includes("draw a square")) {
+    drawSquare();
+    response = "I've drawn a square for you!";
+} else {
+    response = generateRandomResponse();
+}
+if (userMessage in knowledgeBase) {
+    response = knowledgeBase[userMessage];
+} else if (userMessage.includes("draw a smiley face")) {
+    drawSmileyFace();
+    response = "I've drawn a smiley face for you!";
+} else if (userMessage.includes("define ")) {
+    const wordToDefine = userMessage.replace("define ", "");
+    response = defineWord(wordToDefine);
+} else if (userMessage.includes("define ")) {
+    const wordToDefine = userMessage.replace("define ", "");
+    response = defineWord(wordToDefine);
+} else if (userMessage.includes("calculate ")) {
+    const mathExpression = userMessage.replace("calculate ", "");
+    response = calculateMathExpression(mathExpression);
+} else {
+    response = generateRandomResponse();
+}
 
     return response;
 }
+function calculateMathExpression(mathExpression) {
+    try {
+        const result = eval(mathExpression);
+        return `The result of "${mathExpression}" is: ${result}`;
+    } catch (error) {
+        return `I couldn't calculate "${mathExpression}". Please provide a valid mathematical expression.`;
+    }
+}
+function defineWord(word) {
+    const dictionary = {
+        "chatbot": "A computer program designed to simulate conversation with human users, especially over the internet.",
+        "artificial intelligence": "The simulation of human intelligence processes by machines, especially computer systems.",
+        "algorithm": "A step-by-step procedure for solving a problem or accomplishing a task, especially by a computer.",
+        "database": "A structured collection of data that is stored and organized for quick retrieval and manipulation.",
+        "programming": "The process of designing, coding, and testing computer programs to perform specific tasks.",
+        "machine learning": "A subset of artificial intelligence that involves the development of algorithms to enable computers to learn and make predictions or decisions based on data.",
+        "HTML": "Hypertext Markup Language, a standard language for creating and structuring web pages.",
+        "JavaScript": "A high-level, interpreted programming language used to add interactivity and dynamic behavior to web pages.",
+        "cloud computing": "The delivery of computing services, including servers, storage, databases, networking, software, over the internet to offer faster innovation and flexible resources.",
+        "robotics": "The interdisciplinary field of engineering and science that involves the design, construction, operation, and use of robots.",
+        "blockchain": "A decentralized and distributed digital ledger technology used to record transactions across multiple computers in a way that is secure, transparent, and tamper-resistant.",
+        // Add more word definitions as needed
+    };
 
+    // Convert the input word to lowercase for case-insensitive matching
+    const lowerCaseWord = word.toLowerCase();
+
+    if (lowerCaseWord in dictionary) {
+        return `The definition of "${word}" is: ${dictionary[lowerCaseWord]}`;
+    } else {
+        return `I'm sorry, I don't have a definition for "${word}".`;
+    }
+}
 // Function to draw a flower on the canvas
 function drawFlower() {
     // Clear the canvas to remove any previous drawings
@@ -539,3 +619,4 @@ function drawHouse() {
     </script>
 </body>
 </html>
+
