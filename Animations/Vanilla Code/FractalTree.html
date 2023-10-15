@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Random Tree Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .sun {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 100px;
+    height: 100px;
+    background-color: #ffdb58;
+    border-radius: 50%;
+    box-shadow: 0px 0px 50px 10px #ffdb58;
+}
+
+        @keyframes sunAnimation {
+            0%, 100% {
+                background: radial-gradient(circle at center, rgba(255, 255, 0, 1) 10%, rgba(255, 255, 0, 0) 70%);
+            }
+            50% {
+                background: radial-gradient(circle at center, rgba(255, 255, 0, 0.8) 10%, rgba(255, 255, 0, 0) 70%);
+            }
+        }
+
+        canvas {
+            position: absolute;
+            background: black;
+        }
+
+        button {
+            cursor: pointer;
+            outline: none;
+            border: none;
+        }
+
+        .generate-tree-button {
+            position: absolute;
+            left: 50%;
+            bottom: 5%;
+            transform: translateX(-50%);
+            z-index: 10;
+            cursor: pointer;
+            padding: 10px 30px;
+            border-radius: 5px;
+            background-color: #3498db;
+            color: #fff;
+            font-family: 'Helvetica', cursive;
+            font-size: 20px;
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+            overflow: hidden;
+        }
+
+.generate-tree-button::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%);
+    border-radius: 50%;
+    transition: transform 0.3s;
+}
+
+.generate-tree-button:hover {
+    background-color: #2980b9;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
+    transform: translateX(-50%) translateY(-3px);
+}
+
+.generate-tree-button:hover::before {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+        .controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sun"></div>
+    <canvas></canvas>
+    <button class='generate-tree-button'>Random</button>
+    <div class="controls">
+        <label for="leaf-color">Leaf Color:</label>
+        <input type="color" id="leaf-color" value="#00ff00">
+        <br>
+        <label for="trunk-color">Trunk Color:</label>
+        <input type="color" id="trunk-color" value="#8B4513">
+        <br>
+        <label for="wind-strength">Wind Strength:</label>
+        <input type="range" id="wind-strength" min="0" max="10" step="0.1" value="2">
+        <br>
+        <label for="wind-direction">Wind Direction:</label>
+        <input type="range" id="wind-direction" min="-2" max="2" step="0.1" value="-1">
+        <br>
+        <select id="wind-direction">
+            <option value="-1">Left</option>
+            <option value="1">Right</option>
+            <option value="2">Up</option>
+            <option value="-2">Down</option>
+        </select>
+        <br>
+        <button class="update-button">Update Tree</button>
+    </div>
+    <script>
+        const canvas = document.querySelector('canvas');
+        const generateButton = document.querySelector('.generate-tree-button');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const ctx = canvas.getContext('2d');
+        let curve = 10;
+        let leaves = [];
+        let windStrength = 3.0;
+        let windDirection = -1;
+        let windAngle = 45;
+
+        function drawTree(startX, startY, len, angle, branchWidth, leafColor, trunkColor, depth) {
+            ctx.beginPath();
+            ctx.save();
+            ctx.strokeStyle = trunkColor;
+            ctx.fillStyle = leafColor;
+            ctx.shadowColor = 'rgba(255,255,255,.5)';
+            ctx.lineWidth = branchWidth;
+            ctx.translate(startX, startY);
+            ctx.rotate(angle * Math.PI/180);
+            ctx.moveTo(0, 0);
+
+            if (angle > 0){
+                ctx.bezierCurveTo(20, -len/2, 20, -len/2, 0, -len);
+            } else {
+                ctx.bezierCurveTo(20, -len/2, -20, -len/2, 0, -len);
+            }
+
+            ctx.stroke();
+ if (depth > 0) {
+        curve = (Math.random() * 10) + 10;
+
+        const windX = Math.cos(windAngle) * windStrength;
+        const windY = Math.sin(windAngle) * windStrength;
+        const windOffsetX = Math.cos(windAngle) * 2;
+        const windOffsetY = Math.sin(windAngle) * 2;
+        const leafX = 0 + windX + windOffsetX;
+        const leafY = -len + windY + windOffsetY;
+
+        drawTree(leafX, leafY, len * 0.75, angle + curve, branchWidth * 0.6, leafColor, trunkColor, depth - 1);
+        drawTree(leafX, leafY, len * 0.75, angle - curve, branchWidth * 0.6, leafColor, trunkColor, depth - 1);
+    }
+            if (len < 5) {
+                ctx.beginPath();
+                ctx.arc(0, -len, 10, 0, Math.PI/2);
+                ctx.fill();
+                ctx.restore();
+                return;
+            }
+
+            curve = (Math.random() * 10) + 10;
+
+            const windX = Math.cos(windAngle) * windStrength;
+            const windY = Math.sin(windAngle) * windStrength;
+            const windOffsetX = Math.cos(windAngle) * 2;
+            const windOffsetY = Math.sin(windAngle) * 2;
+            const leafX = 0 + windX + windOffsetX;
+            const leafY = -len + windY + windOffsetY;
+
+            drawTree(leafX, leafY, len * 0.75, angle + curve, branchWidth * 0.6, leafColor, trunkColor);
+            drawTree(leafX, leafY, len * 0.75, angle - curve, branchWidth * 0.6, leafColor, trunkColor);
+
+            ctx.restore();
+        }
+
+function drawSun() {
+    const sunRadius = 50;
+    const sunX = 100;
+    const sunY = 100;
+    const gradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunRadius);
+    gradient.addColorStop(0, 'rgba(255, 255, 0, 1)');
+    gradient.addColorStop(0.6, 'rgba(255, 200, 0, 0.8)');
+    gradient.addColorStop(1, 'rgba(255, 100, 0, 0.5)');
+
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
+    ctx.fillStyle = gradient;
+    ctx.fill();
+    ctx.closePath();
+}
+
+        function updateWind() {
+            if (Math.random() < 0.02) {
+                windDirection *= -1;
+            }
+
+            windAngle += windStrength * windDirection;
+            if (windAngle > 0.4) {
+                windAngle = 0.4;
+            } else if (windAngle < -0.4) {
+                windAngle = -0.4;
+            }
+        }
+
+        function generateRandomTree() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawSun();
+    leaves = [];
+    let centerPointX = canvas.width / 2;
+    let len = Math.floor(Math.random() * 20) + 100;
+    let angle = 0;
+    let branchWidth = (Math.random() * 40) + 1;
+    let leafColor = getRandomColor();
+    let trunkColor = getRandomColor();
+
+    if (Math.random() < 0.5) {
+        leafColor = getRandomColor();
+    } else {
+        trunkColor = getRandomColor();
+    }
+    drawSun();
+
+    drawTree(centerPointX, canvas.height - 80, len, angle, branchWidth, leafColor, trunkColor);
+}
+
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    if (Math.random() < 0.5) {
+        const neonColors = [
+            'FF6EFF', 'FF83FA', 'FFA500', '00FF00', 'FFFF00', '00FFFF', 'FF00FF', 'FF1493',
+            'FFD700', 'FF4500', '8A2BE2', '32CD32', 'FF6347', '1E90FF', 'FF69B4', 'FFD700'
+        ];
+        color += neonColors[Math.floor(Math.random() * neonColors.length)];
+    } else {
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+    }
+
+    return color;
+}
+
+        generateButton.addEventListener('click', generateRandomTree);
+        const leafColorInput = document.getElementById('leaf-color');
+        const trunkColorInput = document.getElementById('trunk-color');
+        const windStrengthInput = document.getElementById('wind-strength');
+        const windDirectionSelect = document.getElementById('wind-direction');
+        const updateButton = document.querySelector('.update-button');
+
+        updateButton.addEventListener('click', () => {
+            const selectedDirection = parseFloat(windDirectionSelect.value);
+
+            if (selectedDirection === -1) {
+                windAngle = 0.4;
+            } else if (selectedDirection === 1) {
+                windAngle = -0.4;
+            } else if (selectedDirection === 2) {
+                windAngle = 1.0;
+            } else if (selectedDirection === -2) {
+                windAngle = -1.0;
+            }
+
+            const newLeafColor = leafColorInput.value;
+            const newTrunkColor = trunkColorInput.value;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawTree(canvas.width / 2, canvas.height - 80, 120, 0, 25, newLeafColor, newTrunkColor);
+        });
+
+        drawSun();
+        drawTree(canvas.width / 2, canvas.height - 80, 120, 0, 25, getRandomColor(), getRandomColor());
+    </script>
+</body>
+</html>
