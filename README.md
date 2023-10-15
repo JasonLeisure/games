@@ -1,3 +1,5 @@
+### Updates to files 10/15/2023 Added skull animation to vanilla and light switch demo to applications
+
 ### Updates to files 10/13/2023 Added in Trivia Tasker game and Puck Man game. Next game I am working on is with my group. Also added in GoFishAi Go Fish card game against AI. Also add a AI assistant app to applications.
 
 ### Updates to files 10/12/2023 Added in games two blackjack games high stakes and twenty-one.
