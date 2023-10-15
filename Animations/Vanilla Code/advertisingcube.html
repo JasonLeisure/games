@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color-Changing SVG Cube</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: black;
+        }
+        .cube.draggable {
+            cursor: grab;
+        }
+        .container {
+            perspective: 1200px;
+        }
+
+        .cube {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotate 6s linear infinite;
+        }
+
+        .face {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 1px solid #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            animation: colorChange 5s infinite alternate;
+        }
+
+        .face:nth-child(1) { transform: rotateY(0deg) translateZ(50px); background: rgba(0, 0, 255, 0.7); }
+        .face:nth-child(2) { transform: rotateY(90deg) translateZ(50px); background: rgba(255, 0, 0, 0.7); }
+        .face:nth-child(3) { transform: rotateY(180deg) translateZ(50px); background: rgba(0, 255, 0, 0.7); }
+        .face:nth-child(4) { transform: rotateY(-90deg) translateZ(50px); background: rgba(255, 0, 255, 0.7); }
+        .face:nth-child(5) { transform: rotateX(90deg) translateZ(50px); background: rgba(255, 255, 0, 0.7); }
+        .face:nth-child(6) { transform: rotateX(-90deg) translateZ(50px); background: rgba(0, 255, 255, 0.7); }
+
+        @keyframes rotate {
+            0% { transform: rotateY(0deg) rotateX(0deg); }
+            25% { transform: rotateY(90deg) rotateX(0deg); }
+            50% { transform: rotateY(180deg) rotateX(0deg); }
+            75% { transform: rotateY(-90deg) rotateX(0deg); }
+            100% { transform: rotateY(0deg) rotateX(90deg); }
+        }
+
+        @keyframes colorChange {
+            0% { background: rgba(0, 0, 255, 0.7); }
+            25% { background: rgba(255, 0, 0, 0.7); }
+            50% { background: rgba(0, 255, 0, 0.7); }
+            75% { background: rgba(255, 0, 255, 0.7); }
+            100% { background: rgba(255, 255, 0, 0.7); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cube">
+            <div class="face">Jason</div>
+            <div class="face">Engineer</div>
+            <div class="face">Software</div>
+            <div class="face">Leisure</div>
+            <div class="face">Creative</div>
+            <div class="face"><a href="https://www.linkedin.com/in/jasonleisure/" target="_blank">LinkedIn</a></div>
+        </div>
+    </div>
+</body>
+</html>
