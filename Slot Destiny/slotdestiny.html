@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Slot Destiny</title>
+  <style>
+    body {
+      background: #212121;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+  /* Add background images to slot reels for a spinning effect */
+  .slot {
+    background-image: url('reel-background.png');
+    background-size: cover;
+  }
+
+  /* Add flashing lights to the slot machine */
+  .container {
+    animation: flashLights 2s infinite alternate;
+  }
+
+  @keyframes flashLights {
+    0% {
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+    100% {
+      box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+    }
+  }
+
+  /* Winning animation */
+  .winner {
+    animation: winAnimation 1s infinite alternate;
+  }
+
+  @keyframes winAnimation {
+    0% {
+      font-size: 24px;
+    }
+    100% {
+      font-size: 28px;
+    }
+  }
+    .card {
+      background: #444;
+      border: 2px solid #888;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      padding: 20px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slotcontainer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .slot {
+      width: 100px;
+      height: 150px;
+      border: 2px solid #888;
+      border-radius: 10px;
+      display: inline-block;
+      overflow: hidden;
+      position: relative;
+      background: #333;
+      box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.8) inset;
+    }
+
+    .slot .symbols {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transition: top 5s;
+    }
+
+    .slot .symbol {
+      width: 100px;
+      height: 150px;
+      font-size: 60px;
+      line-height: 100px;
+      display: block;
+      text-align: center;
+      padding-top: 25px;
+      color: #888;
+      background: linear-gradient(to bottom, #777, #aaa);
+    }
+
+
+.score {
+  font-size: 24px;
+  margin-top: 10px;
+  text-align: center;
+  color: #ffcc00;
+  text-shadow: 2px 2px 4px #000;
+}
+
+button {
+  margin: 0 10px;
+  padding: 12px 24px;
+  font-size: 18px;
+  background: #ff5722;
+  color: #fff;
+  border: 2px solid #ff5722;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 2px 2px 4px #888;
+  transition: background 0.3s, color 0.3s;
+}
+
+
+button:hover {
+  background: #ff9933;
+  color: #fff;
+  box-shadow: 4px 4px 8px #888;
+}
+/* Style for the slot machine and handle */
+.slot-machine {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.slot-arm {
+  width: 40px;
+  height: 150px;
+  background: #777;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 5px 5px 0;
+  margin-right: 10px;
+}
+
+.slot-lever {
+  width: 10px;
+  height: 60px;
+  background: #aaa;
+  border-radius: 50%;
+  position: relative;
+  top: -20px;
+}
+
+.slot-handle {
+  width: 10px;
+  height: 60px;
+  background: #aaa;
+  border-radius: 5px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+/* Add some basic hover effects for the handle */
+.slot-handle:hover {
+  background: #999;
+}
+  </style>
+</head>
+
+<body>
+    <div class="card">
+      <div class="container">
+        <h1 style="color: #ffcc00; text-align: center; font-size: 24px; margin-bottom: 20px;">SLOT DESTINY</h1>
+        <div class="slotcontainer">
+          <div class="slot">
+            <div class="symbols" id="slot1Symbols"></div>
+          </div>
+
+          <div class="slot">
+            <div class="symbols" id="slot2Symbols"></div>
+          </div>
+          <audio id="slotReelSound" src="funkcasino.mp3" loop="true"></audio>
+          <div class="slot">
+            <div class="symbols" id="slot3Symbols"></div>
+          </div>
+        </div>
+
+        <div class="score" id="scoreDisplay">Score: 0</div>
+
+        <div style="display: flex;">
+          <button onclick="spin()">Spin</button>
+          <button onclick="reset();">Reset</button>
+        </div>
+      </div>
+    </div>
+  <script>
+    const slotSymbols = [
+  ['😀', '😁', '😂', '😃', '😄', '😅', '😆', '😇', '😈', '😉', '😊', '🙂', '😋', '😎', '😍', '💎', '💍', '🌸', '💰'],
+  ['🍎', '🍏', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥥', '🥝', '🍍', '🍆', '🍅', '🍄', '🌽'],
+  ['⭐️', '🌟', '✨', '💫', '⚡️', '☄️', '🌠', '🌌', '🌙', '💎', '💍', '🌒', '🌓'],
+];
+
+// Adjust the scores as needed
+const symbolScores = {
+  '😀': 1, '😁': 2, '😂': 3, '😃': 4, '😄': 5, '😅': 6, '😆': 7, '😇': 8, '😈': 9, '😉': 10,
+  '😊': 11, '🙂': 12, '😋': 13, '😎': 14, '😍': 15, '💎': 16, '💍': 17, '🌸': 18, '💰': 19,
+  '🍎': 20, '🍏': 21, '🍐': 22, '🍊': 23, '🍋': 24, '🍌': 25, '🍉': 26, '🍇': 27, '🍓': 28, '🍈': 29,
+  '🍒': 30, '🍑': 31, '🥥': 32, '🥝': 33, '🍍': 34, '🍆': 35, '🍅': 36, '🍄': 37, '🌽': 38,
+  '⭐️': 39, '🌟': 40, '✨': 41, '💫': 42, '⚡️': 43, '☄️': 44, '🌠': 45, '🌌': 46, '🌙': 47,
+  '🌒': 48, '🌓': 49,
+};
+
+    function createSymbolElement(symbol) {
+      const div = document.createElement('div');
+      div.classList.add('symbol');
+      div.textContent = symbol;
+      return div;
+    }
+
+    function assignScore(symbol) {
+      return symbolScores[symbol] || 0;
+    }
+
+    function getScore(slot) {
+      const symbols = slot.querySelector('.symbols');
+      const symbolIndex = Math.floor(Math.abs(parseInt(symbols.style.top, 10)) / slot.clientHeight) % slotSymbols[0].length;
+      return assignScore(slotSymbols[0][symbolIndex]);
+    }
+
+    let spun = false;
+
+    function spin() {
+  if (spun) {
+    reset();
+  }
+  const slots = document.querySelectorAll('.slot');
+  let completedSlots = 0;
+  let totalScore = 0;
+
+  const targetSymbol = slotSymbols[0][Math.floor(Math.random() * slotSymbols[0].length)];
+
+  const slotReelSound = document.getElementById('slotReelSound');
+  slotReelSound.play();
+
+  slots.forEach((slot, index) => {
+    const symbols = slot.querySelector('.symbols');
+    const symbolHeight = symbols.querySelector('.symbol')?.clientHeight;
+    const symbolCount = symbols.childElementCount;
+
+    symbols.innerHTML = '';
+
+    if (index === 2) {
+      symbols.appendChild(createSymbolElement(slotSymbols[0][0]));
+    } else {
+      symbols.appendChild(createSymbolElement(targetSymbol));
+    }
+
+    for (let i = 0; i < 3; i++) {
+      slotSymbols[index].forEach(symbol => {
+        symbols.appendChild(createSymbolElement(symbol));
+      });
+    }
+
+    const totalDistance = symbolCount * symbolHeight;
+    const randomOffset = -Math.floor(Math.random() * (symbolCount - 1) + 1) * symbolHeight;
+
+    symbols.style.transition = 'top 5s ease-in-out';
+    symbols.style.top = `${randomOffset}px`;
+
+    symbols.addEventListener('transitionend', () => {
+      completedSlots++;
+      if (completedSlots === slots.length) {
+        totalScore = getScore(slots[0]);
+        if (getScore(slots[1]) === totalScore && getScore(slots[2]) === totalScore) {
+          updateScoreDisplay(totalScore);
+          alert('You won! Score: ' + totalScore);
+        } else {
+          updateScoreDisplay(totalScore);
+          alert('Try again. Score: ' + totalScore);
+        }
+      }
+    }, { once: true });
+  });
+
+  spun = true;
+}
+    function reset() {
+      const slots = document.querySelectorAll('.slot');
+
+      slots.forEach(slot => {
+        const symbols = slot.querySelector('.symbols');
+        symbols.style.transition = 'none';
+        symbols.style.top = '0';
+        symbols.offsetHeight;
+        symbols.style.transition = '';
+      });
+      updateScoreDisplay(0);
+    }
+
+
+    function updateScoreDisplay(score) {
+      const scoreDisplay = document.getElementById('scoreDisplay');
+      scoreDisplay.textContent = `Score: ${score}`;
+    }
+  </script>
+</body>
+
+</html>
