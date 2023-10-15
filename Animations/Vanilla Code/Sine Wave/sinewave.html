@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sine Wave</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+  <style>
+    canvas {
+      display: block;
+    }
+
+    #music-player {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <canvas></canvas>
+  <div id="music-player">
+    <audio controls loop autoplay>
+      <source src="abstract.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+
+  <script>
+    const gui = new dat.GUI();
+    const canvas = document.querySelector('canvas');
+    const c = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const wave = {
+      y: canvas.height / 2,
+      length: 0.01,
+      amplitude: 200,
+      frequency: 0.02,
+      rainbow: true
+    };
+
+    const strokeColor = {
+      h: 200,
+      s: 50,
+      l: 50
+    };
+
+    const backgroundColor = {
+      r: 0,
+      g: 0,
+      b: 0,
+      a: 0.01
+    };
+
+    const shapeOptions = {
+      drawShape: false,
+      shapeType: 'circle',
+      shapeSize: 50,
+      shapeColor: '#FF0000',
+      shapeRotation: 0,
+      numShapes: 5
+    };
+
+    const trippy1 = {
+      drawTrippy: false,
+      trippySpeed: 0.02,
+      trippyLineWidth: 2,
+      trippyColor: '#00FF00',
+      colorCycle: true,
+      distortion: 0.1
+    };
+
+    const trippy2 = {
+      drawTrippy: false,
+      trippySpeed: 0.02,
+      trippyLineWidth: 2,
+      trippyColor: '#FF00FF',
+      colorCycle: true,
+      distortion: 0.1
+    };
+
+    const trippy3 = {
+      drawTrippy: false,
+      trippySpeed: 0.02,
+      trippyLineWidth: 2,
+      trippyColor: '#FFFF00',
+      colorCycle: true,
+      distortion: 0.1
+    };
+
+    const waveFolder = gui.addFolder('wave');
+    waveFolder.add(wave, 'y', 0, canvas.height);
+    waveFolder.add(wave, 'length', 0.01, 0.05);
+    waveFolder.add(wave, 'amplitude', 100, 400);
+    waveFolder.add(wave, 'frequency', 0.01, 0.1);
+    waveFolder.add(wave, 'rainbow').name('Rainbow Colors');
+    waveFolder.open();
+
+    const strokeFolder = gui.addFolder('stroke');
+    strokeFolder.add(strokeColor, 'h', 0, 255);
+    strokeFolder.add(strokeColor, 's', 0, 100);
+    strokeFolder.add(strokeColor, 'l', 0, 100);
+    strokeFolder.open();
+
+    const backgroundFolder = gui.addFolder('background');
+    backgroundFolder.add(backgroundColor, 'r', 0, 255);
+    backgroundFolder.add(backgroundColor, 'g', 0, 255);
+    backgroundFolder.add(backgroundColor, 'b', 0, 255);
+    backgroundFolder.add(backgroundColor, 'a', 0, 1);
+    backgroundFolder.open();
+
+    const shapeFolder = gui.addFolder('shapes');
+    shapeFolder.add(shapeOptions, 'drawShape').name('Draw Shape');
+    shapeFolder.add(shapeOptions, 'shapeType', ['circle', 'square', 'triangle']).name('Shape Type');
+    shapeFolder.add(shapeOptions, 'shapeSize', 10, 100).name('Shape Size');
+    shapeFolder.addColor(shapeOptions, 'shapeColor').name('Shape Color');
+    shapeFolder.add(shapeOptions, 'shapeRotation', 0, 360).name('Shape Rotation');
+    shapeFolder.add(shapeOptions, 'numShapes', 1, 10, 1).name('Number of Shapes');
+    shapeFolder.open();
+
+    const trippyFolder1 = gui.addFolder('Trippy Effect 1');
+    trippyFolder1.add(trippy1, 'drawTrippy').name('Draw Trippy');
+    trippyFolder1.add(trippy1, 'trippySpeed', 0.01, 0.1).name('Trippy Speed');
+    trippyFolder1.add(trippy1, 'trippyLineWidth', 1, 10).name('Line Width');
+    trippyFolder1.addColor(trippy1, 'trippyColor').name('Trippy Color');
+    trippyFolder1.add(trippy1, 'colorCycle').name('Color Cycle');
+    trippyFolder1.add(trippy1, 'distortion', 0.01, 0.5).name('Distortion');
+
+    const trippyFolder2 = gui.addFolder('Trippy Effect 2');
+    trippyFolder2.add(trippy2, 'drawTrippy').name('Draw Trippy');
+    trippyFolder2.add(trippy2, 'trippySpeed', 0.01, 0.1).name('Trippy Speed');
+    trippyFolder2.add(trippy2, 'trippyLineWidth', 1, 10).name('Line Width');
+    trippyFolder2.addColor(trippy2, 'trippyColor').name('Trippy Color');
+    trippyFolder2.add(trippy2, 'colorCycle').name('Color Cycle');
+    trippyFolder2.add(trippy2, 'distortion', 0.01, 0.5).name('Distortion');
+
+    const trippyFolder3 = gui.addFolder('Trippy Effect 3');
+    trippyFolder3.add(trippy3, 'drawTrippy').name('Draw Trippy');
+    trippyFolder3.add(trippy3, 'trippySpeed', 0.01, 0.1).name('Trippy Speed');
+    trippyFolder3.add(trippy3, 'trippyLineWidth', 1, 10).name('Line Width');
+    trippyFolder3.addColor(trippy3, 'trippyColor').name('Trippy Color');
+    trippyFolder3.add(trippy3, 'colorCycle').name('Color Cycle');
+    trippyFolder3.add(trippy3, 'distortion', 0.01, 0.5).name('Distortion');
+
+    const trippyEffects = [trippy1, trippy2, trippy3];
+
+    let currentTrippyEffect = 0;
+
+    function switchTrippyEffect() {
+      trippyEffects[currentTrippyEffect].drawTrippy = false;
+      currentTrippyEffect = (currentTrippyEffect + 1) % trippyEffects.length;
+      trippyEffects[currentTrippyEffect].drawTrippy = true;
+    }
+
+    canvas.addEventListener('click', switchTrippyEffect);
+
+    let hue = 0;
+    let increment = wave.frequency;
+    let distortionFactor = 1;
+
+    function drawShapes() {
+      c.fillStyle = shapeOptions.shapeColor;
+      c.strokeStyle = shapeOptions.shapeColor;
+
+      for (let i = 0; i < shapeOptions.numShapes; i++) {
+        c.save();
+        c.translate(canvas.width / 2, canvas.height / 2);
+        c.rotate((shapeOptions.shapeRotation + (i * Math.PI * 2)) / shapeOptions.numShapes);
+        c.beginPath();
+        switch (shapeOptions.shapeType) {
+          case 'circle':
+            c.arc(0, 0, shapeOptions.shapeSize, 0, Math.PI * 2);
+            break;
+          case 'square':
+            c.rect(-shapeOptions.shapeSize / 2, -shapeOptions.shapeSize / 2, shapeOptions.shapeSize, shapeOptions.shapeSize);
+            break;
+          case 'triangle':
+            c.moveTo(0, -shapeOptions.shapeSize / 2);
+            c.lineTo(-shapeOptions.shapeSize / 2, shapeOptions.shapeSize / 2);
+            c.lineTo(shapeOptions.shapeSize / 2, shapeOptions.shapeSize / 2);
+            c.closePath();
+            break;
+        }
+        c.fill();
+        c.stroke();
+        c.restore();
+      }
+    }
+
+    class Particle {
+  constructor(x, y, velocityX, velocityY, color, size) {
+    this.x = x;
+    this.y = y;
+    this.velocityX = velocityX;
+    this.velocityY = velocityY;
+    this.color = color;
+    this.size = size;
+  }
+
+  update() {
+    this.x += this.velocityX;
+    this.y += this.velocityY;
+  }
+
+  draw(ctx) {
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+const particles = [];
+
+function createParticles() {
+  for (let i = 0; i < 5; i++) {
+    const x = canvas.width / 2;
+    const y = canvas.height / 2;
+    const velocityX = (Math.random() - 0.5) * 2;
+    const velocityY = (Math.random() - 0.5) * 2;
+    const color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+    const size = Math.random() * 4 + 2;
+
+    particles.push(new Particle(x, y, velocityX, velocityY, color, size));
+  }
+}
+
+function updateParticles() {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].applyForces(particles);
+    particles[i].update();
+    if (particles[i].isDead()) {
+      particles.splice(i, 1);
+    }
+  }
+}
+
+function drawParticles() {
+  for (let i = 0; i < particles.length; i++) {
+    particles[i].updateColor();
+    particles[i].drawTrail(c);
+    particles[i].draw(c);
+  }
+}
+    function animate() {
+      requestAnimationFrame(animate);
+      c.fillStyle = `rgba(${backgroundColor.r}, ${backgroundColor.g}, ${backgroundColor.b}, ${backgroundColor.a})`;
+      backgroundColor.r = Math.sin(Date.now() * 0.0005) * 128 + 128;
+      backgroundColor.g = Math.sin(Date.now() * 0.0007) * 128 + 128;
+      backgroundColor.b = Math.sin(Date.now() * 0.0009) * 128 + 128;
+
+      c.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (wave.rainbow) {
+        hue += 0.5;
+        if (hue >= 360) {
+          hue = 0;
+        }
+        c.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+      } else {
+        c.strokeStyle = `hsl(${strokeColor.h}, ${strokeColor.s}%, ${strokeColor.l}%)`;
+      }
+
+      c.beginPath();
+      c.moveTo(0, canvas.height / 2);
+
+      for (let i = 0; i < canvas.width; i++) {
+        c.lineTo(i, wave.y + Math.sin(i * wave.length * distortionFactor + increment) * wave.amplitude);
+      }
+
+      c.stroke();
+      increment += wave.frequency;
+
+      if (shapeOptions.drawShape) {
+        drawShapes();
+      }
+
+      if (trippy1.drawTrippy) {
+        drawTrippy(trippy1);
+      } else if (trippy2.drawTrippy) {
+        drawTrippy(trippy2);
+      } else if (trippy3.drawTrippy) {
+        drawTrippy(trippy3);
+      }
+    }
+
+    function drawTrippy(trippyEffect) {
+      c.lineWidth = trippyEffect.trippyLineWidth;
+      if (trippyEffect.colorCycle) {
+        hue += 0.2;
+        if (hue >= 360) {
+          hue = 0;
+        }
+        c.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+      } else {
+        c.strokeStyle = trippyEffect.trippyColor;
+      }
+
+      c.beginPath();
+      for (let i = 0; i < canvas.width; i += 10) {
+        c.moveTo(i + Math.sin(i * trippyEffect.trippySpeed) * 100 * distortionFactor, 0);
+        c.lineTo(i, canvas.height);
+      }
+      c.stroke();
+
+      distortionFactor += trippyEffect.distortion;
+      if (distortionFactor > 1.5) {
+        distortionFactor = 1;
+      }
+    }
+
+    animate();
+  </script>
+</body>
+</html>
