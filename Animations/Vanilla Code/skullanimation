@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Skull</title>
+    <style>
+        *,
+*:before,
+*:after {
+  box-sizing: border-box;
+  background-clip: padding-box;
+  background-color: black;
+}
+
+.container {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.skull {
+  position: relative;
+  width: 16em;
+  height: 10em;
+  border: solid .5em black;
+  border-radius: 5em 5em 3em 3em;
+  background: white;
+  z-index: 4;
+}
+
+.skull::before,
+.skull::after {
+  content: "";
+  position: absolute;
+  background: black;
+  width: 0.1em;
+}
+
+.skull::before {
+  top: 3em;
+  left: 1em;
+  height: 3em;
+  border-radius: 50%;
+}
+
+.skull::after {
+  top: 4em;
+  left: 8em;
+  height: 1.5em;
+  border-radius: 50%;
+}
+
+.teeth {
+  position: absolute;
+  bottom: -2.75em;
+  left: 2.5em;
+  z-index: 7;
+  text-align: center;
+}
+
+.tooth {
+  display: inline-block;
+  margin: 0 0.2em;
+  width: 2.5em;
+  height: 3.5em;
+  background: white;
+  border: solid .1em black;
+  border-top-width: 0;
+  border-radius: 0 0 1em 1em;
+}
+
+.tooth:first-child {
+  margin-left: 0;
+}
+
+
+.tooth:nth-child(odd) {
+  background: linear-gradient(to bottom, white, #f0f0f0);
+}
+
+.eye {
+  position: absolute;
+  top: 4em;
+  width: 4em;
+  height: 2.5em;
+  background: linear-gradient(to bottom, white 50%, black 50%);
+  border: 0.2em solid #000;
+  border-radius: 0;
+  position: relative;
+}
+
+
+.eye::before {
+  content: "";
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  height: 50%;
+  background: red;
+  border-radius: 50%;
+  animation: glowing 1s infinite alternate;
+}
+
+.eye + .eye {
+  position: absolute;
+  top: 4em;
+  width: 4em;
+  height: 2.5em;
+  background: linear-gradient(to bottom, white 50%, black 50%);
+  border: 0.2em solid #000;
+  border-radius: 0;
+  right: 2em;
+}
+
+
+.eye + .eye::before {
+  content: "";
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  height: 50%;
+  background: red;
+  border-radius: 50%;
+  animation: glowing 1s infinite alternate;
+}
+
+@keyframes glowing {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.5;
+  }
+}
+
+
+
+.nose {
+  position: absolute;
+  top: 5.5em;
+  left: 5em;
+  width: 2em;
+  height: 1em;
+  background: #000;
+  border: 0.1em solid #fff;
+  border-radius: 50%;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+html {
+  font-size: 3vmin;
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="skull">
+          <div class="eye"></div>
+          <div class="eye"></div>
+          <div class="nose"></div>
+        </div>
+        <div class="teeth">
+        <div class="tooth"></div>
+        <div class="tooth"></div>
+        <div class="tooth"></div>
+        <div class="tooth"></div>
+        </div>
+
+          </div>
+        </div>
+      </div>
+</body>
+</html>
