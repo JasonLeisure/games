@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000; /* Black background */
+        }
+
+        .room {
+            width: 400px;
+            height: 400px;
+            background-color: #0e0e0e; /* Bright white for the room */
+            border: 5px solid #eee; /* Light gray border */
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .lamp {
+            position: relative;
+            top: 80px;
+            left: 10px;
+            transform-origin: bottom center; /* Set the transform origin */
+            transition: transform 0.3s; /* Add transition for smooth rotation */
+        }
+
+        .lamp.rotate-left {
+            transform: rotate(-30deg); /* Rotate the lamp left */
+        }
+
+        .lamp.rotate-right {
+            transform: rotate(30deg); /* Rotate the lamp right */
+        }
+
+        .lamp-shade.rotate {
+            animation: spin 2s linear infinite; /* Add lampshade rotation animation */
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .lamp-shade {
+            width: 120px; /* Wider lamp shade */
+            height: 200px; /* Taller lamp shade */
+            background-color: #ccc; /* Light gray for the lamp shade */
+            border-radius: 80px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .bulb {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(#ffeb3b, transparent);
+            border-radius: 50%;
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            box-shadow: 0 0 40px 10px rgba(255, 235, 59, 0.7);
+            transition: width 0.3s, height 0.3s; /* Add transitions for smooth size change */
+        }
+
+        .flashing .bulb {
+            animation: flash 1s infinite; /* Add flashing animation */
+        }
+
+        @keyframes flash {
+            0% {
+                background: radial-gradient(#ffeb3b, transparent);
+            }
+            50% {
+                background: radial-gradient(transparent, #ffeb3b);
+            }
+            100% {
+                background: radial-gradient(#ffeb3b, transparent);
+            }
+        }
+
+.light-off .bulb {
+    background: radial-gradient(#070707, transparent); /* Change to yellow when the light is off */
+}
+
+        .switch {
+            width: 40px; /* Wider switch */
+            height: 80px; /* Taller switch */
+            background-color: #333;
+            position: absolute;
+            bottom: 30px; /* Adjusted for centering */
+            left: 40px; /* Adjusted for centering */
+            cursor: pointer;
+        }
+
+        .light-off .bulb {
+            background-color: #555; /* Darker bulb when the light is off */
+        }
+
+        .light-off .room {
+            background-color: #000; /* Black for the room when the light is off */
+        }
+
+        .light-off .lamp-shade::before {
+            content: " ";
+            width: 40px; /* Wider switch handle */
+            height: 8px; /* Thinner switch handle */
+            background-color: #333;
+            position: absolute;
+            top: 85px; /* Adjusted for centering */
+            left: 40px; /* Adjusted for centering */
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="room">
+        <div class="lamp">
+            <div class="lamp-base"></div>
+            <div class="lamp-shade">
+                <div class="bulb"></div>
+                <div class="switch" onclick="toggleLight()"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button onclick="changeBackgroundColor('blue')">Blue</button>
+        <button onclick="changeBackgroundColor('green')">Green</button>
+        <button onclick="changeBackgroundColor('red')">Red</button>
+        <button onclick="changeBrightness('low')">Low Brightness</button>
+        <button onclick="changeBrightness('medium')">Medium Brightness</button>
+        <button onclick="changeBrightness('high')">High Brightness</button>
+        <button onclick="setTimer(30000)">Set Timer (30 seconds)</button>
+        <button onclick="moveLamp('left')">Move Left</button>
+        <button onclick="moveLamp('right')">Move Right</button>
+        <button onclick="changeLampshadeColor('red')">Red Lampshade</button>
+        <button onclick="changeLampshadeColor('blue')">Blue Lampshade</button>
+        <button onclick="rotateLamp('left')">Rotate Left</button>
+        <button onclick="rotateLamp('right')">Rotate Right</button>
+        <button onclick="toggleLampshadeRotation()">Toggle Lampshade Rotation</button>
+        <button onclick="changeBulbSize('small')">Small Bulb</button>
+        <button onclick="changeBulbSize('medium')">Medium Bulb</button>
+        <button onclick="changeBulbSize('large')">Large Bulb</button>
+        <button onclick="changeBulbColor('red')">Red Light</button>
+        <button onclick="changeBulbColor('blue')">Blue Light</button>
+        <button onclick="changeBulbColor('white')">White Light</button>
+        <button onclick="toggleFlashingMode()">Toggle Flashing</button>
+    </div>
+
+    <script>
+          function changeBulbSize(size) {
+            const bulb = document.querySelector('.bulb');
+            if (size === 'small') {
+                bulb.style.width = '50px';
+                bulb.style.height = '50px';
+            } else if (size === 'medium') {
+                bulb.style.width = '60px';
+                bulb.style.height = '60px';
+            } else if (size === 'large') {
+                bulb.style.width = '70px';
+                bulb.style.height = '70px';
+            }
+        }
+
+        function changeBulbColor(color) {
+            const bulb = document.querySelector('.bulb');
+            bulb.style.background = `radial-gradient(${color}, transparent)`;
+        }
+
+        let flashing = false;
+
+        function toggleFlashingMode() {
+            const room = document.querySelector('.room');
+            flashing = !flashing;
+
+            if (flashing) {
+                room.classList.add('flashing');
+            } else {
+                room.classList.remove('flashing');
+            }
+        }
+        function toggleLight() {
+            const room = document.querySelector('.room');
+            room.classList.toggle('light-off');
+        }
+
+        function changeBackgroundColor(color) {
+            const room = document.querySelector('.room');
+            room.style.backgroundColor = color;
+        }
+
+        function changeBrightness(brightness) {
+            const bulb = document.querySelector('.bulb');
+            if (brightness === 'low') {
+                bulb.style.boxShadow = '0 0 20px 5px rgba(255, 235, 59, 0.7)';
+            } else if (brightness === 'medium') {
+                bulb.style.boxShadow = '0 0 40px 10px rgba(255, 235, 59, 0.7)';
+            } else if (brightness === 'high') {
+                bulb.style.boxShadow = '0 0 60px 15px rgba(255, 235, 59, 0.7)';
+            }
+        }
+
+        let timer;
+
+        function setTimer(duration) {
+            clearTimeout(timer);
+            toggleLight(); // Turn the light on
+            timer = setTimeout(() => {
+                toggleLight(); // Turn the light off after the specified duration (in milliseconds)
+            }, duration);
+        }
+
+        function moveLamp(direction) {
+            const lamp = document.querySelector('.lamp');
+            const currentLeft = parseFloat(lamp.style.left) || 0;
+
+            if (direction === 'left') {
+                lamp.style.left = currentLeft - 10 + 'px';
+            } else if (direction === 'right') {
+                lamp.style.left = currentLeft + 10 + 'px';
+            }
+        }
+        function rotateLamp(direction) {
+            const lamp = document.querySelector('.lamp');
+
+            if (direction === 'left') {
+                lamp.classList.add('rotate-left');
+                lamp.classList.remove('rotate-right');
+            } else if (direction === 'right') {
+                lamp.classList.add('rotate-right');
+                lamp.classList.remove('rotate-left');
+            } else {
+                lamp.classList.remove('rotate-left', 'rotate-right');
+            }
+        }
+
+        let lampshadeRotation = false;
+
+        function toggleLampshadeRotation() {
+            const lampshade = document.querySelector('.lamp-shade');
+
+            if (lampshadeRotation) {
+                lampshade.classList.remove('rotate');
+            } else {
+                lampshade.classList.add('rotate');
+            }
+
+            lampshadeRotation = !lampshadeRotation;
+        }
+        function changeLampshadeColor(color) {
+            const lampshade = document.querySelector('.lamp-shade');
+            lampshade.style.backgroundColor = color;
+        }
+    </script>
+</body>
+</html>
