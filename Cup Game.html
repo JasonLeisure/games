@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+     body {
+        background-color: #000;
+        color: #fff;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    #container {
+        background-color: #fff;
+        display: flex;
+        justify-content: space-around;
+        margin-top: 50px;
+    }
+
+    .cup {
+    width: 100px;
+    height: 150px;
+    background-color: red;
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 18px;
+    color: #fff;
+    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease-in-out;
+}
+
+    .ball {
+        width: 30px;
+        height: 30px;
+        background-color: yellow;
+        border-radius: 50%;
+        position: absolute;
+        bottom: 10px;
+        display: none;
+    }
+
+    #bottom-title {
+        text-align: center;
+        font-size: 36px;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-top: 20px;
+        color: #f5ebebe6;
+        background: linear-gradient(45deg, #444, #222);
+        -webkit-background-clip: text;
+        color: transparent;
+        text-shadow: 2px 2px 4px rgba(243, 241, 241, 0.5);
+        animation: slideInAndBounce 2s ease-in-out, bounce 2s ease-in-out infinite 2s;
+    }
+
+    @keyframes slideInAndBounce {
+        0% {
+            opacity: 0;
+            transform: translateY(-100%);
+        }
+        50% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        100% {
+            transform: translateY(-10px);
+        }
+    }
+
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div class="cup" id="cup1" onclick="guessCup(0)">
+            Cup 1
+            <div class="ball" id="ball1"></div>
+        </div>
+        <div class="cup" id="cup2" onclick="guessCup(1)">
+            Cup 2
+            <div class="ball" id="ball2"></div>
+        </div>
+        <div class="cup" id="cup3" onclick="guessCup(2)">
+            Cup 3
+            <div class="ball" id="ball3"></div>
+        </div>
+    </div>
+
+    <h1 id="bottom-title">Cup Game</h1>
+
+<script>
+    let ballPosition;
+    let shuffleInterval;
+    let canGuess = false;
+
+    function revealBallAndCover() {
+        ballPosition = Math.floor(Math.random() * 3);
+        document.getElementById('ball' + (ballPosition + 1)).style.display = 'block';
+        setTimeout(function() {
+            document.getElementById('ball' + (ballPosition + 1)).style.display = 'none';
+            shuffleCups();
+        }, 1000);
+    }
+
+    function shuffleCups() {
+    canGuess = false;
+
+    const totalShuffles = 10;
+    const shuffleSpeed = 100;
+
+
+    let shuffleCount = 0;
+
+    function performShuffle() {
+        if (shuffleCount < totalShuffles) {
+
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById('ball' + i).style.display = 'none';
+            }
+
+
+            let newBallPosition;
+            do {
+                newBallPosition = Math.floor(Math.random() * 3);
+            } while (newBallPosition === ballPosition);
+
+
+            ballPosition = newBallPosition;
+
+
+            document.getElementById('ball' + (ballPosition + 1)).style.display = 'block';
+
+
+            setTimeout(performShuffle, shuffleSpeed);
+        } else {
+
+            document.getElementById('ball' + (ballPosition + 1)).style.display = 'none';
+            canGuess = true;
+        }
+
+        shuffleCount++;
+    }
+
+    performShuffle();
+}
+
+
+revealBallAndCover();
+
+    function guessCup(guess) {
+        if (!canGuess) return;
+
+        if (guess === ballPosition) {
+            alert('Congratulations! You found the ball!');
+        } else {
+            alert('Oops, you picked the wrong cup. Try again!');
+        }
+
+        canGuess = false;
+
+        setTimeout(revealBallAndCover, 1000);
+    }
+
+    revealBallAndCover();
+</script>
+</body>
+</html>
