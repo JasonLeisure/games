@@ -1,3 +1,5 @@
+### Updates to files 10/16/2023 Added in 3 different flower animations to vanilla code. Added lava lamp demo to animations and added ball and cup game to the games folder.
+
 ### Updates to files 10/15/2023 Added skull animation and winter holidays animation to vanilla and light switch demo to applications. Also added slot destiny game to games folder. Added 51 svg examples to animations vanilla folder. Added advertising cube to animations.
 
 ### Updates to files 10/13/2023 Added in Trivia Tasker game and Puck Man game. Next game I am working on is with my group. Also added in GoFishAi Go Fish card game against AI. Also add a AI assistant app to applications.
