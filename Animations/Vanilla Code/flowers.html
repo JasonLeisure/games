@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        canvas {
+            border: 1px solid #000;
+            background-color: #87CEEB;
+        }
+    </style>
+</head>
+<body>
+    <label for="petalColor">Choose Petal Colors:</label>
+    <input type="color" id="petalColor">
+    <button id="addColor">Add Color</button>
+    <button id="randomizeColors">Randomize Colors</button>
+    <button id="generateFlowers">Generate Flowers</button>
+    <canvas id="flowerCanvas" width="600" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('flowerCanvas');
+        const ctx = canvas.getContext('2d');
+        const petalColors = [];
+        const petalColorInput = document.getElementById('petalColor');
+        const randomizeColorsButton = document.getElementById('randomizeColors');
+
+        document.getElementById('addColor').addEventListener('click', () => {
+            const selectedColor = petalColorInput.value;
+            petalColors.push(selectedColor);
+        });
+
+        randomizeColorsButton.addEventListener('click', () => {
+            petalColors.length = 0;
+            for (let i = 0; i < 6; i++) {
+                const randomColor = getRandomColor();
+                petalColors.push(randomColor);
+            }
+
+            generateFlowers();
+        });
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function drawFlower(x, y) {
+            ctx.beginPath();
+            ctx.moveTo(x, y + 300);
+            ctx.quadraticCurveTo(x - 50, y, x, y);
+            ctx.lineWidth = 20;
+            ctx.strokeStyle = 'green';
+            ctx.stroke();
+
+            const petalCount = Math.floor(Math.random() * 12) + 6;
+            const petalAngle = (Math.PI * 2) / petalCount;
+
+            for (let i = 0; i < petalCount; i++) {
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(i * petalAngle);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(25, -50, 75, -50, 100, 0);
+                ctx.bezierCurveTo(75, 50, 25, 50, 0, 0);
+                const selectedColor = petalColors[i % petalColors.length];
+                ctx.fillStyle = selectedColor;
+                ctx.fill();
+                ctx.restore();
+            }
+
+
+            ctx.fillStyle = 'yellow';
+            ctx.beginPath();
+            ctx.arc(x, y, 20, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.globalCompositeOperation = 'destination-out';
+            for (let i = 0; i < petalCount; i++) {
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(i * petalAngle);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(25, -50, 75, -50, 100, 0);
+                ctx.bezierCurveTo(75, 50, 25, 50, 0, 0);
+                ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
+                ctx.fill();
+                ctx.restore();
+            }
+            ctx.globalCompositeOperation = 'source-over';
+        }
+
+        function generateFlowers() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawFlower(150, 100);
+            drawFlower(300, 200);
+            drawFlower(450, 100);
+        }
+
+        document.getElementById('generateFlowers').addEventListener('click', generateFlowers);
+        generateFlowers();
+    </script>
+</body>
+</html>
