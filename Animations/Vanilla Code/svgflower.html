@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <label for="petalColor">Choose Petal Colors:</label>
+    <input type="color" id="petalColor">
+    <button id="addColor">Add Color</button>
+    <button id="generateFlower">Generate Flower</button>
+    <svg id="flowerSVG" width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+        <path id="stem" fill="none" stroke="lime" stroke-width="20" d="M200,400 Q150,100 200,100"></path>
+    </svg>
+
+    <script>
+        const flowerSVG = document.getElementById('flowerSVG');
+        const petalColors = [];
+        const petalColorInput = document.getElementById('petalColor');
+
+        document.getElementById('addColor').addEventListener('click', () => {
+            const selectedColor = petalColorInput.value;
+            petalColors.push(selectedColor);
+        });
+
+        function drawFlower() {
+            const petalCount = Math.floor(Math.random() * 12) + 6;
+            const petalAngle = (Math.PI * 2) / petalCount;
+            const stem = document.getElementById('stem');
+            stem.setAttribute('d', 'M200,400 Q150,100 200,100');
+
+            for (let i = 0; i < petalCount; i++) {
+                const petal = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const selectedColor = petalColors[i % petalColors.length];
+
+                const x = 200 + 100 * Math.sin(i * petalAngle);
+                const y = 100 - 100 * Math.cos(i * petalAngle);
+
+                const petalPath = `M200,100 C${x - 50},${y - 50} ${x + 50},${y - 50} ${x},${y} C${x + 50},${y + 50} ${x - 50},${y + 50} 200,100`;
+
+                petal.setAttribute('d', petalPath);
+                petal.setAttribute('fill', selectedColor);
+                flowerSVG.appendChild(petal);
+            }
+
+            const center = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            center.setAttribute('cx', '200');
+            center.setAttribute('cy', '100');
+            center.setAttribute('r', '20');
+            center.setAttribute('fill', 'yellow');
+            flowerSVG.appendChild(center);
+
+            for (let i = 0; i < petalCount; i++) {
+                const x = 200 + 100 * Math.sin(i * petalAngle);
+                const y = 100 - 100 * Math.cos(i * petalAngle);
+                const shadingPetal = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const shadingPath = `M200,100 C${x - 50},${y - 50} ${x + 50},${y - 50} ${x},${y} C${x + 50},${y + 50} ${x - 50},${y + 50} 200,100`;
+                shadingPetal.setAttribute('d', shadingPath);
+                shadingPetal.setAttribute('fill', 'rgba(255, 0, 0, 0.2)');
+                shadingPetal.setAttribute('mix-blend-mode', 'multiply');
+                flowerSVG.appendChild(shadingPetal);
+            }
+        }
+
+        document.getElementById('generateFlower').addEventListener('click', drawFlower);
+        drawFlower();
+    </script>
+</body>
+</html>
