@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        canvas {
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+<body>
+    <label for="petalColor">Choose Petal Colors:</label>
+    <input type="color" id="petalColor">
+    <button id="addColor">Add Color</button>
+    <button id="randomizeFlower">Randomize Flower</button>
+    <button id="generateFlower">Generate Flower</button>
+    <canvas id="flowerCanvas" width="400" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('flowerCanvas');
+        const ctx = canvas.getContext('2d');
+        let petalColors = [];
+        const petalColorInput = document.getElementById('petalColor');
+
+        document.getElementById('addColor').addEventListener('click', () => {
+            const selectedColor = petalColorInput.value;
+            petalColors.push(selectedColor);
+        });
+
+        document.getElementById('randomizeFlower').addEventListener('click', () => {
+            petalColors = [];
+            for (let i = 0; i < 6; i++) {
+                petalColors.push(getRandomNeonColor());
+            }
+        });
+
+        function getRandomNeonColor() {
+            const neonColors = ['#ff6eff', '#00f9ff', '#f6ff00', '#ff0000', '#00ff6e', '#ff8100'];
+            return neonColors[Math.floor(Math.random() * neonColors.length)];
+        }
+
+        function drawFlower() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'skyblue';
+            ctx.fillRect(0, 0, canvas.width, 300);
+            ctx.beginPath();
+            ctx.arc(80, 80, 50, 0, Math.PI * 2);
+            ctx.fillStyle = 'yellow';
+            ctx.fill();
+            ctx.fillStyle = 'green';
+            ctx.fillRect(0, 300, canvas.width, 100);
+            ctx.beginPath();
+            ctx.moveTo(200, 400);
+            ctx.quadraticCurveTo(150, 100, 200, 100);
+            ctx.lineWidth = 20;
+            ctx.strokeStyle = 'lime';
+            ctx.stroke();
+
+            const petalCount = Math.floor(Math.random() * 12) + 6;
+            const petalAngle = (Math.PI * 2) / petalCount;
+
+            for (let i = 0; i < petalCount; i++) {
+                ctx.save();
+                ctx.translate(200, 100);
+                ctx.rotate(i * petalAngle);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(25, -50, 75, -50, 100, 0);
+
+                let selectedColor;
+                if (petalColors.length > 0) {
+                    selectedColor = petalColors[i % petalColors.length];
+                } else {
+                    selectedColor = getRandomNeonColor();
+                }
+
+                ctx.fillStyle = selectedColor;
+                ctx.fill();
+                ctx.restore();
+            }
+
+            ctx.fillStyle = 'yellow';
+            ctx.beginPath();
+            ctx.arc(200, 100, 20, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.globalCompositeOperation = 'destination-out';
+            for (let i = 0; i < petalCount; i++) {
+                ctx.save();
+                ctx.translate(200, 100);
+                ctx.rotate(i * petalAngle);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(25, -50, 75, -50, 100, 0);
+                ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
+                ctx.fill();
+                ctx.restore();
+            }
+            ctx.globalCompositeOperation = 'source-over';
+        }
+
+        document.getElementById('generateFlower').addEventListener('click', drawFlower);
+        document.getElementById('randomizeFlower').addEventListener('click', drawFlower);
+        drawFlower();
+    </script>
+</body>
+</html>
