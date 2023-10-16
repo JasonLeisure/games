@@ -8,7 +8,6 @@
 
         <rect x="0" y="0" width="800" height="400" fill="#87CEEB" />
 
-
         <defs>
             <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
                 <stop offset="0%" style="stop-color: #FFD700; stop-opacity: 1" />
@@ -38,30 +37,22 @@
 
         <ellipse cx="400" cy="180" rx="100" ry="140" fill="#228B22" />
 
-        <g class="tree-leaves">
 
-            <svg width="200" height="300" xmlns="http://www.w3.org/2000/svg">
-                <path d="M100,150 C120,100 130,80 100,50 C70,80 80,100 100,150" fill="#238823" stroke="#145214" stroke-width="2" />
-                <path d="M100,50 Q118,70 100,95" fill="none" stroke="#145214" stroke-width="2" />
-                <path d="M100,50 Q82,70 100,95" fill="none" stroke="#145214" stroke-width="2" />
-                <path d="M100,150 C110,120 100,100 100,80 C100,100 90,120 100,150" fill="none" stroke="#145214" stroke-width="2" />
-                <path d="M100,70 Q92,80 100,90 Q108,80 100,70" fill="none" stroke="#145214" stroke-width="1" />
-                <path d="M100,105 Q95,100 100,95 Q105,100 100,105" fill="none" stroke="#145214" stroke-width="1" />
-                <path d="M100,125 Q95,120 100,115 Q105,120 100,125" fill="none" stroke="#145214" stroke-width="1" />
+        <g class="tree-leaves">
+            <svg width="50" height="75" xmlns="http://www.w3.org/2000/svg">
+                <path d="M25,50 C30,40 32.5,35 25,25 C17.5,35 20,40 25,50" fill="#238823" stroke="#145214" stroke-width="1" />
+                <path d="M25,25 Q29.5,30 25,37.5" fill="none" stroke="#145214" stroke-width="1" />
+                <path d="M25,25 Q20.5,30 25,37.5" fill="none" stroke="#145214" stroke-width="1" />
             </svg>
 
         </g>
 
-        <g class="ground-leaves">
 
-            <svg width="200" height="300" xmlns="http://www.w3.org/2000/svg">
-                <path d="M100,150 C120,100 130,80 100,50 C70,80 80,100 100,150" fill="#238823" stroke="#145214" stroke-width="2" />
-                <path d="M100,50 Q118,70 100,95" fill="none" stroke="#145214" stroke-width="2" />
-                <path d="M100,50 Q82,70 100,95" fill="none" stroke="#145214" stroke-width="2" />
-                <path d="M100,150 C110,120 100,100 100,80 C100,100 90,120 100,150" fill="none" stroke="#145214" stroke-width="2" />
-                <path d="M100,70 Q92,80 100,90 Q108,80 100,70" fill="none" stroke="#145214" stroke-width="1" />
-                <path d="M100,105 Q95,100 100,95 Q105,100 100,105" fill="none" stroke="#145214" stroke-width="1" />
-                <path d="M100,125 Q95,120 100,115 Q105,120 100,125" fill="none" stroke="#145214" stroke-width="1" />
+        <g class="ground-leaves">
+            <svg width="50" height="75" xmlns="http://www.w3.org/2000/svg">
+                <path d="M25,50 C30,40 32.5,35 25,25 C17.5,35 20,40 25,50" fill="#238823" stroke="#145214" stroke-width="1" />
+                <path d="M25,25 Q29.5,30 25,37.5" fill="none" stroke="#145214" stroke-width="1" />
+                <path d="M25,25 Q20.5,30 25,37.5" fill="none" stroke="#145214" stroke-width="1" />
             </svg>
 
         </g>
@@ -90,7 +81,7 @@
             leaf.setAttribute('x', randomX);
             leaf.setAttribute('y', randomY);
 
-            // Animate the leaves
+
             animateLeaf(leaf);
         });
 
