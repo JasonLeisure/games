@@ -1,4 +1,4 @@
-### Updates to files 10/16/2023 Added in 3 different flower animations to vanilla code. Added lava lamp demo to animations and added ball and cup game to the games folder. Added in orbital sun and galaxy animation. Added Balloon Pop Animation game to animations. Added in Emoji Bingo game. 
+### Updates to files 10/16/2023 Added in 3 different flower animations to vanilla code. Added lava lamp demo to animations and added ball and cup game to the games folder. Added in orbital sun and galaxy animation. Added Balloon Pop Animation game to animations. Added in Emoji Bingo game. Added a word guess game.
 
 ### Updates to files 10/15/2023 Added skull animation and winter holidays animation to vanilla and light switch demo to applications. Also added slot destiny game to games folder. Added 51 svg examples to animations vanilla folder. Added advertising cube to animations.
 
