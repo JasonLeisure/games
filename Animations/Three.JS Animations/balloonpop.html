@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Three.js Balloon Game</title>
+    <style>
+        body { margin: 0; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+    <div id="score" style="position: absolute; top: 10px; left: 10px; font-size: 24px; color: white;">Score: 0</div>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Balloons
+        const balloons = [];
+        const maxBalloons = 100;
+        let score = 0;
+        let gameOverMessage = null;
+
+        function showGameOverMessage() {
+    if (gameOverMessage === null) {
+        gameOverMessage = document.createElement('div');
+        gameOverMessage.innerText = 'Game Over! Hope you had a poppin fun time';
+        gameOverMessage.style.position = 'absolute';
+        gameOverMessage.style.top = '50%';
+        gameOverMessage.style.left = '50%';
+        gameOverMessage.style.transform = 'translate(-50%, -50%)';
+        gameOverMessage.style.fontSize = '24px';
+        gameOverMessage.style.color = 'red';
+        document.body.appendChild(gameOverMessage);
+    }
+}
+function createBalloon() {
+    if (balloons.length >= maxBalloons) {
+        return;
+    }
+
+    const geometry = new THREE.SphereGeometry(1, 32, 32); // Increased segments for smoother appearance
+    const material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff, transparent: true, opacity: 0.7 });
+
+    const balloon = new THREE.Mesh(geometry, material);
+    balloon.position.set(Math.random() * 20 - 10, -5, Math.random() * 20 - 10);
+
+    scene.add(balloon);
+    balloons.push(balloon);
+}
+
+        // Shooting
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+const popMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.7 });
+
+window.addEventListener('mousemove', (event) => {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+});
+
+window.addEventListener('click', () => {
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObjects(balloons);
+
+    if (intersects.length > 0) {
+        const poppedBalloon = intersects[0].object;
+        // Create a visual pop effect
+        const popGeometry = new THREE.SphereGeometry(1, 32, 32);
+        const popSphere = new THREE.Mesh(popGeometry, popMaterial);
+        popSphere.position.copy(poppedBalloon.position);
+        scene.add(popSphere);
+
+        // Remove the balloon and the pop effect after a short delay
+        setTimeout(() => {
+            scene.remove(poppedBalloon);
+            scene.remove(popSphere);
+            balloons.splice(balloons.indexOf(poppedBalloon), 1);
+            createBalloon();
+
+            // Increase the score
+            score += 100; // 100 points for each popped balloon
+            updateScore();
+        }, 500); // You can adjust the delay time as needed
+    }
+});
+
+        // Camera
+        camera.position.z = 15;
+
+        // Animation
+        const animate = () => {
+            requestAnimationFrame(animate);
+
+            for (const balloon of balloons) {
+                balloon.position.y += 0.01; // Slower movement up
+
+                if (balloon.position.y > 10) { // Adjusted the height
+                    scene.remove(balloon);
+                    balloons.splice(balloons.indexOf(balloon), 1);
+                    if (balloons.length < maxBalloons) {
+                        createBalloon();
+                    }
+                }
+            }
+
+            renderer.render(scene, camera);
+        };
+
+        // Create initial balloons
+        for (let i = 0; i < maxBalloons; i++) {
+            createBalloon();
+        }
+
+        animate();
+
+        function updateScore() {
+    const scoreElement = document.getElementById('score');
+    scoreElement.innerText = `Score: ${score}`;
+}
+    </script>
+</body>
+</html>
