@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bingo</title>
+  <style>
+ body {
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  background-color: #121212;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  font-size: 48px;
+  color: #3498db;
+  animation: pulse 1s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+#bingo-container {
+  text-align: center;
+  margin: 20px auto;
+  max-width: 700px;
+  padding: 20px;
+  background-color: #1E1E1E;
+  border: 2px solid #333;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.bingo-card {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  grid-gap: 10px;
+  margin: 20px auto;
+  background-color: #232323;
+  border: 2px solid #333;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.bingo-square {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  background-color: #2C2C2C;
+  font-size: 28px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  color: #fff;
+}
+
+.bingo-square.marked {
+  background-color: #4CAF50;
+  transform: scale(1.05);
+}
+
+.bingo-square.called {
+  background-color: #F44336;
+  animation: bounce 0.5s;
+}
+
+.bingo-card-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+}
+
+@keyframes bounce {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-4px); }
+  50% { transform: translateY(0); }
+  75% { transform: translateY(4px); }
+  100% { transform: translateY(0); }
+}
+
+button {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 12px 24px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+#called-number {
+  font-size: 28px;
+  margin: 10px 0;
+  color: #fff;
+}
+
+#result {
+  font-size: 24px;
+  margin: 20px 0;
+}
+
+#game-over-message {
+  font-size: 32px;
+  font-weight: bold;
+  color: #F44336;
+}
+
+@media (max-width: 768px) {
+  .bingo-card {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    max-width: 400px;
+  }
+
+  .bingo-square {
+    width: 80px;
+    height: 80px;
+    font-size: 22px;
+  }
+
+  #bingo-container {
+    padding: 12px;
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 18px;
+  }
+}
+  </style>
+</head>
+<body>
+  <div id="bingo-container">
+    <h1>Bingo</h1>
+    <div class="bingo-card">
+
+    </div>
+    <button id="generate-card">Generate Bingo Card</button>
+    <button id="call-number">Call Number</button>
+<audio id="bellaciaoAudio" src="bellaciao.mp3" preload="auto" style="display: none"></audio>
+
+    <div id="called-number"></div>
+    <div id="result"></div>
+    <div id="game-over-message"></div>
+  </div>
+
+  <script>
+    const columns = ['B', 'I', 'N', 'G', 'O'];
+    const bingoCard = document.querySelector(".bingo-card");
+    const calledNumberDisplay = document.getElementById("called-number");
+    const resultDisplay = document.getElementById("result");
+    const gameOverMessage = document.getElementById("game-over-message");
+    let calledNumbers = new Set();
+
+    let markedSquares = new Set();
+    const callNumberButton = document.getElementById("call-number");
+    callNumberButton.addEventListener("click", function () {
+        playBellaciao();
+    });
+
+    function playBellaciao() {
+        const bellaciaoAudio = document.getElementById("bellaciaoAudio");
+        bellaciaoAudio.play();
+    }
+
+    function generateBingoCard() {
+      bingoCard.innerHTML = "";
+      gameOverMessage.textContent = "";
+
+      const cardNumbers = generateUniqueRandomNumbers(1, 75, 25);
+
+      for (let col = 0; col < columns.length; col++) {
+        const label = document.createElement("div");
+        label.classList.add("bingo-card-label");
+        label.textContent = columns[col];
+        bingoCard.appendChild(label);
+
+        for (let row = 1; row <= 5; row++) {
+          const square = document.createElement("div");
+          square.classList.add("bingo-square");
+          const number = cardNumbers.pop();
+          square.textContent = columns[col] + number;
+          square.setAttribute("data-number", number);
+          square.addEventListener("click", markSquare);
+          bingoCard.appendChild(square);
+        }
+      }
+
+      resultDisplay.textContent = "";
+      calledNumbers = new Set();
+      markedSquares = new Set();
+      callNumberButton.disabled = false;
+    }
+
+
+    function generateUniqueRandomNumbers(min, max, count) {
+      const numbers = new Set();
+      while (numbers.size < count) {
+        const num = Math.floor(Math.random() * (max - min + 1)) + min;
+        numbers.add(num);
+      }
+      return Array.from(numbers);
+    }
+
+    document.getElementById("generate-card").addEventListener("click", generateBingoCard);
+
+    function markSquare() {
+      if (!this.classList.contains("called")) {
+        this.classList.toggle("marked");
+        const number = this.getAttribute("data-number");
+        markedSquares.add(number);
+        checkWinCondition();
+      }
+    }
+
+    function callRandomNumber() {
+      if (calledNumbers.size < 75) {
+        let remainingNumbers = Array.from({ length: 75 }, (_, i) => i + 1).filter((number) => !calledNumbers.has(number));
+
+        if (remainingNumbers.length > 0) {
+          let randomIndex = Math.floor(Math.random() * remainingNumbers.length);
+          let calledNumber = remainingNumbers[randomIndex];
+
+          calledNumbers.add(calledNumber);
+          calledNumberDisplay.textContent = calledNumber;
+
+
+          const square = bingoCard.querySelector(".bingo-square[data-number='" + calledNumber + "']");
+
+          if (square) {
+            resultDisplay.textContent = "You have a match!";
+            square.classList.add("called");
+            square.classList.remove("marked");
+            markedSquares.delete(calledNumber);
+            checkWinCondition();
+          } else {
+            resultDisplay.textContent = "No match.";
+          }
+        } else {
+          resultDisplay.textContent = "All numbers have been called!";
+          gameOverMessage.textContent = "Bingo! You've marked all the squares!";
+          callNumberButton.disabled = true;
+        }
+      }
+    }
+
+    function checkWinCondition() {
+      if (markedSquares.size === 25) {
+        gameOverMessage.textContent = "Congratulations! You've won!";
+        callNumberButton.disabled = true;
+      }
+    }
+
+    document.getElementById("call-number").addEventListener("click", callRandomNumber);
+
+    generateBingoCard();
+  </script>
+</body>
+</html>
