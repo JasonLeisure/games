@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spray Paint Tool</title>
+    <style>
+        #canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <button id="colorPickerButton">Choose Color</button>
+    <button id="eraserButton">Eraser</button>
+    <button id="randomizeButton">Randomize Spray Paint</button>
+    <canvas id="canvas" width="800" height="600"></canvas>
+
+    <div id="colorPickerDialog" style="display: none;">
+        <input type="color" id="colorPicker" value="#000000">
+        <button id="colorPickerApply">Apply</button>
+    </div>
+
+    <div id="options">
+        <label for="shape">Shape:</label>
+        <input type="radio" name="shape" value="circle" checked> Circle
+        <input type="radio" name="shape" value="square"> Square
+        <input type="radio" name="shape" value="triangle"> Triangle
+        <input type="radio" name="shape" value="star"> Star
+        <input type="radio" name="shape" value="moon"> Moon
+        <input type="radio" name="shape" value="hexagon"> Hexagon
+        <input type="radio" name="shape" value="heart"> Heart
+        <input type="radio" name="shape" value="pentagon"> Pentagon
+        <input type="radio" name="shape" value="diamond"> Diamond
+        <br>
+        <label for="size">Size:</label>
+        <input type="range" id="size" min="1" max="20" value="10">
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const colorPickerButton = document.getElementById('colorPickerButton');
+        const eraserButton = document.getElementById('eraserButton');
+        const colorPickerDialog = document.getElementById('colorPickerDialog');
+        const colorPicker = document.getElementById('colorPicker');
+        const colorPickerApply = document.getElementById('colorPickerApply');
+        const shapeRadios = document.querySelectorAll('input[name="shape"]');
+        const sizeInput = document.getElementById('size');
+        const randomizeButton = document.getElementById('randomizeButton');
+
+        let painting = false;
+        let erasing = false;
+
+        let userColor = '#000000'; // Store user's selected color
+        let userShape = 'circle'; // Store user's selected shape
+        let userSize = 10; // Store user's selected size
+
+        canvas.addEventListener('mousedown', startPosition);
+        canvas.addEventListener('mouseup', endPosition);
+        canvas.addEventListener('mousemove', sprayPaint);
+
+        colorPickerButton.addEventListener('click', openColorPicker);
+        colorPickerApply.addEventListener('click', applyColor);
+        eraserButton.addEventListener('click', eraseCanvas);
+        randomizeButton.addEventListener('click', randomizeSprayPaint);
+
+        function startPosition(e) {
+            if (erasing) {
+                erasing = false;
+                ctx.globalCompositeOperation = 'source-over'; // Reset to drawing mode
+                ctx.strokeStyle = userColor;
+                ctx.fillStyle = userColor;
+            } else {
+                painting = true;
+                sprayPaint(e);
+            }
+        }
+
+        function endPosition() {
+            painting = false;
+            ctx.beginPath();
+        }
+
+        function sprayPaint(e) {
+    if (!painting) return;
+
+    const radius = userSize; // Use the user's selected size
+    const numParticles = 50; // Increase the number of particles for a denser spray
+
+    if (erasing) {
+        const x = e.clientX - canvas.getBoundingClientRect().left - radius / 2;
+        const y = e.clientY - canvas.getBoundingClientRect().top - radius / 2;
+        ctx.clearRect(x, y, radius, radius); // Use clearRect to erase
+    } else {
+        ctx.fillStyle = userColor; // Use the user's selected color
+
+        for (let i = 0; i < numParticles; i++) {
+            const x = e.clientX - canvas.getBoundingClientRect().left;
+            const y = e.clientY - canvas.getBoundingClientRect().top;
+
+            const offsetX = Math.random() * radius * 2 - radius;
+            const offsetY = Math.random() * radius * 2 - radius;
+
+            ctx.beginPath();
+
+            if (userShape === 'circle') { // Use the user's selected shape
+                ctx.arc(x + offsetX, y + offsetY, 1, 0, Math.PI * 2);
+            } else if (userShape === 'square') {
+                ctx.fillRect(x + offsetX, y + offsetY, 1, 1); // Use a small rectangle for square particles
+            } else if (userShape === 'triangle') {
+                const height = radius * Math.sqrt(3) / 2;
+                ctx.moveTo(x + offsetX, y + offsetY + height / 2);
+                ctx.lineTo(x + offsetX - radius / 2, y + offsetY - height / 2);
+                ctx.lineTo(x + offsetX + radius / 2, y + offsetY - height / 2);
+                ctx.closePath();
+            } // Add similar conditions for other shapes
+
+            ctx.globalAlpha = Math.random() * 0.5 + 0.25; // Randomize opacity for a more realistic look
+            ctx.fill();
+        }
+
+        ctx.globalAlpha = 1; // Reset globalAlpha to 1 for subsequent drawing
+    }
+}
+
+        function openColorPicker() {
+            colorPickerDialog.style.display = 'block';
+        }
+
+        function applyColor() {
+            userColor = colorPicker.value; // Store user's selected color
+            ctx.fillStyle = userColor;
+            ctx.strokeStyle = userColor;
+            colorPickerDialog.style.display = 'none';
+        }
+
+        function eraseCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the entire canvas
+        }
+
+        function randomizeSprayPaint() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const numRandomStrokes = 1000; // Adjust as needed
+
+            for (let i = 0; i < numRandomStrokes; i++) {
+                const randomX = Math.random() * canvas.width;
+                const randomY = Math.random() * canvas.height;
+                const randomRadius = Math.random() * userSize + 5; // Use the user's selected size
+                const randomColor = getRandomColor();
+
+                ctx.fillStyle = randomColor;
+
+                ctx.beginPath();
+
+                const randomShape = getRandomShape();
+                if (randomShape === 'circle') {
+                    ctx.arc(randomX, randomY, randomRadius, 0, Math.PI * 2);
+                } else if (randomShape === 'square') {
+                    ctx.fillRect(randomX, randomY, randomRadius, randomRadius);
+                } else if (randomShape === 'triangle') {
+                    const height = randomRadius * Math.sqrt(3) / 2;
+                    ctx.moveTo(randomX, randomY + height / 2);
+                    ctx.lineTo(randomX - randomRadius / 2, randomY - height / 2);
+                    ctx.lineTo(randomX + randomRadius / 2, randomY - height / 2);
+                    ctx.closePath();
+                } else if (randomShape === 'star') {
+                    drawStar(randomX, randomY, randomRadius);
+                } else if (randomShape === 'moon') {
+                    drawMoon(randomX, randomY, randomRadius);
+                } else if (randomShape === 'hexagon') {
+                    drawHexagon(randomX, randomY, randomRadius);
+                } else if (randomShape === 'heart') {
+                    drawHeart(randomX, randomY, randomRadius);
+                } else if (randomShape === 'pentagon') {
+                    drawPentagon(randomX, randomY, randomRadius);
+                } else if (randomShape === 'diamond') {
+                    drawDiamond(randomX, randomY, randomRadius);
+                }
+
+                ctx.fill();
+            }
+        }
+
+        function getRandomShape() {
+            const shapes = ['circle', 'square', 'triangle', 'star', 'moon', 'hexagon', 'heart', 'pentagon', 'diamond'];
+            const randomIndex = Math.floor(Math.random() * shapes.length);
+            return shapes[randomIndex];
+        }
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        // Helper functions for additional shapes
+
+        function drawStar(x, y, radius) {
+            ctx.beginPath();
+            for (let i = 0; i < 5; i++) {
+                ctx.lineTo(Math.cos((18 + i * 72) / 180 * Math.PI) * radius + x, -Math.sin((18 + i * 72) / 180 * Math.PI) * radius + y);
+                ctx.lineTo(Math.cos((54 + i * 72) / 180 * Math.PI) * radius * 0.5 + x, -Math.sin((54 + i * 72) / 180 * Math.PI) * radius * 0.5 + y);
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawMoon(x, y, radius) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.arc(x - radius / 2, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawHexagon(x, y, radius) {
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                const angle = (i * 60) / 180 * Math.PI;
+                const x_i = x + radius * Math.cos(angle);
+                const y_i = y + radius * Math.sin(angle);
+                ctx.lineTo(x_i, y_i);
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawHeart(x, y, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x, y - radius);
+            ctx.arc(x - radius / 2, y - radius / 2, radius / 2, Math.PI, 0);
+            ctx.arc(x + radius / 2, y - radius / 2, radius / 2, Math.PI, 0);
+            ctx.lineTo(x, y + radius);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawPentagon(x, y, radius) {
+            ctx.beginPath();
+            for (let i = 0; i < 5; i++) {
+                const angle = (i * 72 - 36) / 180 * Math.PI;
+                const x_i = x + radius * Math.cos(angle);
+                const y_i = y + radius * Math.sin(angle);
+                ctx.lineTo(x_i, y_i);
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawDiamond(x, y, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x, y - radius);
+            ctx.lineTo(x + radius, y);
+            ctx.lineTo(x, y + radius);
+            ctx.lineTo(x - radius, y);
+            ctx.closePath();
+            ctx.fill();
+        }
+    </script>
+</body>
+</html>
