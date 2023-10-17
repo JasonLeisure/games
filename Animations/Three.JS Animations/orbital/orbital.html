@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Orbital</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('container').appendChild(renderer.domElement);
+
+    // Create a star field
+    const starGeometry = new THREE.BufferGeometry();
+    const starMaterial = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.02,
+      transparent: true,
+      opacity: 0.8, // Initial opacity for all stars
+    });
+
+    const starVertices = [];
+    const starOpacities = [];
+
+    for (let i = 0; i < 1000; i++) {
+      const x = (Math.random() - 0.5) * 200;
+      const y = (Math.random() - 0.5) * 200;
+      const z = (Math.random() - 0.5) * 200;
+      starVertices.push(x, y, z);
+
+      // Generate random opacities for stars
+      starOpacities.push(Math.random() * 0.4 + 0.6);
+    }
+
+    starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+    starGeometry.setAttribute('opacity', new THREE.Float32BufferAttribute(starOpacities, 1));
+
+    const starField = new THREE.Points(starGeometry, starMaterial);
+    scene.add(starField);
+
+    // Create the Earth
+    const earthGeometry = new THREE.SphereGeometry(0.2, 32, 32);
+    const textureLoader = new THREE.TextureLoader();
+    const earthTexture = textureLoader.load('earth_texture.jpg');
+    const earthMaterial = new THREE.MeshBasicMaterial({ map: earthTexture });
+    const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+    scene.add(earth);
+
+    // Create the Sun
+    const sunGeometry = new THREE.SphereGeometry(1, 32, 32);
+    const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, emissive: 0xffff00 });
+    const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+    scene.add(sun);
+
+    // Create an array to hold meteor objects
+    const meteors = [];
+
+    // Define a function to create a meteor
+    function createMeteor() {
+      const meteorGeometry = new THREE.SphereGeometry(0.02, 16, 16);
+      const meteorMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      const meteor = new THREE.Mesh(meteorGeometry, meteorMaterial);
+
+      meteor.position.x = (Math.random() - 0.5) * 10; // Random initial X position
+      meteor.position.y = (Math.random() - 0.5) * 10; // Random initial Y position
+      meteor.position.z = (Math.random() - 0.5) * 10; // Random initial Z position
+      const meteorSpeed = 0.02; // Adjust the speed of the meteors as needed
+      meteor.velocity = new THREE.Vector3(meteorSpeed, 0, 0);
+
+      scene.add(meteor);
+      return meteor;
+    }
+
+    // Create and add multiple meteors to the scene
+    for (let i = 0; i < 20; i++) {
+      const meteor = createMeteor();
+      meteors.push(meteor);
+    }
+
+    // Adjust the camera position to bring the Sun and Earth closer to the user
+    camera.position.set(0, 0, 3);
+
+    // Animation loop
+    const animate = () => {
+      requestAnimationFrame(animate);
+
+      // Move the Sun in orbit around the Earth
+      const angle = Date.now() * 0.0002;
+      const distance = 6; // Increase the distance for a closer look
+      sun.position.x = Math.cos(angle) * distance;
+      sun.position.z = Math.sin(angle) * distance;
+
+      // Update the position of meteors
+      meteors.forEach((meteor) => {
+        meteor.position.add(meteor.velocity);
+
+        // Reset meteor's position if it goes off-screen
+        if (meteor.position.x > 5) {
+          meteor.position.x = -5;
+          meteor.position.y = (Math.random() - 0.5) * 10;
+          meteor.position.z = (Math.random() - 0.5) * 10;
+        }
+      });
+
+      /// Make stars twinkle more brightly
+starField.geometry.attributes.opacity.array.forEach((opacity, i) => {
+  if (Math.random() < 0.005) { // Adjust the probability for twinkling
+    // Increase the opacity range for brighter twinkling
+    starField.geometry.attributes.opacity.array[i] = Math.random() * 0.6 + 0.7;
+  }
+});
+starField.geometry.attributes.opacity.needsUpdate = true;
+
+renderer.render(scene, camera);
+    };
+
+    animate();
+  </script>
+</body>
+</html>
