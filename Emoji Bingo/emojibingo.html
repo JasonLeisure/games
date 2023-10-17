@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Emoji Bingo</title>
+  <style>
+body {
+  font-family: 'Open Sans', sans-serif;
+  text-align: center;
+  background-color: #17202A;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  font-size: 48px;
+  color: #FFA500;
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-20px);
+  }
+  60% {
+    transform: translateY(-10px);
+  }
+}
+#bingo-container {
+  text-align: center;
+  margin: 20px auto;
+  max-width: 700px;
+  padding: 20px;
+  background-color: #34495E;
+  border: 2px solid #2C3E50;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.bingo-card {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  grid-gap: 10px;
+  background-color: #2C3E50;
+  border: 2px solid #34495E;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.bingo-square {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  background-color: #2980B9;
+  font-size: 28px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.bingo-square.marked {
+  background-color: #27AE60;
+  transform: scale(1.05);
+  color: #fff;
+}
+
+.bingo-square.called {
+  background-color: #E74C3C;
+  animation: bounce 0.5s;
+  color: #fff;
+}
+
+button {
+  font-size: 20px;
+  padding: 12px 24px;
+  background-color: #FFA500;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+button:hover {
+  background-color: #FF8800;
+}
+
+#called-number {
+  font-size: 32px;
+  margin: 10px 0;
+}
+
+#result {
+  font-size: 26px;
+  margin: 20px 0;
+}
+
+#game-over-message {
+  font-size: 36px;
+  font-weight: bold;
+  color: #E74C3C;
+}
+
+button#generate-card, button#call-number {
+  display: inline-block;
+}
+
+@media (max-width: 768px) {
+  .bingo-card {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    max-width: 400px;
+  }
+
+  .bingo-square {
+    width: 80px;
+    height: 80px;
+    font-size: 24px;
+  }
+
+  #bingo-container {
+    padding: 10px;
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 18px;
+  }
+}
+  </style>
+</head>
+<body>
+  <div id="bingo-container">
+    <h1>Emoji Bingo</h1>
+    <div class="bingo-card">
+    </div>
+    <button id="generate-card">Generate Bingo Card</button>
+    <button id="call-number">Call Number</button>
+    <div id="called-number"></div>
+    <div id="result"></div>
+    <div id="game-over-message"></div>
+  </div>
+
+  <script>
+    const emojis = [
+  "🙂", "😄", "😍", "🙄", "😆", "😂", "🤣", "😎", "😇", "😀", "😁", "😅", "😊", "😋", "😍", "🥰", "🤩", "😎", "😏", "😐", "😑", "😒", "😔", "😞", "😣", "😢",
+  "🍎", "🍌", "🍒", "🍓", "🍇", "🥑", "🥕", "🍆", "🥔", "🌽", "🍅", "🥦", "🍄", "🥜", "🌰", "🍖", "🍗", "🥩", "🍔", "🍟",
+  "🚗", "🚕", "🛵", "🏍️", "🚲", "🚁", "🛸", "🚀", "🚢", "🚤", "🛳️", "🚆", "🚂", "🛻", "🚛", "🚌", "🚓", "🚒", "🚑", "🚚",
+  "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵", "🐔", "🐧", "🐦", "🐤", "🦆",
+  "🌞", "🌝", "🌛", "🌜", "🌚", "🌟", "⭐", "🌠", "🌆", "🌇", "🌃", "🌌", "🌉", "🌋", "🌈", "🌦️", "🌧️", "⛈️", "🌩️", "🌨️","🙄",
+
+];
+    const bingoCard = document.querySelector(".bingo-card");
+    const calledNumberDisplay = document.getElementById("called-number");
+    const resultDisplay = document.getElementById("result");
+    const gameOverMessage = document.getElementById("game-over-message");
+
+    // Shuffle the emojis to randomize the bingo card
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    // Function to generate a new bingo card
+    function generateBingoCard() {
+      shuffle(emojis);
+      bingoCard.innerHTML = "";
+      gameOverMessage.textContent = "";
+
+      for (let i = 0; i < 25; i++) {
+        const square = document.createElement("div");
+        square.classList.add("bingo-square");
+        square.textContent = emojis[i];
+        square.addEventListener("click", markSquare);
+        bingoCard.appendChild(square);
+      }
+
+      resultDisplay.textContent = "";
+      calledNumbers = new Set();
+      callNumberButton.disabled = false;
+    }
+
+    document.getElementById("generate-card").addEventListener("click", generateBingoCard);
+
+    let calledNumbers = new Set();
+    let callNumberButton = document.getElementById("call-number");
+
+    function markSquare() {
+      if (!this.classList.contains("called")) {
+        this.classList.toggle("marked");
+        checkWinCondition();
+      }
+    }
+
+    function callRandomNumber() {
+      if (calledNumbers.size < emojis.length) {
+        let remainingEmojis = emojis.filter((emoji, index) => !calledNumbers.has(index));
+
+        if (remainingEmojis.length > 0) {
+          let randomIndex = Math.floor(Math.random() * remainingEmojis.length);
+          let calledNumber = remainingEmojis[randomIndex];
+
+          // Find the index in the original emojis array
+          let originalIndex = emojis.indexOf(calledNumber);
+
+          calledNumbers.add(originalIndex);
+          calledNumberDisplay.textContent = calledNumber;
+
+          // Check if the called number is on the bingo card
+          const squares = document.querySelectorAll(".bingo-square");
+          const calledNumberIsOnCard = [...squares].some((square) => square.textContent === calledNumber);
+
+          if (calledNumberIsOnCard) {
+            resultDisplay.textContent = "You have a match!";
+            squares.forEach((square) => {
+              if (square.textContent === calledNumber && !square.classList.contains("called")) {
+                square.classList.add("called");
+              }
+            });
+          } else {
+            resultDisplay.textContent = "No match.";
+          }
+
+          checkWinCondition();
+        } else {
+          resultDisplay.textContent = "All numbers have been called!";
+          gameOverMessage.textContent = "Bingo! You've marked all the squares!";
+          callNumberButton.disabled = true;
+        }
+      }
+    }
+
+    function checkWinCondition() {
+      const squares = document.querySelectorAll(".bingo-square");
+      let win = true;
+
+      squares.forEach((square) => {
+        if (!square.classList.contains("marked")) {
+          win = false;
+          return;
+        }
+      });
+
+      if (win) {
+        gameOverMessage.textContent = "Congratulations! You've won!";
+        callNumberButton.disabled = true;
+      }
+    }
+
+    document.getElementById("call-number").addEventListener("click", callRandomNumber);
+
+    generateBingoCard();
+  </script>
+</body>
+</html>
