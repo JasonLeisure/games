@@ -1,4 +1,4 @@
-### Updates to files 10/17/2023 Added in Emoji Memory Match Game to games. Added in Emoji Bingo and Regular Bingo to games.
+### Updates to files 10/17/2023 Added in Emoji Memory Match Game to games. Added in Emoji Bingo and Regular Bingo to games. Added 2048 game to games.
 
 ### Updates to files 10/16/2023 Added in 3 different flower animations to vanilla code. Added lava lamp demo to animations and added ball and cup game to the games folder. Added in orbital sun and galaxy animation. Added Balloon Pop Animation game to animations. Added a word guess game.
 
