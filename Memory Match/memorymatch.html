@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: white;
+        }
+
+        h1 {
+            margin: 20px 0;
+        }
+
+        .game-container {
+            display: inline-block;
+            position: relative;
+            border: 2px solid white;
+            width: 640px;
+            height: 640px;
+            margin: 20px auto 20px auto;
+        }
+
+        .score {
+            margin-top: 20px;
+            color: white;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Em😀ji Mem🤬ry Match Game</h1>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="650" height="650"></canvas>
+    </div>
+    <div class="score">
+        <p>Score: <span id="score">0</span></p>
+        <p>Time Left: <span id="timeLeft">120</span> seconds</p>
+        <audio id="audio" src="goodnight.mp3" loop="true"></audio>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const timeLeftElement = document.getElementById('timeLeft');
+
+        const emojis = ['😀', '😁', '😂', '😃', '😄', '😅', '😆', '😇', '😈', '😉', '😊', '😋',
+                        '🙂', '🙃', '😍', '😎', '🤣', '😏', '😛', '🥰', '🤩', '😇', '😜', '🤗',
+                        '🤔', '😟', '😙', '😠', '😡', '🤬', '😢', '😣', '😥', '😪', '😬', '😷'];
+        const gridSize = 8;
+        const tileSize = 70;
+        const tileSpacing = 10;
+        const grid = new Array(gridSize);
+        for (let i = 0; i < gridSize; i++) {
+            grid[i] = new Array(gridSize);
+        }
+
+        let flippedTiles = [];
+        let totalScore = 0;
+        let round = 1;
+        let timeLeft = 120;
+        const matchedTileColor = 'green';
+
+        let timerInterval;
+
+
+        function initializeTiles() {
+            const shuffledEmojis = shuffleArray(emojis.concat(emojis));
+            const matchingEmoji = shuffledEmojis.pop();
+
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    const emoji = shuffledEmojis.pop();
+                    const centerX = canvas.width / 2 - (gridSize * (tileSize + tileSpacing)) / 2;
+                    const centerY = canvas.height / 2 - (gridSize * (tileSize + tileSpacing)) / 2;
+                    grid[i][j] = {
+                        emoji: emoji,
+                        x: centerX + j * (tileSize + tileSpacing),
+                        y: centerY + i * (tileSize + tileSpacing),
+                        width: tileSize,
+                        height: tileSize,
+                        flipped: true,
+                        matched: false,
+                        found: false,
+                    };
+                }
+            }
+
+            const randomRow = Math.floor(Math.random() * gridSize);
+            const randomCol = Math.floor(Math.random() * gridSize);
+            grid[randomRow][randomCol].emoji = matchingEmoji;
+        }
+        function playAudio() {
+            const audio = document.getElementById('audio');
+            audio.play();
+        }
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function drawTiles() {
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    const tile = grid[i][j];
+                    if (tile.matched) {
+                        ctx.fillStyle = matchedTileColor;
+                        ctx.fillRect(tile.x, tile.y, tile.width, tile.height);
+                    } else if (tile.flipped) {
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(tile.x, tile.y, tile.width, tile.height);
+                        ctx.font = '30px Arial';
+                        const textWidth = ctx.measureText(tile.emoji).width;
+                        ctx.fillText(tile.emoji, tile.x + (tile.width - textWidth) / 2, tile.y + tile.height / 2 + 10);
+                    } else {
+                        ctx.fillStyle = 'gray';
+                        ctx.fillRect(tile.x, tile.y, tile.width, tile.height);
+                    }
+                }
+            }
+        }
+
+        const audio = document.getElementById('audio');
+
+        function playAudio() {
+            audio.play();
+        }
+
+        function checkMatch() {
+            if (flippedTiles.length === 2) {
+                if (flippedTiles[0].emoji === flippedTiles[1].emoji) {
+                    flippedTiles[0].matched = true;
+                    flippedTiles[1].matched = true;
+                    flippedTiles[0].found = true;
+                    flippedTiles[1].found = true;
+                    totalScore += 2;
+                    scoreElement.textContent = totalScore;
+
+                    drawTiles();
+
+                    playAudio();
+                } else {
+                    setTimeout(() => {
+                        flippedTiles[0].flipped = false;
+                        flippedTiles[1].flipped = false;
+                        drawTiles();
+                    }, 500);
+                }
+
+                flippedTiles = [];
+
+                if (totalScore === gridSize * gridSize) {
+                    round++;
+                    if (round <= 2) {
+                        alert(`Round ${round} completed! Your score is ${totalScore}`);
+                        totalScore = 0;
+                        scoreElement.textContent = totalScore;
+                        initializeTiles();
+                        drawTiles();
+                    } else {
+                        clearInterval(timerInterval);
+                        alert(`Congratulations! You completed all rounds with a final score of ${totalScore}`);
+                        location.reload();
+                    }
+                }
+            }
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            timeLeftElement.textContent = timeLeft + ' seconds';
+
+            if (timeLeft === 0) {
+                clearInterval(timerInterval);
+                alert('Time is up! Game over.');
+                location.reload();
+            }
+        }
+
+        function handleTileClick(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    const tile = grid[i][j];
+                    if (tile.flipped && !tile.matched && !tile.found) {
+                        if (x >= tile.x && x <= tile.x + tileSize && y >= tile.y && y <= tile.y + tileSize) {
+                            tile.flipped = true;
+                            flippedTiles.push(tile);
+                            drawTiles();
+                            if (flippedTiles.length === 2) {
+                                checkMatch();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        initializeTiles();
+        canvas.addEventListener('click', handleTileClick);
+        drawTiles();
+
+        timerInterval = setInterval(updateTimer, 1000);
+    </script>
+</body>
+</html>
