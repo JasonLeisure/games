@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>2048 Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #1ebcf5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+    font-size: 36px;
+    color: #3498db;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 4px #34495e;
+    margin-top: 20px;
+    letter-spacing: 2px;
+    padding: 10px;
+    background-color: #ecf0f1;
+    border-radius: 10px;
+    display: inline-block;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+        #game-container {
+            display: grid;
+            grid-template-columns: repeat(4, 90px);
+            grid-gap: 10px;
+            margin: auto;
+            background-color: #bbada0;
+            border-radius: 10px;
+            box-shadow: 8px 8px 20px #888888;
+            padding: 10px;
+            max-width: 400px;
+        }
+        .cell {
+            width: 90px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #cdc1b4;
+            font-size: 24px;
+            border-radius: 10px;
+            background-image: linear-gradient(to bottom right, #cdc1b4, #d4c6bb);
+            box-shadow: 2px 2px 5px #888888;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        #game-over {
+            font-size: 24px;
+            margin: 20px auto;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>2048 Game</h1>
+    <div id="game-container"></div>
+    <div id="game-over">Game Over!</div>
+    <script>
+        const gridSize = 4;
+        const board = new Array(gridSize).fill(null).map(() => new Array(gridSize).fill(0));
+        let gameOver = false;
+        let score = 0;
+
+        function initializeGame() {
+            addRandomTile();
+            addRandomTile();
+            updateDisplay();
+        }
+
+        function addRandomTile() {
+            const availableCells = [];
+            for (let row = 0; row < gridSize; row++) {
+                for (let col = 0; col < gridSize; col++) {
+                    if (board[row][col] === 0) {
+                        availableCells.push({ row, col });
+                    }
+                }
+            }
+            if (availableCells.length > 0) {
+                const { row, col } = availableCells[Math.floor(Math.random() * availableCells.length)];
+                board[row][col] = Math.random() < 0.9 ? 2 : 4;
+            }
+        }
+
+        function moveTiles(direction) {
+            if (gameOver) {
+                return;
+            }
+
+            let moved = false;
+            let mergedTiles = new Array(gridSize).fill(null).map(() => new Array(gridSize).fill(false));
+
+            for (let row = 0; row < gridSize; row++) {
+                for (let col = 0; col < gridSize; col++) {
+                    if (board[row][col] === 0) {
+                        continue;
+                    }
+
+                    let newRow = row;
+                    let newCol = col;
+
+                    if (direction === "up") {
+                        while (newRow > 0 && (board[newRow - 1][col] === 0 || (board[newRow - 1][col] === board[row][col] && !mergedTiles[newRow - 1][col]))) {
+                            newRow--;
+                        }
+                    } else if (direction === "down") {
+                        while (newRow < gridSize - 1 && (board[newRow + 1][col] === 0 || (board[newRow + 1][col] === board[row][col] && !mergedTiles[newRow + 1][col]))) {
+                            newRow++;
+                        }
+                    } else if (direction === "left") {
+                        while (newCol > 0 && (board[row][newCol - 1] === 0 || (board[row][newCol - 1] === board[row][col] && !mergedTiles[row][newCol - 1]))) {
+                            newCol--;
+                        }
+                    } else if (direction === "right") {
+                        while (newCol < gridSize - 1 && (board[row][newCol + 1] === 0 || (board[row][newCol + 1] === board[row][col] && !mergedTiles[row][newCol + 1]))) {
+                            newCol++;
+                        }
+                    }
+
+                    if (newRow !== row || newCol !== col) {
+                        if (board[newRow][newCol] === 0) {
+                            board[newRow][newCol] = board[row][col];
+                            board[row][col] = 0;
+                            moved = true;
+                        } else if (board[newRow][newCol] === board[row][col] && !mergedTiles[newRow][newCol]) {
+                            board[newRow][newCol] *= 2;
+                            board[row][col] = 0;
+                            mergedTiles[newRow][newCol] = true;
+                            moved = true;
+                        }
+                    }
+                }
+            }
+
+            if (moved) {
+                addRandomTile();
+                updateDisplay();
+                checkGameOver();
+            }
+        }
+        function moveTile(row, col, newRow, newCol) {
+   const tile = getTileElement(row, col);
+   const newX = newCol * (cellSize + cellSpacing);
+   const newY = newRow * (cellSize + cellSpacing);
+   tile.style.transform = `translate(${newX}px, ${newY}px)`;
+}
+
+function mergeTiles(row, col, newRow, newCol) {
+   const mergedTile = getTileElement(newRow, newCol);
+   const disappearingTile = getTileElement(row, col);
+   mergedTile.style.transform = 'scale(1.1)';
+   disappearingTile.style.opacity = '0';
+}
+        function updateDisplay() {
+            const gameContainer = document.getElementById("game-container");
+            gameContainer.innerHTML = "";
+            for (let row = 0; row < gridSize; row++) {
+                for (let col = 0; col < gridSize; col++) {
+                    const cellValue = board[row][col];
+                    const cellDiv = document.createElement("div");
+                    cellDiv.classList.add("cell");
+                    cellDiv.textContent = cellValue > 0 ? cellValue : "";
+                    gameContainer.appendChild(cellDiv);
+                }
+            }
+        }
+
+        function checkGameOver() {
+            for (let row = 0; row < gridSize; row++) {
+                for (let col = 0; col < gridSize; col++) {
+                    if (board[row][col] === 0) {
+                        return;
+                    }
+                    if (row > 0 && board[row][col] === board[row - 1][col]) {
+                        return;
+                    }
+                    if (row < gridSize - 1 && board[row][col] === board[row + 1][col]) {
+                        return;
+                    }
+                    if (col > 0 && board[row][col] === board[row][col - 1]) {
+                        return;
+                    }
+                    if (col < gridSize - 1 && board[row][col] === board[row][col + 1]) {
+                        return;
+                    }
+                }
+            }
+            gameOver = true;
+            document.getElementById("game-over").style.display = "block";
+        }
+
+        initializeGame();
+
+        window.addEventListener('keydown', (event) => {
+            if (event.key === "ArrowUp") {
+                moveTiles("up");
+            } else if (event.key === "ArrowDown") {
+                moveTiles("down");
+            } else if (event.key === "ArrowLeft") {
+                moveTiles("left");
+            } else if (event.key === "ArrowRight") {
+                moveTiles("right");
+            }
+        });
+    </script>
+</body>
+</html>
