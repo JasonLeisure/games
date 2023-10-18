@@ -19,7 +19,6 @@
   <div class="canvas-container">
     <canvas id="defaultCanvas"></canvas>
   </div>
-<body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
   <button id="zoomInButton">Zoom In</button>
   <button id="zoomOutButton">Zoom Out</button>
@@ -58,6 +57,9 @@
     let dayNightCycle = 0;
     let waterTime = 0;
 
+    let raindrops = [];
+
+
     function setup() {
       createCanvas(600, 600, WEBGL);
 
@@ -68,25 +70,37 @@
       cam.lookAt(0, 0, 0);
 
       noStroke();
+      generateRaindrops();
     }
-
 
     function draw() {
-      background(200);
-      const t = millis();
-      dayNightCycle = (t % 60000) / 60000;
-      setDayNightCycle(dayNightCycle);
-      waterTime += 0.01;
-      rotateY(-t * rotateScale);
-      drawTerrain(t);
-      drawSun();
+  background(200);
+  const t = millis();
+  dayNightCycle = (t % 60000) / 60000;
+  setDayNightCycle(dayNightCycle);
+  waterTime += 0.01;
+  rotateY(-t * rotateScale);
+  drawTerrain(t);
+  drawSun();
+
+
+  for (let i = 0; i < raindrops.length; i++) {
+    const raindrop = raindrops[i];
+    fill(seaColourSolid);
+    noStroke();
+    ellipse(raindrop.x, raindrop.y, 2, 8);
+    raindrop.y += 5;
+    if (raindrop.y > height / 2) {
+      raindrop.y = -height / 2;
     }
-
-  document.getElementById("saveButton").addEventListener("click", saveTerrainImage);
-
-function saveTerrainImage() {
-  saveCanvas('terrain', 'jpg');
+  }
 }
+
+    document.getElementById("saveButton").addEventListener("click", saveTerrainImage);
+
+    function saveTerrainImage() {
+      saveCanvas('terrain', 'jpg');
+    }
 
     function setDayNightCycle(time) {
       const skyColor = lerpColor(color(135, 206, 250), color(0, 0, 0), time);
@@ -100,7 +114,6 @@ function saveTerrainImage() {
     }
 
     const cycleDurationMilliseconds = 60000;
-
 
     function drawTerrain(t) {
       for (let i = 0; i < numBoxes; i++) {
@@ -117,7 +130,7 @@ function saveTerrainImage() {
         const waterSize = numBoxes * sideLength - 0.1;
         fill(seaColour);
         translate(-sideLength / 2, -waterHeight / 2, -sideLength / 2);
-        const waterAmplitude = 10; // Adjust the amplitude for the water animation
+        const waterAmplitude = 10;
         box(waterSize, getBoxHeight(seaLevel) + waterAmplitude * sin(waterTime), waterSize);
         pop();
       }
@@ -153,6 +166,7 @@ function saveTerrainImage() {
       box(leafLength / 4);
       pop();
     }
+
     function zoomIn() {
       cam.move(0, -10, 0);
     }
@@ -161,9 +175,9 @@ function saveTerrainImage() {
       cam.move(0, 10, 0);
     }
 
-
     document.getElementById("zoomInButton").addEventListener("click", zoomIn);
     document.getElementById("zoomOutButton").addEventListener("click", zoomOut);
+
     function getNoiseValue(x, z, time) {
       x = x * noiseScale + noiseOffset;
       z = z * noiseScale + noiseOffset;
@@ -199,6 +213,18 @@ function saveTerrainImage() {
         return lerpColor(color(grassColour), color(forestColour), lerpVal);
       }
     }
+
+
+function generateRaindrops() {
+  raindrops = [];
+
+  for (let i = 0; i < 100; i++) {
+    const x = random(-width / 2, width / 2);
+    const y = random(-height / 2, height / 2);
+    raindrops.push(createVector(x, y));
+  }
+}
+
   </script>
 </body>
 </html>
