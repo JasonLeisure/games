@@ -94,6 +94,7 @@
       }
     }
 
+
     document.getElementById("saveButton").addEventListener("click", saveTerrainImage);
 
     function saveTerrainImage() {
@@ -114,25 +115,25 @@
     const cycleDurationMilliseconds = 60000;
 
     function drawTerrain(t) {
-      for (let i = 0; i < numBoxes; i++) {
-        for (let j = 0; j < numBoxes; j++) {
-          const x = (i * sideLength) - (numBoxes * sideLength) / 2;
-          const z = (j * sideLength) - (numBoxes * sideLength) / 2;
-          drawBox(x, z, t);
-        }
-      }
-
-      if (heightScale !== 0) {
-        push();
-        const waterHeight = getBoxHeight(seaLevel);
-        const waterSize = numBoxes * sideLength - 0.1;
-        fill(seaColour);
-        translate(-sideLength / 2, -waterHeight / 2, -sideLength / 2);
-        const waterAmplitude = 10;
-        box(waterSize, getBoxHeight(seaLevel) + waterAmplitude * sin(waterTime), waterSize);
-        pop();
-      }
+  for (let i = 0; i < numBoxes; i++) {
+    for (let j = 0; j < numBoxes; j++) {
+      const x = (i * sideLength) - (numBoxes * sideLength) / 2;
+      const z = (j * sideLength) - (numBoxes * sideLength) / 2;
+      drawBox(x, z, t);
     }
+  }
+
+  if (heightScale !== 0) {
+    push();
+    const waterHeight = getBoxHeight(seaLevel);
+    const waterSize = numBoxes * sideLength - 0.1;
+    fill(seaColour);
+    translate(-sideLength / 2, -waterHeight / 2, -sideLength / 2);
+    const waterAmplitude = 10;
+    box(waterSize, getBoxHeight(seaLevel) + waterAmplitude * sin(waterTime), waterSize);
+    pop();
+  }
+}
 
     function drawBox(x, z, t) {
       const noiseValue = getNoiseValue(x, z, t);
