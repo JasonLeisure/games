@@ -21,6 +21,9 @@
   </div>
 <body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <button id="zoomInButton">Zoom In</button>
+  <button id="zoomOutButton">Zoom Out</button>
+  <button id="saveButton">Save Image</button>
   <script>
     const numBoxes = 40;
     const sideLength = 10;
@@ -73,11 +76,17 @@
       const t = millis();
       dayNightCycle = (t % 60000) / 60000;
       setDayNightCycle(dayNightCycle);
-      waterTime += 0.01; // Increase water time for animation
+      waterTime += 0.01;
       rotateY(-t * rotateScale);
       drawTerrain(t);
       drawSun();
     }
+
+  document.getElementById("saveButton").addEventListener("click", saveTerrainImage);
+
+function saveTerrainImage() {
+  saveCanvas('terrain', 'jpg');
+}
 
     function setDayNightCycle(time) {
       const skyColor = lerpColor(color(135, 206, 250), color(0, 0, 0), time);
@@ -144,7 +153,17 @@
       box(leafLength / 4);
       pop();
     }
+    function zoomIn() {
+      cam.move(0, -10, 0);
+    }
 
+    function zoomOut() {
+      cam.move(0, 10, 0);
+    }
+
+
+    document.getElementById("zoomInButton").addEventListener("click", zoomIn);
+    document.getElementById("zoomOutButton").addEventListener("click", zoomOut);
     function getNoiseValue(x, z, time) {
       x = x * noiseScale + noiseOffset;
       z = z * noiseScale + noiseOffset;
@@ -183,4 +202,3 @@
   </script>
 </body>
 </html>
-
