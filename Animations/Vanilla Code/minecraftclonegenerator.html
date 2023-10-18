@@ -59,7 +59,6 @@
 
     let raindrops = [];
 
-
     function setup() {
       createCanvas(600, 600, WEBGL);
 
@@ -74,27 +73,26 @@
     }
 
     function draw() {
-  background(200);
-  const t = millis();
-  dayNightCycle = (t % 60000) / 60000;
-  setDayNightCycle(dayNightCycle);
-  waterTime += 0.01;
-  rotateY(-t * rotateScale);
-  drawTerrain(t);
-  drawSun();
+      background(200);
+      const t = millis();
+      dayNightCycle = (t % 60000) / 60000;
+      setDayNightCycle(dayNightCycle);
+      waterTime += 0.01;
+      rotateY(-t * rotateScale);
+      drawTerrain(t);
+      drawSun();
 
-
-  for (let i = 0; i < raindrops.length; i++) {
-    const raindrop = raindrops[i];
-    fill(seaColourSolid);
-    noStroke();
-    ellipse(raindrop.x, raindrop.y, 2, 8);
-    raindrop.y += 5;
-    if (raindrop.y > height / 2) {
-      raindrop.y = -height / 2;
+      for (let i = 0; i < raindrops.length; i++) {
+        const raindrop = raindrops[i];
+        fill(150, 150, 255);
+        noStroke();
+        ellipse(raindrop.x, raindrop.y, 2, 15);
+        raindrop.y += 8;
+        if (raindrop.y > height / 2) {
+          raindrop.y = -height / 2;
+        }
+      }
     }
-  }
-}
 
     document.getElementById("saveButton").addEventListener("click", saveTerrainImage);
 
