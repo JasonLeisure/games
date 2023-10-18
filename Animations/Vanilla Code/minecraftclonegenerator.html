@@ -53,6 +53,7 @@
     let heightDir = 0.05;
 
     let dayNightCycle = 0;
+    let waterTime = 0;
 
     function setup() {
       createCanvas(600, 600, WEBGL);
@@ -68,27 +69,28 @@
 
 
     function draw() {
-  background(200);
-  const t = millis();
-  dayNightCycle = (t % 60000) / 60000;
-  setDayNightCycle(dayNightCycle);
-  rotateY(-t * rotateScale);
-  drawTerrain(t);
-  drawSun();
-}
+      background(200);
+      const t = millis();
+      dayNightCycle = (t % 60000) / 60000;
+      setDayNightCycle(dayNightCycle);
+      waterTime += 0.01; // Increase water time for animation
+      rotateY(-t * rotateScale);
+      drawTerrain(t);
+      drawSun();
+    }
 
-function setDayNightCycle(time) {
-  const skyColor = lerpColor(color(135, 206, 250), color(0, 0, 0), time);
-  background(skyColor);
+    function setDayNightCycle(time) {
+      const skyColor = lerpColor(color(135, 206, 250), color(0, 0, 0), time);
+      background(skyColor);
 
-  const lightDirX = cos(PI * (time * 2 - 0.5));
-  const lightDirY = sin(PI * (time * 2 - 0.5));
-  const lightColor = color(lerp(50, 255, abs(0.5 - time) * 2));
-  directionalLight(lightColor, lightColor, lightColor, -lightDirX, -0.5, -lightDirY);
-  ambientLight(lightColor);
-}
+      const lightDirX = cos(PI * (time * 2 - 0.5));
+      const lightDirY = sin(PI * (time * 2 - 0.5));
+      const lightColor = color(lerp(50, 255, abs(0.5 - time) * 2));
+      directionalLight(lightColor, lightColor, lightColor, -lightDirX, -0.5, -lightDirY);
+      ambientLight(lightColor);
+    }
 
-const cycleDurationMilliseconds = 60000;
+    const cycleDurationMilliseconds = 60000;
 
 
     function drawTerrain(t) {
@@ -105,8 +107,9 @@ const cycleDurationMilliseconds = 60000;
         const waterHeight = getBoxHeight(seaLevel);
         const waterSize = numBoxes * sideLength - 0.1;
         fill(seaColour);
-        translate(-sideLength/2, -waterHeight/2, -sideLength/2);
-        box(waterSize, getBoxHeight(seaLevel), waterSize);
+        translate(-sideLength / 2, -waterHeight / 2, -sideLength / 2);
+        const waterAmplitude = 10; // Adjust the amplitude for the water animation
+        box(waterSize, getBoxHeight(seaLevel) + waterAmplitude * sin(waterTime), waterSize);
         pop();
       }
     }
@@ -116,7 +119,7 @@ const cycleDurationMilliseconds = 60000;
       let h = getBoxHeight(noiseValue);
       h = max(h, 0.01);
       push();
-      translate(x, -h/2, z);
+      translate(x, -h / 2, z);
       fill(getColour(noiseValue));
       box(sideLength, h, sideLength);
 
@@ -126,21 +129,21 @@ const cycleDurationMilliseconds = 60000;
       pop();
     }
 
-   function drawTree(h) {
-  const trunkLength = 20;
-  const leafLength = 20;
-  push();
-  translate(0, -h/2, 0);
-  fill(trunkColour);
-  translate(0, -trunkLength/2, 0);
-  box(trunkLength/4, trunkLength, trunkLength/4);
-  fill(leafColour);
-  translate(0, -trunkLength/2 - leafLength/2, 0);
-  box(leafLength * 3/4, leafLength, leafLength * 3/4);
-  translate(0, -leafLength * 3/4, 0);
-  box(leafLength/4);
-  pop();
-}
+    function drawTree(h) {
+      const trunkLength = 20;
+      const leafLength = 20;
+      push();
+      translate(0, -h / 2, 0);
+      fill(trunkColour);
+      translate(0, -trunkLength / 2, 0);
+      box(trunkLength / 4, trunkLength, trunkLength / 4);
+      fill(leafColour);
+      translate(0, -trunkLength / 2 - leafLength / 2, 0);
+      box(leafLength * 3 / 4, leafLength, leafLength * 3 / 4);
+      translate(0, -leafLength * 3 / 4, 0);
+      box(leafLength / 4);
+      pop();
+    }
 
     function getNoiseValue(x, z, time) {
       x = x * noiseScale + noiseOffset;
@@ -152,15 +155,17 @@ const cycleDurationMilliseconds = 60000;
     function getBoxHeight(noiseValue) {
       return map(noiseValue, 0, 1, minHeight, maxHeight) * heightScale;
     }
+
     function drawSun() {
-  const sunX = width / 4;
-  const sunY = -height / 2;
-  fill(255, 223, 186);
-  push();
-  translate(sunX, sunY);
-  ellipse(0, 0, 100, 100);
-  pop();
-}
+      const sunX = width / 4;
+      const sunY = -height / 2;
+      fill(255, 223, 186);
+      push();
+      translate(sunX, sunY);
+      ellipse(0, 0, 100, 100);
+      pop();
+    }
+
     function getColour(noiseValue) {
       if (noiseValue < seaLevel && heightScale === 0) {
         return seaColour;
@@ -178,3 +183,4 @@ const cycleDurationMilliseconds = 60000;
   </script>
 </body>
 </html>
+
