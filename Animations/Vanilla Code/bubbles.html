@@ -27,14 +27,14 @@
 
     class Particle {
       constructor() {
-        this.x = random(width); // Randomize horizontal positions
+        this.x = random(width); 
         this.y = height;
         this.radius = random(5, 15);
         this.velocityX = random(-0.5, 0.5);
         this.velocityY = random(-2, -1);
         this.alpha = random(50, 150);
-        this.hue = random(160, 320); // Use a range of hues for a colorful effect
-        this.brightness = random(50, 100); // Adjust brightness for better visuals
+        this.hue = random(160, 320); 
+        this.brightness = random(50, 100);
       }
 
       update() {
@@ -57,7 +57,7 @@
 
       display() {
         noStroke();
-        fill(this.hue, 100, this.brightness, this.alpha); // Use HSB color with variable hue and brightness
+        fill(this.hue, 100, this.brightness, this.alpha); 
         ellipse(this.x, this.y, this.radius * 2);
       }
     }
