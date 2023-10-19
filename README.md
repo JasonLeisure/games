@@ -1,4 +1,4 @@
-### Updates to files 10/19/2023 Added in whack-a-mole game to games.
+### Updates to files 10/19/2023 Added in whack-a-mole game to games. Added in Simon Says game to games folder.
 
 ### Updates to files 10/18/2023 Added in Animations a Animated wave field. Added in Animations a Gashapon animation. Added in a pachinko board animation to vanilla code.
 
