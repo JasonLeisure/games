@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Enhanced Neon Smoke Effect</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+  <script>
+    let particles = [];
+
+    function setup() {
+      createCanvas(400, 400);
+      colorMode(HSB); // Use HSB color mode for colorful smoke
+      for (let i = 0; i < 200; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function draw() {
+      background(0); // Set the background to black
+
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].display();
+      }
+    }
+
+    class Particle {
+      constructor() {
+        this.x = random(width); // Randomize horizontal positions
+        this.y = height;
+        this.radius = random(5, 15);
+        this.velocityX = random(-0.5, 0.5);
+        this.velocityY = random(-2, -1);
+        this.alpha = random(50, 150);
+        this.hue = random(160, 320); // Use a range of hues for a colorful effect
+        this.brightness = random(50, 100); // Adjust brightness for better visuals
+      }
+
+      update() {
+        this.x += this.velocityX;
+        this.y += this.velocityY;
+        this.alpha -= 0.5;
+
+        if (this.alpha <= 0) {
+          this.resetParticle();
+        }
+      }
+
+      resetParticle() {
+        this.x = random(width);
+        this.y = height;
+        this.alpha = random(50, 150);
+        this.hue = random(160, 320);
+        this.brightness = random(50, 100);
+      }
+
+      display() {
+        noStroke();
+        fill(this.hue, 100, this.brightness, this.alpha); // Use HSB color with variable hue and brightness
+        ellipse(this.x, this.y, this.radius * 2);
+      }
+    }
+  </script>
+</body>
+</html>
