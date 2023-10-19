@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pachinko Game</title>
+  <style>
+    body {
+      background-color: #000;
+      margin: 0;
+      overflow: hidden;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .cup {
+  position: absolute;
+  width: 50px;
+  height: 50px; /* Adjust the height as needed */
+  background-color: #333;
+  border: 2px solid #fff;
+  color: #fff;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+    .score-display {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  color: #fff;
+  background-color: #000;
+  padding: 10px;
+  border: 2px solid #fff;
+  border-radius: 5px;
+}
+    .pachinko-machine {
+      background-color: #222;
+      border: 2px solid #444;
+      width: 400px;
+      height: 600px;
+      position: relative;
+    }
+    .ball {
+      width: 20px;
+      height: 20px;
+      background-color: #f00;
+      border-radius: 50%;
+      position: absolute;
+    }
+    .peg {
+      width: 10px;
+      height: 10px;
+      background-color: #888;
+      border-radius: 50%;
+      position: absolute;
+    }
+    .peg.lit {
+    background-color: #ff0; /* Change to the desired lit color */
+    animation: pegLightUp 0.3s linear;
+  }
+
+  @keyframes pegLightUp {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="scrollable-container"></div>
+    <div class="pachinko-machine">
+<div class="peg" style="left: 50px; top: 50px;" data-point="10"></div>
+<div class="peg" style="left: 100px; top: 50px;" data-point="5"></div>
+<div class="peg" style="left: 150px; top: 50px;" data-point="20"></div>
+<div class="peg" style="left: 200px; top: 50px;" data-point="15"></div>
+<div class="peg" style="left: 250px; top: 50px;" data-point="10"></div>
+<div class="peg" style="left: 300px; top: 50px;" data-point="5"></div>
+<div class="peg" style="left: 350px; top: 50px;" data-point="25"></div>
+
+<div class="peg" style="left: 50px; top: 100px;" data-point="5"></div>
+<div "left: 100px; top: 100px;" data-point="10"></div>
+<div class="peg" style="left: 150px; top: 100px;" data-point="15"></div>
+<div class="peg" style="left: 200px; top: 100px;" data-point="5"></div>
+<div class="peg" style="left: 250px; top: 100px;" data-point="20"></div>
+<div class="peg" style="left: 300px; top: 100px;" data-point="10"></div>
+<div class="peg" style="left: 350px; top: 100px;" data-point="15"></div>
+
+<div class="peg" style="left: 50px; top: 100px;"></div>
+<div class="peg" style="left: 100px; top: 100px;"></div>
+<div class="peg" style="left: 150px; top: 100px;"></div>
+<div class="peg" style="left: 200px; top: 100px;"></div>
+<div class="peg" style="left: 250px; top: 100px;"></div>
+<div class="peg" style="left: 300px; top: 100px;"></div>
+<div class="peg" style="left: 350px; top: 100px;"></div>
+
+<div class="peg" style="left: 50px; top: 150px;"></div>
+<div class="peg" style="left: 100px; top: 150px;"></div>
+<div class="peg" style="left: 150px; top: 150px;"></div>
+<div class="peg" style="left: 200px; top: 150px;"></div>
+<div class="peg" style="left: 250px; top: 150px;"></div>
+<div class="peg" style="left: 300px; top: 150px;"></div>
+<div class="peg" style="left: 350px; top: 150px;"></div>
+
+<div class="peg" style="left: 50px; top: 200px;"></div>
+<div class="peg" style="left: 100px; top: 200px;"></div>
+<div class="peg" style="left: 150px; top: 200px;"></div>
+<div class="peg" style="left: 200px; top: 200px;"></div>
+<div class="peg" style="left: 250px; top: 200px;"></div>
+<div class="peg" style="left: 300px; top: 200px;"></div>
+<div class="peg" style="left: 350px; top: 200px;"></div>
+
+<div class="peg" style="left: 50px; top: 250px;"></div>
+<div class="peg" style="left: 100px; top: 250px;"></div>
+<div class="peg" style="left: 150px; top: 250px;"></div>
+<div class="peg" style="left: 200px; top: 250px;"></div>
+<div class="peg" style="left: 250px; top: 250px;"></div>
+<div class="peg" style="left: 300px; top: 250px;"></div>
+<div class="peg" style="left: 350px; top: 250px;"></div>
+<div class="peg" style="left: 50px; top: 300px;"></div>
+<div class="peg" style="left: 100px; top: 300px;"></div>
+<div class="peg" style="left: 150px; top: 300px;"></div>
+<div class="peg" style="left: 200px; top: 300px;"></div>
+<div class="peg" style="left: 250px; top: 300px;"></div>
+<div class="peg" style="left: 300px; top: 300px;"></div>
+<div class="peg" style="left: 350px; top: 300px;"></div>
+
+<div class="peg" style="left: 50px; top: 350px;"></div>
+<div class="peg" style="left: 100px; top: 350px;"></div>
+<div class="peg" style="left: 150px; top: 350px;"></div>
+<div class="peg" style="left: 200px; top: 350px;"></div>
+<div class="peg" style="left: 250px; top: 350px;"></div>
+<div class="peg" style="left: 300px; top: 350px;"></div>
+<div class="peg" style="left: 350px; top: 350px;"></div>
+<div class="peg" style="left: 50px; top: 400px;"></div>
+<div class="peg" style="left: 100px; top: 400px;"></div>
+<div class="peg" style="left: 150px; top: 400px;"></div>
+<div class="peg" style="left: 200px; top: 400px;"></div>
+<div class="peg" style="left: 250px; top: 400px;"></div>
+<div class="peg" style="left: 300px; top: 400px;"></div>
+<div class="peg" style="left: 350px; top: 400px;"></div>
+
+<div class="peg" style="left: 50px; top: 450px;"></div>
+<div class="peg" style="left: 100px; top: 450px;"></div>
+<div class="peg" style="left: 150px; top: 450px;"></div>
+<div class="peg" style="left: 200px; top: 450px;"></div>
+<div class="peg" style="left: 250px; top: 450px;"></div>
+<div class="peg" style="left: 300px; top: 450px;"></div>
+<div class="peg" style="left: 350px; top: 450px;"></div>
+<!-- Pachinko pegs (Continued) -->
+<!-- Pachinko pegs (Continued) -->
+<div class="peg" style="left: 50px; top: 500px;"></div>
+<div class="peg" style="left: 100px; top: 500px;"></div>
+<div class="peg" style="left: 150px; top: 500px;"></div>
+<div class="peg" style="left: 200px; top: 500px;"></div>
+<div class="peg" style="left: 250px; top: 500px;"></div>
+<div class="peg" style="left: 300px; top: 500px;"></div>
+<div class="peg" style="left: 350px; top: 500px;"></div>
+
+<div class="peg" style="left: 50px; top: 550px;"></div>
+<div class="peg" style="left: 100px; top: 550px;"></div>
+<div class="peg" style="left: 150px; top: 550px;"></div>
+<div class="peg" style="left: 200px; top: 550px;"></div>
+<div class="peg" style="left: 250px; top: 550px;"></div>
+<div class="peg" style="left: 300px; top: 550px;"></div>
+<div class="peg" style="left: 350px; top: 550px;"></div>
+
+<div class="peg" style="left: 50px; top: 600px;"></div>
+<div class="peg" style="left: 100px; top: 600px;"></div>
+<div class="peg" style="left: 150px; top: 600px;"></div>
+<div class="peg" style="left: 200px; top: 600px;"></div>
+<div class="peg" style="left: 250px; top: 600px;"></div>
+<div class="peg" style="left: 300px; top: 600px;"></div>
+<div class="peg" style="left: 350px; top: 600px;"></div>
+<!-- Continue adding rows and columns as needed -->
+<!-- Continue adding rows and columns as needed -->
+
+<!-- Add more rows and columns as needed -->
+<div class="cup" style="left: 0; bottom: 0;" data-point="100">100</div>
+<div class="cup" style="left: 50px; bottom: 0;" data-point="50">50</div>
+<div class="cup" style="left: 100px; bottom: 0;" data-point="10">10</div>
+<div class="cup" style="left: 150px; bottom: 0;" data-point="5">5</div>
+<div class="cup" style="left: 200px; bottom: 0;" data-point="20">20</div>
+<div class="cup" style="left: 250px; bottom: 0;" data-point="30">30</div>
+<div class="cup" style="left: 300px; bottom: 0;" data-point="15">15</div>
+<div class="cup" style="left: 350px; bottom: 0;" data-point="25">25</div>
+
+      <!-- Add more pegs as needed -->
+      <div class="score-display">Score: 0</div>
+      <!-- Pachinko balls -->
+      <div class="ball" style="left: 190px; top: 0;"></div>
+      <div class="ball" style="left: 210px; top: 0;"></div>
+
+    </div>
+  </div>
+
+  <script>
+    // JavaScript code for your Pachinko game
+
+  (() => {
+  const BALL_RADIUS = 10;
+  const MACHINE_WIDTH = 400;
+  const MACHINE_HEIGHT = 600;
+  let score = 0; // Initialize the score variable
+
+  // Apply physics to each ball
+  const balls = document.querySelectorAll('.ball');
+  const pegs = document.querySelectorAll('.peg');
+
+  // Function to detect collisions with pegs for a specific ball
+function detectCollisionsWithPegs(ball) {
+  for (const peg of pegs) {
+    // Calculate the distance between the ball and the peg
+    const ballX = parseFloat(ball.style.left) + BALL_RADIUS;
+    const ballY = parseFloat(ball.style.top) + BALL_RADIUS;
+    const pegX = parseFloat(peg.style.left) + 5; // 5 is the peg radius
+    const pegY = parseFloat(peg.style.top) + 5;
+
+    const distance = Math.sqrt(Math.pow(ballX - pegX, 2) + Math.pow(ballY - pegY, 2));
+
+    if (distance <= BALL_RADIUS + 5) { // Adjust the collision radius as needed
+      // Bounce off the peg
+      const angle = Math.atan2(ballY - pegY, ballX - pegX);
+      const speed = Math.sqrt(Math.pow(ballPhysics.velocityX, 2) + Math.pow(ballPhysics.velocityY, 2));
+      ballPhysics.velocityX = Math.cos(angle) * speed;
+      ballPhysics.velocityY = Math.sin(angle) * speed;
+
+      // Update the score when a peg is hit
+      const pointValue = parseInt(peg.getAttribute('data-point'));
+      score += pointValue; // Increase the score based on the peg's point value
+      const scoreDisplay = document.querySelector('.score-display');
+      scoreDisplay.innerText = `Score: ${score}`;
+    }
+  }
+}
+
+// Call this function for each ball to detect peg collisions
+for (const ball of balls) {
+  detectCollisionsWithPegs(ball);
+}
+// Function to handle ball physics
+function handleBallPhysics(ball, ballPhysics) {
+  const gravity = 0.2;
+  const friction = 0.99;
+  const BALL_RADIUS = 10;
+
+  // Apply gravity to the ball
+  ballPhysics.velocityY += gravity;
+  ballPhysics.velocityX *= friction;
+  ballPhysics.y += ballPhysics.velocityY;
+  ballPhysics.x += ballPhysics.velocityX;
+
+  // Boundary checks to keep the ball inside the machine
+  if (ballPhysics.x - BALL_RADIUS < 0) {
+    ballPhysics.x = BALL_RADIUS;
+    ballPhysics.velocityX *= -1; // Bounce off the left wall
+  } else if (ballPhysics.x + BALL_RADIUS > MACHINE_WIDTH) {
+    ballPhysics.x = MACHINE_WIDTH - BALL_RADIUS;
+    ballPhysics.velocityX *= -1; // Bounce off the right wall
+  }
+
+  if (ballPhysics.y - BALL_RADIUS < 0) {
+    ballPhysics.y = BALL_RADIUS;
+    ballPhysics.velocityY *= -1; // Bounce off the top
+  } else if (ballPhysics.y + BALL_RADIUS > MACHINE_HEIGHT) {
+    ballPhysics.y = MACHINE_HEIGHT - BALL_RADIUS;
+    ballPhysics.velocityY *= -1; // Bounce off the bottom
+  }
+
+  // Call the function to detect collisions with pegs
+  detectCollisionsWithPegs(ball);
+
+  // Update the position of the ball
+  ball.style.left = `${ballPhysics.x}px`;
+  ball.style.top = `${ballPhysics.y}px`;
+
+  // Request the next frame for smooth animation
+  requestAnimationFrame(() => handleBallPhysics(ball, ballPhysics));
+}
+
+// Call this function for each ball to handle its physics
+for (const ball of balls) {
+  const ballPhysics = {
+    x: parseFloat(ball.style.left),
+    y: parseFloat(ball.style.top),
+    velocityX: 0,
+    velocityY: 0,
+  };
+  handleBallPhysics(ball, ballPhysics);
+}
+
+  // Function to handle peg collisions
+  function handlePegCollision(ball, peg) {
+  // Calculate the distance between the ball and the peg
+  const ballX = parseFloat(ball.style.left) + BALL_RADIUS;
+  const ballY = parseFloat(ball.style.top) + BALL_RADIUS;
+  const pegX = parseFloat(peg.style.left) + 5; // 5 is the peg radius
+  const pegY = parseFloat(peg.style.top) + 5;
+
+  const distance = Math.sqrt(Math.pow(ballX - pegX, 2) + Math.pow(ballY - pegY, 2));
+
+  if (distance <= BALL_RADIUS + 5) { // Adjust the collision radius as needed
+    // Bounce off the peg
+    const angle = Math.atan2(ballY - pegY, ballX - pegX);
+    const speed = Math.sqrt(Math.pow(ballPhysics.velocityX, 2) + Math.pow(ballPhysics.velocityY, 2));
+    ballPhysics.velocityX = Math.cos(angle) * speed;
+    ballPhysics.velocityY = Math.sin(angle) * speed;
+
+    // Update the score when a peg is hit
+    score += 100; // Increase the score by 100 points when a peg is hit
+    const scoreDisplay = document.querySelector('.score-display');
+    scoreDisplay.innerText = `Score: ${score}`;
+  }
+}
+
+  for (const peg of pegs) {
+    peg.addEventListener('click', () => {
+      handlePegClick(peg);
+    });
+  }
+
+      for (const ball of balls) {
+        const ballPhysics = {
+          x: parseFloat(ball.style.left),
+          y: parseFloat(ball.style.top),
+          velocityX: 0,
+          velocityY: 0,
+        };
+
+        const gravity = 0.2;
+        const friction = 0.99;
+
+        const updateBallPosition = () => {
+          ballPhysics.velocityY += gravity;
+          ballPhysics.velocityX *= friction;
+          ballPhysics.y += ballPhysics.velocityY;
+          ballPhysics.x += ballPhysics.velocityX;
+
+          // Boundary checks to keep the ball inside the machine
+          if (ballPhysics.x - BALL_RADIUS < 0) {
+            ballPhysics.x = BALL_RADIUS;
+            ballPhysics.velocityX *= -1; // Bounce off the left wall
+          } else if (ballPhysics.x + BALL_RADIUS > MACHINE_WIDTH) {
+            ballPhysics.x = MACHINE_WIDTH - BALL_RADIUS;
+            ballPhysics.velocityX *= -1; // Bounce off the right wall
+          }
+
+          if (ballPhysics.y - BALL_RADIUS < 0) {
+            ballPhysics.y = BALL_RADIUS;
+            ballPhysics.velocityY *= -1; // Bounce off the top
+          } else if (ballPhysics.y + BALL_RADIUS > MACHINE_HEIGHT) {
+            ballPhysics.y = MACHINE_HEIGHT - BALL_RADIUS;
+            ballPhysics.velocityY *= -1; // Bounce off the bottom
+          }
+
+          // Detect collisions with pegs
+          for (const peg of pegs) {
+            const pegX = parseFloat(peg.style.left);
+            const pegY = parseFloat(peg.style.top);
+            const distance = Math.sqrt(Math.pow(ballPhysics.x - pegX, 2) + Math.pow(ballPhysics.y - pegY, 2));
+
+            if (distance <= BALL_RADIUS + 5) {
+              // Bounce off the peg
+              const angle = Math.atan2(ballPhysics.y - pegY, ballPhysics.x - pegX) + (Math.random() - 0.5) * 0.5;
+              const speed = Math.sqrt(Math.pow(ballPhysics.velocityX, 2) + Math.pow(ballPhysics.velocityY, 2)) + (Math.random() - 0.5) * 2;
+              const newSpeed = speed * 0.8;
+              ballPhysics.velocityX = Math.cos(angle) * newSpeed;
+              ballPhysics.velocityY = Math.sin(angle) * newSpeed;
+            }
+          }
+
+          ball.style.left = `${ballPhysics.x}px`;
+          ball.style.top = `${ballPhysics.y}px`;
+
+          requestAnimationFrame(updateBallPosition);
+        }
+
+        updateBallPosition();
+      }
+    })();
+
+ // Detect collisions with cups
+ for (const cup of document.querySelectorAll('.cup')) {
+    const cupX = parseFloat(cup.style.left);
+    const cupWidth = parseFloat(cup.style.width);
+    const ballX = ballPhysics.x;
+
+    if (ballX >= cupX && ballX <= cupX + cupWidth) {
+      // Ball falls into the cup
+      const pointValue = parseInt(cup.getAttribute('data-point'));
+      score += pointValue;
+      const scoreDisplay = document.querySelector('.score-display');
+      scoreDisplay.innerText = `Score: ${score}`;
+      cup.innerText = `O (+${pointValue})`; // Change to any indicator you want
+      ball.remove(); // Remove the ball from the machine
+      // Add additional game logic or win/lose conditions here
+    }
+  }
+  function updateScore(newCurrentScore) {
+    currentScore = newCurrentScore;
+    $currentScore.text(currentScore);
+
+    highScore = Math.max(currentScore, highScore);
+    $highScore.text(highScore);
+  }
+  </script>
