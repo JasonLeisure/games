@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #fff;
+    }
+
+    h1 {
+  font-family: "Sigmar One";
+  font-size: 2.75em;
+  transform: translateX(31px);
+}
+
+    .simon-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      background-color: #000;
+      border: 10px solid #333;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    }
+
+    .simon-button {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    #red {
+      top: 0;
+      left: 0;
+      background-color: #FF0000;
+    }
+
+    #green {
+      top: 0;
+      right: 0;
+      background-color: #00FF00;
+    }
+
+    #blue {
+      bottom: 0;
+      left: 0;
+      background-color: #0000FF;
+    }
+
+    #yellow {
+      bottom: 0;
+      right: 0;
+      background-color: #FFFF00;
+    }
+
+    #message {
+      text-align: center;
+      font-size: 16px;
+      margin: 10px 0;
+    }
+
+    #start-button {
+  background-color: #FFCC00;
+  color: #333;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px; /* Rounded corners */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Box shadow for depth */
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+#start-button:hover {
+  background-color: #FFDD44; /* Color change on hover */
+  transform: scale(1.05); /* Slight scale-up on hover */
+}
+  </style>
+</head>
+<body>
+  <h1>Simon Says Game</h1>
+  <div class="simon-container">
+    <!-- Move the colored buttons inside the board game -->
+    <div class="simon-button" id="red" data-color="red"></div>
+    <div class="simon-button" id="green" data-color="green"></div>
+    <div class="simon-button" id="blue" data-color="blue"></div>
+    <div class="simon-button" id="yellow" data-color="yellow"></div>
+    <audio id="magic-audio" src="magic.mp3"></audio>
+  </div>
+  <p id="message"></p>
+  <button id="start-button">Start</button>
+  <script>
+    const simonColors = ["red", "green", "blue", "yellow"];
+    const simonSequence = [];
+    let playerSequence = [];
+    let gameIsRunning = false;
+    let round = 1;
+    let playerTurn = false;
+
+    function startSimon() {
+      simonSequence.length = 0;
+      playerSequence.length = 0;
+      round = 1;
+      nextRound();
+    }
+
+    function nextRound() {
+      updateMessage(`Round ${round} - Watch closely!`);
+      disableButtons();
+      playerTurn = false;
+
+      setTimeout(() => {
+        for (let i = 0; i < round; i++) {
+          const randomColor = simonColors[Math.floor(Math.random() * simonColors.length)];
+          simonSequence.push(randomColor);
+        }
+
+        displaySequence(simonSequence);
+        updateMessage("Your turn! Repeat the sequence.");
+        enableButtons();
+        playerTurn = true;
+      }, 1000);
+    }
+
+    function displaySequence(sequence) {
+  let i = 0;
+  const interval = setInterval(() => {
+    const color = sequence[i];
+    highlightButton(color);
+    setTimeout(() => {
+      unhighlightButton(color);
+      i++;
+      if (i >= sequence.length) {
+        clearInterval(interval);
+      }
+    }, 500); // Adjust the duration for the flash
+  }, 1000); // Adjust the interval between button flashes
+}
+
+function highlightButton(color) {
+  const button = document.getElementById(color);
+  button.style.backgroundColor = getBrighterColor(color);
+}
+
+function unhighlightButton(color) {
+  const button = document.getElementById(color);
+  button.style.backgroundColor = color;
+}
+
+function getBrighterColor(color) {
+  // Example function to brighten the color by making it slightly lighter
+  // You can adjust this to fit your desired effect
+  const brightness = 20; // Increase this value for a more noticeable flash
+  const rgb = parseInt(color.slice(1), 16); // Convert hex to decimal
+  const r = ((rgb >> 16) & 0xFF) + brightness;
+  const g = ((rgb >> 8) & 0xFF) + brightness;
+  const b = (rgb & 0xFF) + brightness;
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+}
+
+    function enableButtons() {
+      const buttons = document.querySelectorAll(".simon-button");
+      buttons.forEach((button) => {
+        button.addEventListener("click", handlePlayerClick);
+      });
+    }
+
+    function disableButtons() {
+      const buttons = document.querySelectorAll(".simon-button");
+      buttons.forEach((button) => {
+        button.removeEventListener("click", handlePlayerClick);
+      });
+    }
+
+    function handlePlayerClick(e) {
+  if (!playerTurn) return;
+
+  const clickedColor = e.target.getAttribute("data-color");
+  playerSequence.push(clickedColor);
+  highlightButton(clickedColor);
+  setTimeout(() => {
+    unhighlightButton(clickedColor);
+  }, 500);
+
+  if (playerSequence.length === simonSequence.length) {
+    if (arraysAreEqual(simonSequence, playerSequence)) {
+      if (round < simonColors.length) {
+        updateMessage("Good job! Next round...");
+        round++;
+        playerSequence = []; // Clear the player's sequence for the next round
+        setTimeout(nextRound, 1000);
+      } else {
+        // You've completed the game!
+        updateMessage("Congratulations! You completed the game.");
+        disableButtons();
+      }
+    } else {
+      // Wrong sequence, game over
+      updateMessage("Wrong sequence! Game over.");
+      disableButtons();
+    }
+  }
+}
+    function arraysAreEqual(arr1, arr2) {
+      if (arr1.length !== arr2.length) return false;
+      for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) return false;
+      }
+      return true;
+    }
+
+    function updateMessage(message) {
+      document.getElementById("message").textContent = message;
+    }
+
+    document.getElementById("start-button").addEventListener("click", startSimon);
+
+    document.getElementById("start-button").addEventListener("click", function () {
+  var audio = document.getElementById("magic-audio");
+  audio.play();
+  playMagicAudio();
+});
+
+function playMagicAudio() {
+  var magicAudio = document.getElementById("magic-audio");
+  magicAudio.play();
+}
+  </script>
+</body>
+</html>
