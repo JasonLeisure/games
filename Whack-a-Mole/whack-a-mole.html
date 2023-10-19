@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+     body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    background-color: black; /* Set the background color to black */
+    color: white; /* Set the text color to white */
+  }
+
+
+  h1 {
+    text-align: center;
+    font-size: 36px;
+    color: #8B4513;
+    margin-top: 20px;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+  }
+
+  .whack-animation {
+    display: inline-block;
+    animation: whackDown 1.5s ease-in-out infinite;
+  }
+
+  @keyframes whackDown {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(10px); /* Adjust the amount it moves down */
+    }
+  }
+
+
+
+    .game-container {
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 400px;
+    }
+
+    .hole {
+      width: 100px;
+      height: 100px;
+      background-color: #8B4513; /* Brown color for the holes */
+      border: 2px solid #D2691E; /* Darker brown border */
+      border-radius: 50%;
+      margin: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      position: relative;
+    }
+
+    .hole:hover {
+      background-color: #CD853F; /* Lighter brown when hovered */
+    }
+
+    .mole {
+      width: 100px;
+      height: 100px;
+      position: absolute;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+    }
+
+    .up .mole {
+      display: block;
+      animation: pop-up 1.5s ease forwards;
+    }
+
+    @keyframes pop-up {
+      from {
+        transform: translateX(-50%) translateY(0);
+      }
+      to {
+        transform: translateX(-50%) translateY(-100px);
+      }
+    }
+
+    .score-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #score {
+      font-size: 24px;
+    }
+
+    #time {
+      font-size: 24px;
+    }
+
+    .button-container {
+    display: flex; /* Display the buttons as flex items */
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  #start-button,
+  #stop-button {
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    margin: 10px;
+    cursor: pointer;
+  }
+
+  #start-button:hover,
+  #stop-button:hover {
+    background-color: #45a049;
+  }
+  </style>
+</head>
+<body>
+  <h1><span class="whack-animation">Whack</span>-a-Mole Game</h1>
+  <div class="game-container">
+    <div class="hole" id="hole1">
+      <div class="mole">
+        <pre>
+       .--.
+      |o_o |
+      |:_/ |
+     //   \ \
+    (|  0   | )
+   /'\_   _/`\
+   \___)=(___/
+        </pre>
+      </div>
+    </div>
+    <div class="hole" id="hole2"></div>
+    <div class="hole" id="hole3">
+      <div class="mole">
+        <pre>
+
+
+       .--.
+      |o_o |
+      |:_/ |
+     //   \ \
+    (|  0   | )
+   /'\_   _/`\
+   \___)=(___/
+        </pre>
+      </div>
+    </div>
+    <div class="hole" id="hole4"></div>
+    <div class="hole" id="hole5">
+      <div class="mole">
+        <pre>
+       .--.
+      |o_o |
+      |:_/ |
+     //   \ \
+    (|  0   | )
+   /'\_   _/`\
+   \___)=(___/
+        </pre>
+      </div>
+    </div>
+    <div class="hole" id="hole6"></div>
+    <div class="hole" id="hole7">
+      <div class="mole">
+        <pre>
+       .--.
+      |o_o |
+      |:_/ |
+     //   \ \
+    (|  0   | )
+   /'\_   _/`\
+   \___)=(___/
+        </pre>
+      </div>
+    </div>
+    <div class="hole" id="hole8"></div>
+    <div class="hole" id="hole9">
+      <div class="mole">
+        <pre>
+       .--.
+      |o_o |
+      |:_/ |
+     //   \ \
+    (|     | )
+   /'\_   _/`\
+   \___)=(___/
+        </pre>
+      </div>
+    </div>
+  </div>
+  <p>Score: <span id="score">0</span></p>
+  <p>Time Left: <span id="time">60</span> seconds</p>
+  <button id="start-button">Start</button>
+  <button id="stop-button">Stop</button>
+  <audio id="audio" src="bossa.mp3"></audio>
+  <script>
+    const holes = document.querySelectorAll('.hole');
+    const moleHoles = document.querySelectorAll('.hole:not(:empty)');
+    let score = 0;
+    let gameIsRunning = false;
+    let timeLeft = 60;
+    let timer;
+
+    function startGame() {
+      score = 0;
+      timeLeft = 60;
+      gameIsRunning = true;
+      updateScore();
+      updateTimer();
+      popUpRandomMole();
+      timer = setInterval(updateTimer, 1000);
+    }
+
+    function stopGame() {
+      gameIsRunning = false;
+      clearInterval(timer);
+      alert('Game Over! Your final score is ' + score);
+    }
+
+    function updateTimer() {
+      document.getElementById('time').innerText = timeLeft + ' seconds';
+      if (timeLeft === 0) {
+        stopGame();
+      } else {
+        timeLeft--;
+      }
+    }
+
+    function popUpRandomMole() {
+      if (gameIsRunning) {
+        const randomTime = Math.random() * 1000 + 500;
+        const randomHole = moleHoles[Math.floor(Math.random() * moleHoles.length)];
+        randomHole.classList.add('up');
+        setTimeout(() => {
+          randomHole.classList.remove('up');
+          if (gameIsRunning) {
+            popUpRandomMole();
+          }
+        }, randomTime);
+      }
+    }
+
+    function whackMole(e) {
+      if (!e.isTrusted) return;
+      if (!gameIsRunning) return;
+      if (this.classList.contains('up')) {
+        this.classList.remove('up');
+        score++;
+        updateScore();
+      }
+    }
+
+    function updateScore() {
+      document.getElementById('score').innerText = score;
+    }
+
+    holes.forEach((hole, index) => {
+      hole.addEventListener('click', whackMole);
+      hole.addEventListener('click', function () {
+        if (!gameIsRunning) return;
+        const moleHole = moleHoles[index];
+        if (moleHole.classList.contains('up')) {
+          moleHole.classList.remove('up');
+          score++;
+          updateScore();
+        }
+      });
+    });
+
+    document.getElementById('start-button').addEventListener('click', startGame);
+    document.getElementById('stop-button').addEventListener('click', stopGame);
+
+    document.getElementById("start-button").addEventListener("click", function () {
+  var audio = document.getElementById("audio");
+  audio.play();
+});
+
+document.getElementById("stop-button").addEventListener("click", function () {
+  var audio = document.getElementById("audio");
+  audio.pause();
+});
+
+
+  </script>
