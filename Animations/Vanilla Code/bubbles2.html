@@ -10,14 +10,14 @@
 
     function setup() {
       createCanvas(400, 400);
-      colorMode(HSB); // Use HSB color mode for a smokier effect
+      colorMode(HSB); 
       for (let i = 0; i < 200; i++) {
         particles.push(new Particle());
       }
     }
 
     function draw() {
-      background(0, 0, 0, 30); // Slightly transparent background for the smoke effect
+      background(0, 0, 0, 30); 
 
       for (let i = 0; i < particles.length; i++) {
         particles[i].update();
@@ -29,12 +29,12 @@
       constructor() {
         this.x = width / 2;
         this.y = height;
-        this.radius = random(2, 8); // Smaller particles for a smoke-like effect
+        this.radius = random(2, 8); 
         this.velocityX = random(-0.5, 0.5);
-        this.velocityY = random(-1, -0.2); // Adjusted vertical speed for a slower rise
-        this.alpha = random(100, 200); // Vary the alpha for a smokier effect
-        this.hue = random(0, 360); // Vary the hue for grayish colors
-        this.brightness = random(50, 80); // Adjust brightness for better visuals
+        this.velocityY = random(-1, -0.2);
+        this.alpha = random(100, 200); 
+        this.hue = random(0, 360); 
+        this.brightness = random(50, 80);
       }
 
       update() {
@@ -59,7 +59,7 @@
 
       display() {
         noStroke();
-        fill(this.hue, 30, this.brightness, this.alpha); // Use HSB color for a smoky look
+        fill(this.hue, 30, this.brightness, this.alpha); 
         ellipse(this.x, this.y, this.radius * 2);
       }
     }
