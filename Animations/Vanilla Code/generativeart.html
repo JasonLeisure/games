@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Generative Art</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    let particles = [];
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      colorMode(HSB, 360, 100, 100, 1);
+      background(0);
+    }
+
+    function draw() {
+      for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        p.update();
+        p.display();
+        if (p.isDead()) {
+          particles.splice(i, 1);
+        }
+      }
+
+      // Use the mousePressed function to create particles at the mouse position
+      if (mouseIsPressed) {
+        let hue = random(360);
+        let size = random(5, 35);
+        let p = new Particle(mouseX, mouseY, hue, size);
+        particles.push(p);
+      }
+    }
+
+    class Particle {
+      constructor(x, y, hue, size) {
+        this.x = x;
+        this.y = y;
+        this.xSpeed = random(-1, 1);
+        this.ySpeed = random(-1, 1);
+        this.size = size;
+        this.hue = hue;
+        this.alpha = 100;
+      }
+
+      update() {
+        this.x += this.xSpeed;
+        this.y += this.ySpeed;
+        this.alpha -= 0.5;
+      }
+
+      display() {
+        noStroke();
+        fill(this.hue, 100, 100, this.alpha);
+        ellipse(this.x, this.y, this.size, this.size);
+      }
+
+      isDead() {
+        return this.alpha <= 0;
+      }
+    }
+
+    function keyPressed() {
+      if (key === 's' || key === 'S') {
+        saveCanvas('generative_art', 'jpg');
+      }
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+      background(0);
+    }
+  </script>
+</body>
+</html>
