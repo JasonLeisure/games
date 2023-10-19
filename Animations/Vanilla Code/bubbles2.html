@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smoke Effect</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+  <script>
+    let particles = [];
+
+    function setup() {
+      createCanvas(400, 400);
+      colorMode(HSB); // Use HSB color mode for a smokier effect
+      for (let i = 0; i < 200; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function draw() {
+      background(0, 0, 0, 30); // Slightly transparent background for the smoke effect
+
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].display();
+      }
+    }
+
+    class Particle {
+      constructor() {
+        this.x = width / 2;
+        this.y = height;
+        this.radius = random(2, 8); // Smaller particles for a smoke-like effect
+        this.velocityX = random(-0.5, 0.5);
+        this.velocityY = random(-1, -0.2); // Adjusted vertical speed for a slower rise
+        this.alpha = random(100, 200); // Vary the alpha for a smokier effect
+        this.hue = random(0, 360); // Vary the hue for grayish colors
+        this.brightness = random(50, 80); // Adjust brightness for better visuals
+      }
+
+      update() {
+        this.x += this.velocityX;
+        this.y += this.velocityY;
+        this.alpha -= 0.5;
+
+        if (this.alpha <= 0) {
+          this.resetParticle();
+        }
+      }
+
+      resetParticle() {
+        this.x = width / 2;
+        this.y = height;
+        this.alpha = random(100, 200);
+        this.hue = random(0, 360);
+        this.brightness = random(50, 80);
+        this.velocityX = random(-0.5, 0.5);
+        this.velocityY = random(-1, -0.2);
+      }
+
+      display() {
+        noStroke();
+        fill(this.hue, 30, this.brightness, this.alpha); // Use HSB color for a smoky look
+        ellipse(this.x, this.y, this.radius * 2);
+      }
+    }
+  </script>
+</body>
+</html>
