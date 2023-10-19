@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    let raindrops = [];
+    let puddles = [];
+    let isLightning = false;
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      for (let i = 0; i < 500; i++) {
+        raindrops[i] = new Raindrop();
+      }
+    }
+
+    function draw() {
+      background(0);
+
+      for (let drop of raindrops) {
+        drop.fall();
+        drop.show();
+        for (let puddle of puddles) {
+          puddle.checkCollision(drop);
+        }
+      }
+
+      for (let puddle of puddles) {
+        puddle.show();
+      }
+
+      if (isLightning) {
+        fill(255);
+        rect(0, 0, width, height);
+        setTimeout(() => {
+          isLightning = false;
+        }, 50);
+      }
+    }
+
+    function keyPressed() {
+      if (key === 'L') {
+        isLightning = true;
+      }
+    }
+
+    class Raindrop {
+      constructor() {
+        this.x = random(width);
+        this.y = random(-500, -50);
+        this.len = random(10, 20);
+        this.speed = random(2, 10);
+      }
+
+      fall() {
+        this.y += this.speed;
+        if (this.y > height) {
+          this.y = random(-200, -100);
+          this.speed = random(2, 10);
+        }
+      }
+
+      show() {
+        stroke(138, 43, 226);
+        line(this.x, this.y, this.x, this.y + this.len);
+      }
+    }
+
+    class Puddle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.radius = 10;
+      }
+
+      checkCollision(drop) {
+        let d = dist(drop.x, drop.y, this.x, this.y);
+        if (d < this.radius / 2) {
+          this.radius += 1;
+        }
+      }
+
+      show() {
+        noStroke();
+        fill(0, 0, 255, 100);
+        ellipse(this.x, this.y, this.radius);
+      }
+    }
+  </script>
+</body>
+</html>
