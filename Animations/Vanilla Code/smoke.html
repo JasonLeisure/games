@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gray Smoke Effect</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+  <script>
+    let particles = [];
+
+    function setup() {
+      createCanvas(400, 400);
+      for (let i = 0; i < 200; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function draw() {
+      background(0); // Set the background to black
+
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].display();
+      }
+    }
+
+    class Particle {
+      constructor() {
+        this.x = width / 2;
+        this.y = height;
+        this.radius = random(10, 30);
+        this.velocityX = random(-1, 1);
+        this.velocityY = random(-2, -0.5);
+        this.alpha = 255;
+      }
+
+      update() {
+        this.x += this.velocityX;
+        this.y += this.velocityY;
+        this.alpha -= 1;
+
+        if (this.alpha <= 0) {
+          this.x = width / 2;
+          this.y = height;
+          this.alpha = 255;
+        }
+      }
+
+      display() {
+        noStroke();
+        fill(150, this.alpha); // Use gray color (RGB: 150, 150, 150) with variable alpha
+        ellipse(this.x, this.y, this.radius * 2);
+      }
+    }
+  </script>
+</body>
+</html>
