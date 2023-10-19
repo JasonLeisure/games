@@ -1,4 +1,4 @@
-### Updates to files 10/18/2023 Added in Animations a Animated wave field.
+### Updates to files 10/18/2023 Added in Animations a Animated wave field. Added in Animations a Gashapon animation. 
 
 ### Updates to files 10/17/2023 Added in Emoji Memory Match Game to games. Added in Emoji Bingo and Regular Bingo to games. Added 2048 game to games. Added spray paint app to applications. Added in flappyball made with p5.js into games folder under flappy box so now there is two flappy clones in there. Added minecraft clone land generator to animations.
 
