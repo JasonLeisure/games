@@ -194,7 +194,7 @@
       |o_o |
       |:_/ |
      //   \ \
-    (|     | )
+    (|  0   | )
    /'\_   _/`\
    \___)=(___/
         </pre>
@@ -289,6 +289,13 @@
 });
 
 document.getElementById("stop-button").addEventListener("click", function () {
+  var audio = document.getElementById("audio");
+  audio.pause();
+});
+
+
+  </script>
+
   var audio = document.getElementById("audio");
   audio.pause();
 });
