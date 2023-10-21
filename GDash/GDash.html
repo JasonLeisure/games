@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Geometry Dash-Like Game</title>
+    <style>
+        canvas {
+            background: #000;
+            display: block;
+            margin: 0 auto;
+        }
+        #startScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #startButton {
+            font-size: 24px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        #gameTitle {
+            font-size: 48px;
+            color: #FFF;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <div id="startScreen">
+        <div id="gameTitle">Geometry Dash</div>
+        <button id="startButton">Start Game</button>
+    </div>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const startScreen = document.getElementById("startScreen");
+        const startButton = document.getElementById("startButton");
+
+        const ctx = canvas.getContext("2d");
+
+        const player = {
+            x: 100,
+            y: canvas.height / 2,
+            width: 40,
+            height: 40,
+            velocityY: 0,
+            jumpPower: 14,
+            gravity: 0.6,
+        };
+
+        let currentLevel = 0;
+        const levelInfo = [
+            { shape: "circle", color: "#00FF00" },
+            { shape: "triangle", color: "#FF0000" },
+            { shape: "square", color: "#0000FF" },
+            { shape: "star", color: "#FFFF00" },
+            { shape: "hexagon", color: "#FF00FF" },
+            { shape: "heart", color: "#FFC0CB" },
+            { shape: "diamond", color: "#00FFFF" },
+            { shape: "pentagon", color: "#FFA500" },
+            { shape: "crescent", color: "#800080" },
+            { shape: "cloud", color: "#808080" }
+        ];
+
+        let obstacles = [];
+
+        let isJumping = false;
+        let score = 0;
+        let gameStarted = false;
+
+        function changeLevel() {
+    currentLevel++;
+    if (currentLevel === levelInfo.length) {
+        currentLevel = 7;
+    }
+    obstacles = [];
+}
+
+        function startGame() {
+            gameStarted = true;
+            startScreen.style.display = "none";
+            canvas.style.display = "block";
+            changeLevel();
+        }
+
+        startButton.addEventListener("click", startGame);
+
+        function drawObstacle(obstacle) {
+            ctx.fillStyle = levelInfo[currentLevel].color;
+            ctx.beginPath();
+
+            if (levelInfo[currentLevel].shape === "circle") {
+                ctx.arc(obstacle.x + obstacle.width / 2, obstacle.y + obstacle.height / 2, obstacle.width / 2, 0, Math.PI * 2);
+            } else if (levelInfo[currentLevel].shape === "triangle") {
+                ctx.moveTo(obstacle.x + obstacle.width / 2, obstacle.y);
+                ctx.lineTo(obstacle.x, obstacle.y + obstacle.height);
+                ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height);
+            } else if (levelInfo[currentLevel].shape === "square") {
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            } else if (levelInfo[currentLevel].shape === "star") {
+                // Draw a star shape (customize as needed)
+                ctx.moveTo(obstacle.x + obstacle.width / 2, obstacle.y);
+                ctx.lineTo(obstacle.x + obstacle.width / 3, obstacle.y + obstacle.height);
+                ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height / 3);
+                ctx.lineTo(obstacle.x, obstacle.y + obstacle.height / 3);
+                ctx.lineTo(obstacle.x + obstacle.width / 3, obstacle.y);
+            } else if (levelInfo[currentLevel].shape === "hexagon") {
+                // Draw a hexagon shape (customize as needed)
+                const hexagonSize = obstacle.width / 2;
+                const hexagonX = obstacle.x + obstacle.width / 2;
+                const hexagonY = obstacle.y + obstacle.height / 2;
+                ctx.moveTo(hexagonX + hexagonSize * Math.cos(0), hexagonY + hexagonSize * Math.sin(0));
+                for (let i = 1; i <= 6; i++) {
+                    ctx.lineTo(hexagonX + hexagonSize * Math.cos((i * Math.PI) / 3), hexagonY + hexagonSize * Math.sin((i * Math.PI) / 3));
+                }
+            } else if (levelInfo[currentLevel].shape === "heart") {
+                // Draw a heart shape (customize as needed)
+                ctx.moveTo(obstacle.x + obstacle.width / 2, obstacle.y + obstacle.height);
+                ctx.quadraticCurveTo(obstacle.x, obstacle.y, obstacle.x, obstacle.y + obstacle.height / 2);
+                ctx.quadraticCurveTo(obstacle.x, obstacle.y, obstacle.x + obstacle.width / 2, obstacle.y);
+                ctx.quadraticCurveTo(obstacle.x + obstacle.width, obstacle.y, obstacle.x + obstacle.width, obstacle.y + obstacle.height / 2);
+                ctx.quadraticCurveTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height, obstacle.x + obstacle.width / 2, obstacle.y + obstacle.height);
+            } else if (levelInfo[currentLevel].shape === "diamond") {
+                // Draw a diamond shape (customize as needed)
+                ctx.moveTo(obstacle.x + obstacle.width / 2, obstacle.y);
+                ctx.lineTo(obstacle.x, obstacle.y + obstacle.height / 2);
+                ctx.lineTo(obstacle.x + obstacle.width / 2, obstacle.y + obstacle.height);
+                ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height / 2);
+            } else if (levelInfo[currentLevel].shape === "pentagon") {
+                // Draw a pentagon shape (customize as needed)
+                const pentagonSize = obstacle.width / 2;
+                const pentagonX = obstacle.x + obstacle.width / 2;
+                const pentagonY = obstacle.y + obstacle.height / 2;
+                ctx.moveTo(pentagonX + pentagonSize * Math.cos(0), pentagonY + pentagonSize * Math.sin(0));
+                for (let i = 1; i <= 5; i++) {
+                    ctx.lineTo(pentagonX + pentagonSize * Math.cos((i * (Math.PI * 2) / 5)), pentagonY + pentagonSize * Math.sin((i * (Math.PI * 2) / 5)));
+                }
+            } else if (levelInfo[currentLevel].shape === "crescent") {
+                // Draw a crescent shape (customize as needed)
+                const crescentSize = obstacle.width / 2;
+                const crescentX = obstacle.x + obstacle.width / 2;
+                const crescentY = obstacle.y + obstacle.height / 2;
+
+                ctx.arc(crescentX, crescentY, crescentSize, 0, Math.PI * 2);
+                ctx.arc(crescentX - crescentSize / 2, crescentY, crescentSize, 0, Math.PI);
+                ctx.fill();
+            } else if (levelInfo[currentLevel].shape === "cloud") {
+                // Draw a cloud shape (customize as needed)
+                const cloudRadius = obstacle.width / 4;
+                const cloudX = obstacle.x + obstacle.width / 2;
+                const cloudY = obstacle.y + obstacle.height / 2;
+                ctx.beginPath();
+                ctx.arc(cloudX, cloudY, cloudRadius, 0, Math.PI * 2);
+                ctx.arc(cloudX + cloudRadius, cloudY, cloudRadius, 0, Math.PI * 2);
+                ctx.arc(cloudX - cloudRadius, cloudY, cloudRadius, 0, Math.PI * 2);
+                ctx.arc(cloudX - 2 * cloudRadius, cloudY, cloudRadius, 0, Math.PI * 2);
+                ctx.arc(cloudX + 2 * cloudRadius, cloudY, cloudRadius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.fill();
+        }
+
+        function gameLoop() {
+            if (!gameStarted) {
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (isJumping && player.y === canvas.height - player.height) {
+                player.velocityY = -player.jumpPower;
+            }
+            player.velocityY += player.gravity;
+            player.y += player.velocityY;
+            if (player.y + player.height > canvas.height) {
+                player.y = canvas.height - player.height;
+                player.velocityY = 0;
+            }
+
+            ctx.fillStyle = "#FF0000";
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            if (Math.random() < 0.01 && obstacles.length < 3) {
+                const obstacleWidth = 20 + Math.random() * 40;
+                const obstacleHeight = 10 + Math.random() * 40;
+                const gap = 150;
+
+                obstacles.push({
+                    x: canvas.width,
+                    y: canvas.height - obstacleHeight,
+                    width: obstacleWidth,
+                    height: obstacleHeight,
+                    gap: gap,
+                });
+            }
+
+            for (let i = 0; i < obstacles.length; i++) {
+                const obstacle = obstacles[i];
+                obstacle.x -= 5;
+                drawObstacle(obstacle);
+
+
+                if (
+                    player.x < obstacle.x + obstacle.width &&
+                    player.x + player.width > obstacle.x &&
+                    player.y < obstacle.y + obstacle.height &&
+                    player.y + player.height > obstacle.y
+                ) {
+                    alert("Game Over! Score: " + score);
+                    document.location.reload();
+                }
+
+                if (obstacle.x + obstacle.width < 0) {
+                    obstacles.splice(i, 1);
+                    i--;
+                }
+
+                if (obstacle.x < player.x && !obstacle.passed) {
+                    score++;
+                    obstacle.passed = true;
+                }
+            }
+
+
+            ctx.fillStyle = "#FFF";
+            ctx.font = "20px Arial";
+            ctx.fillText("Score: " + score, 10, 30);
+
+
+            if (score >= 10 * currentLevel) {
+                changeLevel();
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        window.addEventListener("keydown", (event) => {
+            if (event.key === " ") {
+                isJumping = true;
+            }
+        });
+
+        window.addEventListener("keyup", (event) => {
+            if (event.key === " ") {
+                isJumping = false;
+            }
+        });
+
+        gameLoop();
+    </script>
+</body>
+</html>
