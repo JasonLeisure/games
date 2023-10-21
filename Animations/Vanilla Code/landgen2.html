@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Minecraft-Inspired Landscape with Day and Night Cycle</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+  <script>
+    let cols, rows;
+    let scl = 20;
+    let terrain = [];
+    let flying = 0;
+    let zoom = 5;
+    let lightAngle = 0;
+
+    function setup() {
+      createCanvas(800, 800, WEBGL);
+      cols = floor(width / scl);
+      rows = floor(height / scl);
+    }
+
+    function draw() {
+      let bgColor = lerpColor(color(100, 149, 237), color(0, 0, 0), map(sin(lightAngle), -1, 1, 0, 1));
+      background(bgColor);
+
+      let yoff = flying;
+      for (let y = 0; y < rows; y++) {
+        let xoff = 0;
+        terrain[y] = [];
+        for (let x = 0; x < cols; x++) {
+          let a = map(x, 0, cols, -PI, PI);
+          let b = map(y, 0, rows, -PI, PI);
+          let n = noise(xoff, yoff);
+          let m = map(n, 0, 1, -150, 150);
+          let r = map(sin(a) * sin(b), -1, 1, -100, 100);
+          terrain[y][x] = m + r;
+          xoff += 0.1;
+        }
+        yoff += 0.1;
+      }
+
+      translate(0, 0, zoom);
+      zoom -= 1;
+
+      translate(-width / 2, -height / 2, -200);
+      rotateX(PI / 3);
+      ambientLight(200, 200, 200);
+
+      for (let y = 0; y < rows - 1; y++) {
+        for (let x = 0; x < cols; x++) {
+          let h = terrain[y][x];
+          push();
+          translate(x * scl, y * scl, h / 2);
+          noStroke();
+
+          if (h < 0) {
+            fill(51, 102, 204); // Water (Blue)
+          } else if (h < 10) {
+            fill(139, 137, 137); // Stone (Gray)
+          } else if (h < 15) {
+            fill(194, 178, 128); // Sand (Light Brown) near water
+          } else if (h < 30) {
+            fill(79, 93, 74); // Dirt (Brown)
+          } else {
+            fill(34, 139, 34); // Mountains (Green)
+          }
+
+          box(scl, scl, h);
+          pop();
+        }
+      }
+
+      flying -= 0.05;
+      lightAngle += 0.005;
+    }
+  </script>
+</body>
+</html>
