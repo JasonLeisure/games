@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Minecraft-Inspired Landscape with Day-Night Cycle</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+  <script>
+    let cols, rows;
+    let scl = 20;
+    let terrain = [];
+    let flying = 0;
+    let zoom = 0;
+    let lightAngle = 0;
+    let treePositions = [];
+    let clouds = [];
+    let sun;
+    let isDay = true;
+    let fish = [];
+    let stars = [];
+
+    function setup() {
+      createCanvas(800, 800, WEBGL);
+      cols = floor(width / scl);
+      rows = floor(height / scl);
+
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          if (terrain[y] && terrain[y][x] >= 50) {
+            if (random(1) < 0.02) {
+              treePositions.push(createVector(x * scl, y * scl));
+            }
+          }
+        }
+      }
+
+      for (let i = 0; i < 10; i++) {
+        let x = random(width);
+        let y = random(100, 300);
+        let z = random(100, 300);
+        clouds.push({ x, y, z });
+      }
+
+      sun = createVector(400, -200, 100);
+
+      for (let i = 0; i < 5; i++) {
+        fish.push({
+          x: random(width),
+          y: random(200),
+          size: random(20, 40),
+          color: color(random(255), random(255), random(255))
+        });
+      }
+    }
+
+    function drawFish(x, y, size, color) {
+      fill(color);
+      noStroke();
+      ellipse(x, y, size, size / 2);
+      triangle(x - size / 2, y, x - size, y - size / 4, x - size, y + size / 4);
+      ellipse(x + size / 4, y - size / 4, size / 3);
+    }
+
+    function draw() {
+      let bgColor;
+      if (isDay) {
+        ambientLight(120, 120, 120);
+        directionalLight(200, 200, 200, 0, 1, -1);
+        bgColor = color(173, 216, 230);
+      } else {
+        ambientLight(60, 60, 60);
+        directionalLight(80, 80, 80, 0, 1, -1);
+        bgColor = color(0, 0, 51);
+      }
+      background(bgColor);
+
+      let yoff = flying;
+
+      for (let y = 0; y < rows; y++) {
+        let xoff = 0;
+        terrain[y] = [];
+        for (let x = 0; x < cols; x++) {
+          let a = map(x, 0, cols, -PI, PI);
+          let b = map(y, 0, rows, -PI, PI);
+          let n = noise(xoff, yoff);
+          let m = map(n, 0, 1, -150, 150);
+          let r = map(sin(a) * sin(b), -1, 1, -100, 100);
+          terrain[y][x] = m + r;
+          xoff += 0.1;
+        }
+        yoff += 0.1;
+      }
+
+      translate(0, 0, zoom);
+      zoom -= 0.1;
+      translate(-width / 2, -height / 2, -200);
+      rotateX(PI / 3);
+
+      if (!isDay) {
+        for (let i = 0; i < stars.length; i++) {
+          let star = stars[i];
+          if (star.z > 0) {
+            push();
+            translate(star.x, star.y, star.z);
+            fill(255);
+            noStroke();
+            let starSize = random(0.5, 1.5);
+            sphere(starSize);
+            pop();
+          }
+        }
+      }
+
+      for (let i = 0; i < treePositions.length; i++) {
+        let treePos = treePositions[i];
+        let sway = sin(millis() / 1000 + i) * 5;
+        push();
+        translate(treePos.x, treePos.y, 0);
+        fill(139, 69, 19);
+        box(10, 10, 50 + sway);
+        translate(0, 0, 50 + sway);
+        fill(34, 139, 34);
+        box(30, 60 + sway, 30);
+        pop();
+      }
+
+      for (let y = 0; y < rows - 1; y++) {
+        for (let x = 0; x < cols; x++) {
+          let h = terrain[y][x];
+          push();
+          translate(x * scl, y * scl, h / 2);
+
+          if (h < 0) {
+            fill(51, 102, 204);
+          } else if (h < 10) {
+            fill(120);
+          } else if (h < 15) {
+            fill(194, 178, 128);
+          } else if (h < 30) {
+            fill(139, 69, 19);
+          } else {
+            fill(34, 139, 34);
+          }
+
+          box(scl, scl, h);
+          pop();
+        }
+      }
+
+      for (let i = 0; i < clouds.length; i++) {
+        let cloud = clouds[i];
+        cloud.x += 0.1;
+        if (cloud.x > width) {
+          cloud.x = -100;
+        }
+        push();
+        translate(cloud.x, cloud.y, cloud.z);
+        fill(255, 255, 255, 150);
+        noStroke();
+        box(100, 40, 40);
+        pop();
+      }
+
+      if (isDay) {
+        push();
+        translate(sun.x, sun.y, sun.z);
+        fill(255, 255, 0);
+        box(50);
+        pop();
+      } else {
+        push();
+        translate(sun.x, sun.y, sun.z);
+        fill(192, 192, 192);
+        box(50);
+        pop();
+      }
+
+      for (let i = 0; i < fish.length; i++) {
+        let f = fish[i];
+        drawFish(f.x, f.y, f.size, f.color);
+
+        f.x -= 2;
+
+        if (f.x < -f.size) {
+          f.x = width + f.size;
+          f.y = random(200);
+        }
+      }
+
+      if (sin(lightAngle) >= 0) {
+        isDay = true;
+      } else {
+        isDay = false;
+      }
+
+      if (!isDay) {
+        if (random(1) < 0.2) {
+          let x = random(-width, width);
+          let y = random(-height, height);
+          let z = random(200);
+          stars.push({ x, y, z });
+        }
+      }
+
+      flying -= 0.05;
+      lightAngle += 0.0025;
+    }
+  </script>
+</body>
+</html>
