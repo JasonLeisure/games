@@ -1,4 +1,4 @@
-### Updates to files 10/25/2023 Added in chess game to games
+### Updates to files 10/25/2023 Added in checkers game to games
 
 ### Updates to files 10/23/2023 Expense tracker added to applications and a stopwatch/watch/1 minute timer app.
 
