@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+      body {
+        background-color: black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      let cols, rows;
+      let w = 20;
+      let grid = [];
+      let stack = [];
+      let current;
+      let exitRoom;
+      let level = 1;
+      let maxLevels = 5;
+      let generatingMaze = false;
+
+      function setup() {
+        createCanvas(400, 400);
+        cols = floor(width / w);
+        rows = floor(height / w);
+        frameRate(10);
+
+        startNewLevel();
+      }
+
+      function startNewLevel() {
+        grid = [];
+        stack = [];
+        exitRoom = null;
+        generatingMaze = true;
+
+        if (level > maxLevels) {
+          console.log("You won the game!");
+          noLoop();
+          return;
+        }
+
+        for (let j = 0; j < rows; j++) {
+          for (let i = 0; i < cols; i++) {
+            let cell = new Cell(i, j);
+            grid.push(cell);
+          }
+        }
+
+        current = grid[0];
+        exitRoom = grid[grid.length - 1];
+        exitRoom.isExit = true;
+
+        console.log(`Starting Level ${level}`);
+        level++;
+        generateMaze();
+      }
+
+      function draw() {
+        background(51);
+
+        for (let i = 0; i < grid.length; i++) {
+          grid[i].show();
+        }
+
+        current.visited = true;
+        current.highlight();
+
+        if (generatingMaze) {
+          let next = current.checkNeighbors();
+          if (next) {
+            next.visited = true;
+            stack.push(current);
+            removeWalls(current, next);
+            current = next;
+          } else if (stack.length > 0) {
+            current = stack.pop();
+          } else {
+            generatingMaze = false;
+            console.log("Maze generation complete. Solving...");
+            solveMaze();
+          }
+        }
+      }
+
+      function index(i, j) {
+        if (i < 0 || j < 0 || i > cols - 1 || j > rows - 1) {
+          return -1;
+        }
+        return i + j * cols;
+      }
+
+      function Cell(i, j) {
+        this.i = i;
+        this.j = j;
+        this.walls = [true, true, true, true];
+        this.visited = false;
+        this.isExit = false;
+
+        this.checkNeighbors = function () {
+          let neighbors = [];
+
+          let top = grid[index(i, j - 1)];
+          let right = grid[index(i + 1, j)];
+          let bottom = grid[index(i, j + 1)];
+          let left = grid[index(i - 1, j)];
+
+          if (top && !top.visited) {
+            neighbors.push(top);
+          }
+          if (right && !right.visited) {
+            neighbors.push(right);
+          }
+          if (bottom && !bottom.visited) {
+            neighbors.push(bottom);
+          }
+          if (left && !left.visited) {
+            neighbors.push(left);
+          }
+
+          if (neighbors.length > 0) {
+            let r = floor(random(0, neighbors.length));
+            return neighbors[r];
+          } else {
+            return undefined;
+          }
+        };
+
+        this.highlight = function () {
+          let x = this.i * w;
+          let y = this.j * w;
+          noStroke();
+          fill(0, 0, 255, 100);
+          rect(x, y, w, w);
+        };
+
+        this.show = function () {
+          let x = this.i * w;
+          let y = this.j * w;
+          stroke(255);
+
+          if (this.walls[0]) {
+            line(x, y, x + w, y);
+          }
+          if (this.walls[1]) {
+            line(x + w, y, x + w, y + w);
+          }
+          if (this.walls[2]) {
+            line(x + w, y + w, x, y + w);
+          }
+          if (this.walls[3]) {
+            line(x, y + w, x, y);
+          }
+
+          if (this.visited) {
+            noStroke();
+            fill(255, 0, 255, 100);
+            rect(x, y, w, w);
+          }
+
+          if (this.isExit) {
+            noStroke();
+            fill(0, 255, 0, 100);
+            rect(x, y, w, w);
+          }
+        };
+      }
+
+      function removeWalls(a, b) {
+        let x = a.i - b.i;
+        if (x === 1) {
+          a.walls[3] = false;
+          b.walls[1] = false;
+        } else if (x === -1) {
+          a.walls[1] = false;
+          b.walls[3] = false;
+        }
+        let y = a.j - b.j;
+        if (y === 1) {
+          a.walls[0] = false;
+          b.walls[2] = false;
+        } else if (y === -1) {
+          a.walls[2] = false;
+          b.walls[0] = false;
+        }
+      }
+
+      function generateMaze() {
+        for (let i = 0; i < grid.length; i++) {
+          grid[i].visited = false;
+        }
+
+        stack = [];
+        current = grid[0];
+        current.visited = true;
+      }
+
+      function solveMaze() {
+        let start = grid[0];
+        let end = exitRoom;
+
+        let openSet = [start];
+        let closedSet = [];
+
+        start.g = 0;
+        start.h = heuristic(start, end);
+        start.f = start.h;
+
+        function findLowestFScore(set) {
+          let lowest = set[0];
+          for (let cell of set) {
+            if (cell.f < lowest.f) {
+              lowest = cell;
+            }
+          }
+          return lowest;
+        }
+
+        function heuristic(a, b) {
+          let d = abs(a.i - b.i) + abs(a.j - b.j);
+          return d;
+        }
+
+        while (openSet.length > 0) {
+          let current = findLowestFScore(openSet);
+
+          if (current === end) {
+            console.log("Maze solved!");
+            setTimeout(startNewLevel, 2000);
+            return;
+          }
+
+          removeElement(openSet, current);
+          closedSet.push(current);
+
+          let neighbors = current.getNeighbors();
+          for (let neighbor of neighbors) {
+            if (!closedSet.includes(neighbor)) {
+              let tempG = current.g + 1;
+
+              if (!openSet.includes(neighbor)) {
+                openSet.push(neighbor);
+              } else if (tempG >= neighbor.g) {
+                continue;
+              }
+
+              neighbor.g = tempG;
+              neighbor.h = heuristic(neighbor, end);
+              neighbor.f = neighbor.g + neighbor.h;
+              neighbor.previous = current;
+            }
+          }
+        }
+      }
+
+      function removeElement(array, element) {
+        const index = array.indexOf(element);
+        if (index !== -1) {
+          array.splice(index, 1);
+        }
+      }
+    </script>
+  </body>
+</html>
