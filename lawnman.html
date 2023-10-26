@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  </head>
+  <body>
+    <script>
+      let gridSize = 20;
+      let world = [];
+      let player;
+      let level = 1;
+      let totalBlocks = 5;
+      let timeLimit = 30;
+      let startTime;
+      let score = 0;
+      let scoreDisplay;
+      let scoreToAdvance = 2500;
+      let scoreToRespawn = 2500;
+
+      function setup() {
+        createCanvas(400, 400);
+        generateWorld(totalBlocks);
+        player = new Player(200, 200);
+        startTime = millis();
+        scoreDisplay = createDiv('Score: 0');
+        scoreDisplay.position(10, height + 10);
+      }
+
+      function draw() {
+        background(220);
+        let timeRemaining = timeLimit - (millis() - startTime) / 1000;
+        textSize(16);
+        fill(0);
+        text(`Time Left: ${timeRemaining.toFixed(2)}`, 10, 20);
+
+
+        scoreDisplay.html('Score: ' + score);
+
+        player.update();
+        player.show();
+        displayWorld();
+
+        if (score >= scoreToRespawn) {
+          totalBlocks = 5;
+          generateWorld(totalBlocks);
+          scoreToRespawn += 2500;
+        }
+
+
+        if (totalBlocks === 0) {
+          if (score >= scoreToAdvance) {
+            level++;
+            totalBlocks *= 10;
+            timeLimit += 10;
+            scoreToAdvance += 2500;
+            generateWorld(totalBlocks);
+            startTime = millis();
+          }
+        }
+
+        if (timeRemaining <= 0) {
+          noLoop();
+          textSize(32);
+          fill(255, 0, 0);
+          text("Time's up! Game Over", 50, height / 2);
+        }
+      }
+
+      function generateWorld(numBlocks) {
+        world = [];
+        for (let x = 0; x < width; x += gridSize) {
+          for (let y = 0; y < height; y += gridSize) {
+            world.push(new Block(x, y, gridSize));
+          }
+        }
+      }
+
+      function displayWorld() {
+        for (let block of world) {
+          block.show();
+        }
+      }
+
+      class Block {
+  constructor(x, y, size) {
+    this.x = x;
+    this.y = y;
+    this.size = size;
+    this.grassTexture = this.generateGrassTexture();
+  }
+
+  generateGrassTexture() {
+    let texture = createGraphics(this.size, this.size);
+    texture.noStroke();
+
+    let topColor = color(50, 200, 50);
+    let sideColor = color(0, 100, 0);
+
+    texture.fill(topColor);
+    texture.rect(0, 0, this.size, this.size);
+
+    // Create a grassy texture with simulated grass blades
+    for (let i = 0; i < this.size; i += 1) {
+      texture.fill(sideColor);
+      let bladeHeight = random(10, 30); // Vary the height of each grass blade
+      let bladeWidth = random(1, 3);   // Vary the width of each grass blade
+      let bladeX = random(this.size);   // Randomize the horizontal position
+      let bladeY = i;
+      texture.ellipse(bladeX, bladeY, bladeWidth, bladeHeight);
+    }
+
+    return texture;
+  }
+
+  show() {
+    image(this.grassTexture, this.x, this.y);
+  }
+}
+
+      class Player {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.direction = 'right';
+  }
+
+  update() {
+    let newX = this.x;
+    let newY = this.y;
+
+    if (keyIsDown(LEFT_ARROW)) {
+      newX -= gridSize;
+      this.direction = 'left';
+    }
+    if (keyIsDown(RIGHT_ARROW)) {
+      newX += gridSize;
+      this.direction = 'right';
+    }
+    if (keyIsDown(UP_ARROW)) {
+      newY -= gridSize;
+      this.direction = 'up';
+    }
+    if (keyIsDown(DOWN_ARROW)) {
+      newY += gridSize;
+      this.direction = 'down';
+    }
+
+    if (newX >= 0 && newX < width && newY >= 0 && newY < height) {
+      this.x = newX;
+      this.y = newY;
+    }
+
+    for (let i = world.length - 1; i >= 0; i--) {
+      let block = world[i];
+      if (
+        this.x + gridSize > block.x &&
+        this.x < block.x + block.size &&
+        this.y + gridSize > block.y &&
+        this.y < block.y + block.size
+      ) {
+        world.splice(i, 1);
+        totalBlocks--;
+        score += 10;
+      }
+    }
+  }
+
+  show() {
+
+    fill(255, 0, 0);
+    rect(this.x, this.y + gridSize / 3, gridSize * 2 / 3, gridSize / 3);
+    rect(this.x + gridSize / 3, this.y, gridSize / 3, gridSize / 3);
+    fill(0, 0, 0);
+    ellipse(this.x + gridSize / 4, this.y + gridSize * 2 / 3, gridSize / 3, gridSize / 3);
+    ellipse(this.x + gridSize * 3 / 4, this.y + gridSize * 2 / 3, gridSize / 3, gridSize / 3);
+  }
+}
+
+    </script>
+  </body>
+</html>
+</html>
