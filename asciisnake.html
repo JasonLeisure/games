@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ASCII Snake Game</title>
+    <style>
+        body {
+            font-family: monospace;
+            background-color: #222;
+            color: #00FF00;
+            text-align: center;
+        }
+        pre {
+            font-size: 24px;
+            border: 2px solid #00FF00;
+            padding: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <pre id="game"></pre>
+    <p>High Score: <span id="highScore">0</span></p>
+
+    <script>
+        const width = 30;
+        const height = 20;
+        const speed = 150;
+        const snake = [{ x: 5, y: 5 }, { x: 4, y: 5 }, { x: 3, y: 5 }];
+
+        const apple = { x: 10, y: 10 };
+        let direction = "right";
+        let score = 0;
+        let highScore = localStorage.getItem('highScore') || 0;
+        let gameInterval;
+        let isPaused = false; // Add a flag for pausing
+        const obstacles = [{ x: 15, y: 10 }, { x: 20, y: 5 }, { x: 8, y: 15 }];
+
+        function updateGame() {
+            if (!isPaused) { // Check if the game is paused
+                moveSnake();
+                if (checkCollision()) {
+                    clearInterval(gameInterval);
+                    if (score > highScore) {
+                        highScore = score;
+                        localStorage.setItem('highScore', highScore);
+                    }
+                    alert("Game Over! Your score: " + score);
+                    resetGame();
+                    return;
+                }
+                if (checkEatingApple()) {
+                    snake.unshift({ ...apple });
+                    generateApple();
+                    score += 10;
+                }
+                drawGame();
+            }
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+        }
+
+        function moveSnake() {
+            const head = { ...snake[0] };
+            switch (direction) {
+                case "up":
+                    head.y--;
+                    break;
+                case "down":
+                    head.y++;
+                    break;
+                case "left":
+                    head.x--;
+                    break;
+                case "right":
+                    head.x++;
+                    break;
+            }
+            snake.unshift(head);
+            if (!checkEatingApple()) {
+                snake.pop();
+            }
+        }
+
+        function checkCollision() {
+            const head = snake[0];
+            // Check for wall collisions
+            if (
+                head.x < 0 ||
+                head.y < 0 ||
+                head.x >= width ||
+                head.y >= height
+            ) {
+                return true;
+            }
+            // Check for self and obstacle collisions
+            if (
+                snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y) ||
+                obstacles.some(obstacle => obstacle.x === head.x && obstacle.y === head.y)
+            ) {
+                return true;
+            }
+            return false;
+        }
+
+        function checkEatingApple() {
+            const head = snake[0];
+            return head.x === apple.x && head.y === apple.y;
+        }
+
+        function generateApple() {
+            do {
+                apple.x = Math.floor(Math.random() * width);
+                apple.y = Math.floor(Math.random() * height);
+            } while (
+                snake.some(segment => segment.x === apple.x && segment.y === apple.y) ||
+                obstacles.some(obstacle => obstacle.x === apple.x && obstacle.y === apple.y)
+            );
+        }
+
+        function drawGame() {
+            let gameText = "";
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const isSnake = snake.some(segment => segment.x === x && segment.y === y);
+                    const isObstacle = obstacles.some(obstacle => obstacle.x === x && obstacle.y === y);
+                    if (isSnake) {
+                        if (isSnakeHead(x, y)) {
+                            gameText += "O";
+                        } else {
+                            gameText += "o";
+                        }
+                    } else if (x === apple.x && y === apple.y) {
+                        gameText += "@";
+                    } else if (isObstacle) {
+                        gameText += "#"; // Display obstacles as #
+                    } else {
+                        gameText += " ";
+                    }
+                }
+                gameText += "\n";
+            }
+            gameText += "Score: " + score;
+            document.getElementById("game").textContent = gameText;
+            document.getElementById("highScore").textContent = highScore;
+        }
+
+        function isSnakeHead(x, y) {
+            return snake[0].x === x && snake[0].y === y;
+        }
+
+        function changeDirection(event) {
+            switch (event.key) {
+                case "ArrowUp":
+                    if (direction !== "down") direction = "up";
+                    break;
+                case "ArrowDown":
+                    if (direction !== "up") direction = "down";
+                    break;
+                case "ArrowLeft":
+                    if (direction !== "right") direction = "left";
+                    break;
+                case "ArrowRight":
+                    if (direction !== "left") direction = "right";
+                    break;
+                case " ": // Spacebar to pause
+                    togglePause();
+                    break;
+            }
+        }
+
+        function resetGame() {
+            snake.length = 1;
+            snake[0] = { x: 5, y: 5 };
+            direction = "right";
+            score = 0;
+            generateApple();
+            drawGame();
+            isPaused = false; // Reset the pause flag
+            gameInterval = setInterval(updateGame, speed);
+        }
+
+        document.addEventListener("keydown", changeDirection);
+        generateApple();
+        drawGame();
+        gameInterval = setInterval(updateGame, speed);
+    </script>
+</body>
+</html>
