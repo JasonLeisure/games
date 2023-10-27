@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sketch-container">
+        <button id="randomize-button">Randomize</button>
+        <button id="save-button">Save JPG</button>
+    </div>
+    <script>
+        let angle;
+        let slider;
+        let slider2;
+
+        function setup() {
+            let canvas = createCanvas(400, 400);
+            canvas.parent("sketch-container");
+            background(220);
+            colorMode(HSB, 360, 150, 100, 1);
+            slider = createSlider(100, 255, 50);
+            slider2 = createSlider(6, 32, 6);
+
+            // Add an event listener to the "Randomize" button
+            let randomizeButton = select('#randomize-button');
+            randomizeButton.mousePressed(randomizeImage);
+
+            // Add an event listener to the "Save JPG" button
+            let saveButton = select('#save-button');
+            saveButton.mousePressed(saveAsJPG);
+        }
+
+        function draw() {
+            translate(width / 2, height / 2);
+            let sat = slider.value();
+            angle = slider2.value();
+
+            for (let i = 0; i < angle; i++) {
+                rotate(angle);
+                strokeWeight(10);
+                stroke(mouseX, sat, sat, 0.5);
+                line(mouseX, mouseY, pmouseX, pmouseY);
+
+                push();
+                scale(1, -1);
+                line(mouseX, mouseY, pmouseX, pmouseY);
+                pop();
+            }
+        }
+
+        function randomizeImage() {
+            // Generate random values for the sliders
+            slider.value(random(100, 255));
+            slider2.value(floor(random(6, 32)));
+
+            // Clear the canvas and redraw with the new values
+            background(220);
+            draw();
+        }
+
+        function saveAsJPG() {
+            saveCanvas('myCanvas', 'jpg');
+        }
+    </script>
+</body>
+
+</html>
