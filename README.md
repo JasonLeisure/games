@@ -1,4 +1,4 @@
-### Updates to files 10/27/2023 Added in image to ascii art converter
+### Updates to files 10/27/2023 Added in image to ascii art converter. Also added a ascii snake game to games
 
 ### Updates to files 10/25/2023 Added in checkers game to games
 
