@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>War Card Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        .info-box {
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .info-box h2 {
+            margin: 5px 0;
+        }
+
+        .info-box p {
+            margin: 0;
+        }
+
+        #result {
+            background-color: #eee;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button.modern {
+            background-color: #3498db;
+            color: #fff;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: background-color 0.3s ease;
+        }
+
+        button.modern:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <h1>War Card Game</h1>
+    <div class="container">
+        <div class="info-box" id="player1">
+            <h2>Player 1</h2>
+            <p>Cards remaining: <span id="player1CardsRemaining">0</span></p>
+        </div>
+        <div class="info-box" id="player2">
+            <h2>Player 2</h2>
+            <p>Cards remaining: <span id="player2CardsRemaining">0</span></p>
+        </div>
+        <div class="info-box" id="roundCount">
+            <p>Round: <span id="roundNumber">0</span></p>
+        </div>
+        <button id="playButton">Play</button>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        const suits = ['♥', '♦', '♣', '♠'];
+        const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace'];
+        const deck = [];
+
+        // Create a deck of cards
+        for (const suit of suits) {
+            for (const rank of ranks) {
+                deck.push(`${rank} of ${suit}`);
+            }
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function dealCards() {
+            shuffle(deck);
+            const player1Deck = deck.slice(0, deck.length / 2);
+            const player2Deck = deck.slice(deck.length / 2);
+            return [player1Deck, player2Deck];
+        }
+
+        function playWar() {
+            const [player1Deck, player2Deck] = dealCards();
+            let player1Score = 0;
+            let player2Score = 0;
+            let round = 1;
+
+            const player1CardsRemaining = document.getElementById('player1CardsRemaining');
+            const player2CardsRemaining = document.getElementById('player2CardsRemaining');
+            const roundNumber = document.getElementById('roundNumber');
+
+            player1CardsRemaining.textContent = player1Deck.length;
+            player2CardsRemaining.textContent = player2Deck.length;
+
+            function updateScores() {
+                player1CardsRemaining.textContent = player1Deck.length;
+                player2CardsRemaining.textContent = player2Deck.length;
+            }
+
+            function updateRound() {
+                roundNumber.textContent = round;
+            }
+
+            function endGame() {
+                const finalResult = player1Score > player2Score ? 'Player 1 wins!' : 'Player 2 wins!';
+                document.getElementById('result').innerHTML += `<h3>${finalResult}</h3>`;
+            }
+
+            function playRound() {
+    if (player1Deck.length === 0 || player2Deck.length === 0) {
+        endGame();
+        return;
+    }
+
+    updateRound();
+
+
+    const player1Card = player1Deck.pop();
+    const player2Card = player2Deck.pop();
+
+    const player1Rank = ranks.indexOf(player1Card.split(' ')[0]);
+    const player2Rank = ranks.indexOf(player2Card.split(' ')[0]);
+
+    const roundResult = `Round ${round}: Player 1 plays ${player1Card}, Player 2 plays ${player2Card}<br>`;
+    document.getElementById('result').innerHTML += roundResult;
+
+    if (player1Rank > player2Rank) {
+        player1Deck.unshift(player1Card, player2Card);
+        player1Score++;
+        document.getElementById('result').innerHTML += 'Player 1 wins the round!<br>';
+    } else if (player2Rank > player1Rank) {
+        player2Deck.unshift(player2Card, player1Card);
+        player2Score++;
+        document.getElementById('result').innerHTML += 'Player 2 wins the round!<br>';
+    } else {
+        document.getElementById('result').innerHTML += 'It\'s a tie! A war begins.<br>';
+        handleWar();
+    }
+
+    updateScores();
+    round++;
+
+
+    setTimeout(playRound, 1000);
+}
+
+function handleWar() {
+    const warCards1 = [];
+    const warCards2 = [];
+
+    for (let i = 0; i < 3; i++) {
+        if (player1Deck.length > 0 && player2Deck.length > 0) {
+            warCards1.push(player1Deck.pop());
+            warCards2.push(player2Deck.pop());
+        }
+    }
+
+
+    const player1WarCard = player1Deck.pop();
+    const player2WarCard = player2Deck.pop();
+
+    document.getElementById('result').innerHTML += `War Cards: Player 1 plays ${player1WarCard}, Player 2 plays ${player2WarCard}<br>`;
+
+    const player1Rank = ranks.indexOf(player1WarCard.split(' ')[0]);
+    const player2Rank = ranks.indexOf(player2WarCard.split(' ')[0]);
+
+    setTimeout(() => {
+        if (player1Rank > player2Rank) {
+
+            player1Deck.unshift(player1WarCard, player2WarCard, ...warCards1, ...warCards2);
+            player1Score += 5;
+            document.getElementById('result').innerHTML += 'Player 1 wins the "War" round!<br>';
+        } else if (player2Rank > player1Rank) {
+
+            player2Deck.unshift(player2WarCard, player1WarCard, ...warCards1, ...warCards2);
+            player2Score += 5;
+            document.getElementById('result').innerHTML += 'Player 2 wins the "War" round!<br>';
+        } else {
+
+            document.getElementById('result').innerHTML += 'It\'s a tie again! Another "War" round begins.<br>';
+            handleWar();
+        }
+
+        updateScores();
+        round++;
+
+
+        setTimeout(playRound, 100);
+    }, 100);
+}
+
+
+playRound();
+}
+
+document.getElementById('playButton').addEventListener('click', playWar);
+</script>
+</body>
+</html>
