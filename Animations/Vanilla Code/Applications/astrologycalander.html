@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Astrology Daily Calendar</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f5f5f5;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .container {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    p {
+      margin: 10px 0;
+      color: #555;
+    }
+
+    input[type="date"] {
+      padding: 10px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #zodiacSign {
+      font-size: 24px;
+      color: #333;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    #dailyPhrases {
+      font-size: 16px;
+      text-align: left;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Astrology Daily Calendar</h1>
+  <div class="container">
+    <p>Select a date:</p>
+    <input type="date" id="datePicker">
+    <button onclick="getZodiacSign()">Get Zodiac Sign</button>
+    <p id="zodiacSign"></p>
+    <div id="dailyPhrases"></div>
+  </div>
+
+  <script>
+    const zodiacPhrases = {
+        Aries: [
+    "Today is a great day to take action.",
+    "Focus on your personal goals and ambitions.",
+    "Your energy and enthusiasm are high today.",
+    "Challenge yourself to try something new.",
+    "Don't be afraid to take the lead.",
+    "Take charge and make things happen today.",
+    "You're a natural leader, so lead with confidence.",
+    "Don't hesitate to assert your independence.",
+    "Embrace new challenges with enthusiasm.",
+    "Your determination can overcome any obstacle."
+  ],
+  Taurus: [
+    "Slow down and savor the simple pleasures.",
+    "You may experience financial stability today.",
+    "A good day to work on practical tasks.",
+    "Enjoy a delicious meal with loved ones.",
+    "Invest in your long-term goals.",
+    "Slow down and savor life's simple pleasures.",
+    "Your financial stability is favored today.",
+    "Focus on practical tasks for long-term success.",
+    "Enjoy a delicious meal with loved ones.",
+    "Invest in your future with confidence."
+  ],
+  Gemini: [
+    "Communication and social interactions will be important today.",
+    "Your curiosity and adaptability are your strengths.",
+    "Keep your mind open to new ideas.",
+    "Connect with friends and share your thoughts.",
+    "Embrace change and explore new interests.",
+    "Communicate openly and connect with others.",
+    "Your curiosity is a powerful tool; use it wisely.",
+    "Embrace change and adapt to new ideas.",
+    "Share your thoughts and ideas with friends.",
+    "Explore new interests and broaden your horizons."
+  ],
+  Cancer: [
+    "Embrace your nurturing and caring nature today.",
+    "Spend time with loved ones and family.",
+    "Your intuition is heightened now.",
+    "Create a cozy and safe home environment.",
+    "Trust your emotions and follow your heart.",
+    "Show your nurturing side and care for loved ones.",
+    "Spend quality time with your family today.",
+    "Trust your intuition; it won't lead you astray.",
+    "Create a warm and inviting home environment.",
+    "Follow your heart and let your emotions guide you."
+  ],
+  Leo: [
+    "Express your creativity and seek the spotlight.",
+    "Confidence and charisma are your strengths today.",
+    "A day to pursue your passions.",
+    "Lead with courage and enthusiasm.",
+    "Share your talents and shine brightly.",
+    "Express your creativity and shine in the spotlight.",
+    "Confidence and charisma are your strengths today.",
+    "Pursue your passions with courage and enthusiasm.",
+    "Be a leader and inspire others with your talents.",
+    "Share your light with the world."
+  ],
+  Virgo: [
+    "Detail-oriented and practical tasks are favored.",
+    "Organize and declutter your space.",
+    "Health and well-being should be a priority.",
+    "Analyze and plan for the future.",
+    "Help others with your analytical skills.",
+    "Detail-oriented and practical tasks are favored.",
+    "Organize and declutter your space.",
+    "Health and well-being should be a priority.",
+    "Analyze and plan for the future.",
+    "Help others with your analytical skills."
+  ],
+  Libra: [
+    "Seek balance in your relationships and decisions.",
+    "Your charm and diplomacy will serve you well.",
+    "Artistic and creative endeavors are highlighted.",
+    "Cooperate and find harmony in your interactions.",
+    "Make decisions that align with your values.",
+    "Seek balance in your relationships and decisions.",
+    "Your charm and diplomacy will serve you well.",
+    "Artistic and creative endeavors are highlighted.",
+    "Cooperate and find harmony in your interactions.",
+    "Make decisions that align with your values."
+  ],
+  Scorpio: [
+    "Dive deep into your emotions and passions.",
+    "Transformation and regeneration are themes for today.",
+    "Trust your intuition in all matters.",
+    "Face your fears and embrace personal growth.",
+    "Channel your intensity into positive change.",
+    "Dive deep into your emotions and passions.",
+    "Transformation and regeneration are themes for today.",
+    "Trust your intuition in all matters.",
+    "Face your fears and embrace personal growth.",
+    "Channel your intensity into positive change."
+  ],
+  Sagittarius: [
+    "Embrace adventure and new experiences.",
+    "Your optimism and enthusiasm are contagious.",
+    "A great day for exploring and learning.",
+    "Expand your horizons and take risks.",
+    "Share your wisdom and inspire others.",
+    "Embrace adventure and new experiences.",
+    "Your optimism and enthusiasm are contagious.",
+    "A great day for exploring and learning.",
+    "Expand your horizons and take risks.",
+    "Share your wisdom and inspire others."
+  ],
+  Capricorn: [
+    "Focus on your goals and long-term plans.",
+    "Responsibility and discipline are your strengths.",
+    "Your hard work will pay off.",
+    "Set ambitious but achievable objectives.",
+    "Work on building a solid foundation.",
+    "Focus on your goals and long-term plans.",
+    "Responsibility and discipline are your strengths.",
+    "Your hard work will pay off.",
+    "Set ambitious but achievable objectives.",
+    "Work on building a solid foundation."
+  ],
+  Aquarius: [
+    "Be true to your individuality and embrace change.",
+    "Your innovative ideas are your asset today.",
+    "Engage in humanitarian efforts.",
+    "Challenge the status quo and be a trailblazer.",
+    "Connect with like-minded individuals.",
+    "Be true to your individuality and embrace change.",
+    "Your innovative ideas are your asset today.",
+    "Engage in humanitarian efforts.",
+    "Challenge the status quo and be a trailblazer.",
+    "Connect with like-minded individuals."
+  ],
+  Pisces: [
+    "Trust your intuition and creativity.",
+    "Sensitivity and compassion are highlighted.",
+    "A day for artistic and spiritual pursuits.",
+    "Help those in need with your empathy.",
+    "Immerse yourself in a world of dreams and fantasy.",
+    "Trust your intuition and creativity.",
+    "Sensitivity and compassion are highlighted.",
+    "A day for artistic and spiritual pursuits.",
+    "Help those in need with your empathy.",
+    "Immerse yourself in a world of dreams and fantasy."
+  ]
+};
+
+    function getZodiacSign() {
+      const datePicker = document.getElementById("datePicker");
+      const zodiacSignElement = document.getElementById("zodiacSign");
+      const dailyPhrasesElement = document.getElementById("dailyPhrases");
+      const selectedDate = new Date(datePicker.value);
+
+      if (isNaN(selectedDate)) {
+        zodiacSignElement.innerText = "Invalid date. Please select a valid date.";
+        dailyPhrasesElement.innerText = "";
+        return;
+      }
+
+      const zodiacSigns = [
+        "Capricorn", "Aquarius", "Pisces", "Aries",
+        "Taurus", "Gemini", "Cancer", "Leo",
+        "Virgo", "Libra", "Scorpio", "Sagittarius"
+      ];
+
+      const birthMonth = selectedDate.getMonth() + 1;
+      const birthDay = selectedDate.getDate();
+
+      let zodiacIndex;
+
+      if ((birthMonth === 3 && birthDay >= 21) || (birthMonth === 4 && birthDay <= 19)) {
+        zodiacIndex = 3; // Aries
+      } else if ((birthMonth === 4 && birthDay >= 20) || (birthMonth === 5 && birthDay <= 20)) {
+        zodiacIndex = 4; // Taurus
+      } else if ((birthMonth === 5 && birthDay >= 21) || (birthMonth === 6 && birthDay <= 20)) {
+        zodiacIndex = 5; // Gemini
+      } else if ((birthMonth === 6 && birthDay >= 21) || (birthMonth === 7 && birthDay <= 22)) {
+        zodiacIndex = 6; // Cancer
+      } else if ((birthMonth === 7 && birthDay >= 23) || (birthMonth === 8 && birthDay <= 22)) {
+        zodiacIndex = 7; // Leo
+      } else if ((birthMonth === 8 && birthDay >= 23) || (birthMonth === 9 && birthDay <= 22)) {
+        zodiacIndex = 8; // Virgo
+      } else if ((birthMonth === 9 && birthDay >= 23) || (birthMonth === 10 && birthDay <= 22)) {
+        zodiacIndex = 9; // Libra
+      } else if ((birthMonth === 10 && birthDay >= 23) || (birthMonth === 11 && birthDay <= 21)) {
+        zodiacIndex = 10; // Scorpio
+      } else if ((birthMonth === 11 && birthDay >= 22) || (birthMonth === 12 && birthDay <= 21)) {
+        zodiacIndex = 11; // Sagittarius
+      } else if ((birthMonth === 12 && birthDay >= 22) || (birthMonth === 1 && birthDay <= 19)) {
+        zodiacIndex = 0; // Capricorn
+      } else if ((birthMonth === 1 && birthDay >= 20) || (birthMonth === 2 && birthDay <= 18)) {
+        zodiacIndex = 1; // Aquarius
+      } else {
+        zodiacIndex = 2; // Pisces
+      }
+      const zodiacSign = zodiacSigns[zodiacIndex];
+      const dailyPhrases = zodiacPhrases[zodiacSign];
+      const randomIndex = Math.floor(Math.random() * dailyPhrases.length);
+      const randomPhrase = dailyPhrases[randomIndex];
+      zodiacSignElement.innerText = `Your zodiac sign is ${zodiacSign}.`;
+      dailyPhrasesElement.innerHTML = `<p>Daily Phrase for ${zodiacSign}:</p><p>${randomPhrase}</p>`;
+    }
+  </script>
+</body>
+</html>
