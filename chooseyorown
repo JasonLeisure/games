@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Choose Your Own Adventure</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+        #story {
+            margin-bottom: 20px;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #attributes {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Choose Your Own Adventure</h1>
+    <div id="attributes">
+        <p>Character Attributes:</p>
+        <p id="health">Health: 100</p>
+        <p id="gold">Gold: 0</p>
+    </div>
+    <p id="story">You find yourself in a land of magic and mystery. What will you do?</p>
+    <div id="choices">
+        <button id="choice1">Explore the Enchanted Forest</button>
+        <button id="choice2">Enter the Haunted Castle</button>
+    </div>
+    <script>
+        const storyElement = document.getElementById("story");
+        const choicesElement = document.getElementById("choices");
+        const choice1Button = document.getElementById("choice1");
+        const choice2Button = document.getElementById("choice2");
+        const healthElement = document.getElementById("health");
+        const goldElement = document.getElementById("gold");
+
+        let storyState = 1;
+        let health = 100;
+        let gold = 0;
+
+        function updateAttributes() {
+            healthElement.textContent = `Health: ${health}`;
+            goldElement.textContent = `Gold: ${gold}`;
+        }
+
+        function updateStory() {
+            const currentStoryData = storyData[storyState - 1];
+            storyElement.textContent = currentStoryData.text;
+
+            updateAttributes();
+
+            choicesElement.innerHTML = "";
+
+            currentStoryData.choices.forEach((choice, index) => {
+                const choiceButton = document.createElement("button");
+                choiceButton.textContent = choice.text;
+                choiceButton.addEventListener("click", () => {
+                    if (choice.damage) {
+                        health -= choice.damage;
+                        if (health <= 0) {
+                            gameOver("You died. Game Over!");
+                            return;
+                        }
+                    }
+                    if (choice.reward) {
+                        gold += choice.reward;
+                    }
+                    storyState = choice.next;
+                    updateStory();
+                });
+                choicesElement.appendChild(choiceButton);
+            });
+        }
+
+        function gameOver(message) {
+            storyElement.textContent = message;
+            choicesElement.innerHTML = '<button id="restart">Restart</button>';
+            const restartButton = document.getElementById("restart");
+            restartButton.addEventListener("click", () => {
+                storyState = 1;
+                health = 100;
+                gold = 0;
+                updateStory();
+            });
+        }
+
+        const storyData = [
+            {
+                text: "You find yourself in a land of magic and mystery. What will you do?",
+                choices: [
+                    {
+                        text: "Explore the Enchanted Forest",
+                        next: 2,
+                        damage: 0,
+                        reward: 0,
+                    },
+                    {
+                        text: "Enter the Haunted Castle",
+                        next: 5,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "You enter a beautiful Enchanted Forest filled with magical creatures. What's your next move?",
+                choices: [
+                    {
+                        text: "Interact with a friendly sprite",
+                        next: 3,
+                        damage: 0,
+                        reward: 10,
+                    },
+                    {
+                        text: "Proceed deeper into the forest",
+                        next: 4,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "The sprite shares its wisdom with you and grants you 10 gold.",
+                choices: [
+                    {
+                        text: "Continue deeper into the forest",
+                        next: 4,
+                        damage: 0,
+                        reward: 0,
+                    },
+                    {
+                        text: "Leave the sprite and head back",
+                        next: 2,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "You find a hidden glade with a mesmerizing pool. What will you do?",
+                choices: [
+                    {
+                        text: "Drink from the pool",
+                        next: 7,
+                        damage: -10,
+                        reward: 0,
+                    },
+                    {
+                        text: "Leave the glade",
+                        next: 4,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "You stumble upon a mysterious Haunted Castle. Do you dare enter?",
+                choices: [
+                    {
+                        text: "Enter the castle",
+                        next: 6,
+                        damage: 0,
+                        reward: 0,
+                    },
+                    {
+                        text: "Avoid the castle and continue exploring",
+                        next: 4,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "You enter the castle and uncover its dark secrets. What will you do?",
+                choices: [
+                    {
+                        text: "Confront the ghostly apparition",
+                        next: 8,
+                        damage: 20,
+                        reward: 0,
+                    },
+                    {
+                        text: "Flee from the castle",
+                        next: 9,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "Drinking from the pool revitalizes you. You regain some health but become disoriented.",
+                choices: [
+                    {
+                        text: "Explore further into the forest",
+                        next: 12,
+                        damage: 0,
+                        reward: 0,
+                    },
+                    {
+                        text: "Head back to the sprite",
+                        next: 3,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "You confront the ghostly apparition and defeat it. You find a hidden treasure room and gain 50 gold!",
+                choices: [
+                    {
+                        text: "Loot the treasure room",
+                        next: 13,
+                        damage: 0,
+                        reward: 100,
+                    },
+                    {
+                        text: "Leave the treasure room",
+                        next: 14,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "You flee from the castle, barely escaping its grasp. Your adventure continues...",
+                choices: [
+                    {
+                        text: "Explore the castle surroundings",
+                        next: 15,
+                        damage: 0,
+                        reward: 0,
+                    },
+                    {
+                        text: "Leave the castle area",
+                        next: 4,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "You explore the forest further and find a hidden village. What will you do?",
+                choices: [
+                    {
+                        text: "Interact with the villagers",
+                        next: 16,
+                        damage: 0,
+                        reward: 0,
+                    },
+                    {
+                        text: "Continue your journey",
+                        next: 17,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "You have a friendly conversation with the villagers and gain their trust.",
+                choices: [
+                    {
+                        text: "Help the villagers with their tasks",
+                        next: 18,
+                        damage: 0,
+                        reward: 0,
+                    },
+                    {
+                        text: "Continue your adventure",
+                        next: 17,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "You help the villagers and gain their respect. They offer you a magical amulet.",
+                choices: [
+                    {
+                        text: "Accept the amulet",
+                        next: 22,
+                        damage: 0,
+                        reward: 0,
+                    },
+                    {
+                        text: "Politely decline and continue your journey",
+                        next: 17,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "You accept the amulet, and it grants you the power to communicate with animals.",
+                choices: [
+                    {
+                        text: "Test your new power by talking to the forest animals",
+                        next: 23,
+                        damage: 0,
+                        reward: 0,
+                    },
+                    {
+                        text: "Move deeper into the forest",
+                        next: 12,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "You decline the amulet and continue your journey. Your adventure continues...",
+                choices: [
+                    {
+                        text: "Explore the cave you discovered earlier",
+                        next: 19,
+                        damage: 0,
+                        reward: 0,
+                    },
+                    {
+                        text: "Continue your journey without distractions",
+                        next: 17,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "With your newfound power, you converse with the forest animals and learn valuable secrets of the forest.",
+                choices: [
+                    {
+                        text: "Ask the animals for guidance",
+                        next: 24,
+                        damage: 0,
+                        reward: 0,
+                    },
+                    {
+                        text: "Explore the forest with your animal friends",
+                        next: 25,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "The forest animals guide you to a hidden grove with a magical pool. What will you do?",
+                choices: [
+                    {
+                        text: "Drink from the magical pool",
+                        next: 26,
+                        damage: -10,
+                        reward: 0,
+                    },
+                    {
+                        text: "Leave the grove and continue your adventure",
+                        next: 25,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "You find an ancient tree in the grove. What will you do?",
+                choices: [
+                    {
+                        text: "Speak to the ancient tree",
+                        next: 27,
+                        damage: 0,
+                        reward: 0,
+                    },
+                    {
+                        text: "Leave the grove and continue your journey",
+                        next: 25,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "The ancient tree imparts ancient knowledge and offers you a quest. Will you accept it?",
+                choices: [
+                    {
+                        text: "Accept the quest",
+                        next: 28,
+                        damage: 0,
+                        reward: 0,
+                    },
+                    {
+                        text: "Decline the quest and continue your adventure",
+                        next: 25,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+            {
+                text: "You accept the quest from the ancient tree and embark on a new adventure...",
+                choices: [],
+            },
+            {
+                text: "You decline the quest and continue your journey through the forest...",
+                choices: [
+                    {
+                        text: "Explore the cave you discovered earlier",
+                        next: 19,
+                        damage: 0,
+                        reward: 0,
+                    },
+                    {
+                        text: "Continue your journey without distractions",
+                        next: 17,
+                        damage: 0,
+                        reward: 0,
+                    },
+                ],
+            },
+        ];
+
+        updateStory();
+    </script>
+</body>
+</html>
