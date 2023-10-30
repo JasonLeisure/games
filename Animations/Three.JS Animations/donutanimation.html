@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customizable 3D Donut</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+    <style>
+        body { margin: 0; }
+    </style>
+</head>
+<body>
+    <script>
+        let scene, camera, renderer;
+        let donut;
+
+        function init() {
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            const donutGeometry = new THREE.TorusGeometry(1.8, 0.5, 150, 150);
+            const donutMaterial = new THREE.MeshPhongMaterial({
+                color: 0xffc0cb,
+                emissive: 0xff1493,
+                specular: 0xff1493,
+                shininess: 30,
+            });
+            donut = new THREE.Mesh(donutGeometry, donutMaterial);
+            scene.add(donut);
+
+            const light = new THREE.PointLight(0xffffff, 1, 100);
+            light.position.set(0, 0, 5);
+            scene.add(light);
+
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+
+            const gui = new dat.GUI();
+            const donutFolder = gui.addFolder('Donut Parameters');
+            const sprinkleFolder = gui.addFolder('Sprinkle Parameters');
+
+            const donutParameters = {
+                size: 1,
+                color: "#ffc0cb",
+                rotationX: 0,
+                rotationY: 0,
+                rotationZ: 0,
+                radius: 1.8,
+                thickness: 0.5,
+            };
+
+            const sprinkleParameters = {
+                count: 3000,
+                sprinkleColor: "#ff0000",
+                sprinkleSize: 0.02,
+                sprinkleHeight: 0.2,
+                sprinkleRotation: 0.1,
+            };
+
+            donutFolder.add(donutParameters, 'size', 0.5, 2).onChange(updateDonutSize);
+            donutFolder.addColor(donutParameters, 'color').onChange(updateDonutColor);
+            donutFolder.add(donutParameters, 'rotationX', 0, Math.PI * 2).onChange(updateDonutRotation);
+            donutFolder.add(donutParameters, 'rotationY', 0, Math.PI * 2).onChange(updateDonutRotation);
+            donutFolder.add(donutParameters, 'rotationZ', 0, Math.PI * 2).onChange(updateDonutRotation);
+            donutFolder.add(donutParameters, 'radius', 1, 3).onChange(updateDonutShape);
+            donutFolder.add(donutParameters, 'thickness', 0.1, 1).onChange(updateDonutShape);
+
+            sprinkleFolder.add(sprinkleParameters, 'count', 0, 5000).step(1).onFinishChange(updateSprinkleCount);
+            sprinkleFolder.addColor(sprinkleParameters, 'sprinkleColor').onChange(updateSprinkleColor);
+            sprinkleFolder.add(sprinkleParameters, 'sprinkleSize', 0.01, 0.1).onChange(updateSprinkleSize);
+            sprinkleFolder.add(sprinkleParameters, 'sprinkleHeight', 0.1, 0.5).onChange(updateSprinkleHeight);
+            sprinkleFolder.add(sprinkleParameters, 'sprinkleRotation', 0, Math.PI * 2).onChange(updateSprinkleRotation);
+
+            donutFolder.open();
+            sprinkleFolder.open();
+
+            const sprinkleColors = [0xff0000, 0xff7f00, 0xffff00, 0x00ff00, 0x0000ff, 0x4b0082];
+            for (let i = 0; i < 3000; i++) {
+                const sprinkleGeometry = new THREE.BoxGeometry(0.1, 0.02, 0.02);
+                const randomColor = sprinkleColors[Math.floor(Math.random() * sprinkleColors.length)];
+                const sprinkleMaterial = new THREE.MeshPhongMaterial({ color: randomColor });
+                const sprinkle = new THREE.Mesh(sprinkleGeometry, sprinkleMaterial);
+
+                sprinkle.name = 'sprinkle';
+
+                const angle = Math.random() * Math.PI * 2;
+                const radius = 1.8 + Math.random() * 0.4;
+                const height = 0.2 + Math.random() * 0.3;
+
+                sprinkle.position.x = Math.cos(angle) * radius;
+                sprinkle.position.y = Math.sin(angle) * radius;
+                sprinkle.position.z = height;
+
+                sprinkle.rotation.set(
+                    Math.random() * Math.PI * 2,
+                    Math.random() * Math.PI * 2,
+                    Math.random() * Math.PI * 2
+                );
+
+                donut.add(sprinkle);
+            }
+
+            function updateDonutSize() {
+                donut.scale.set(donutParameters.size, donutParameters.size, donutParameters.size);
+            }
+
+            function updateDonutColor() {
+                const color = new THREE.Color(donutParameters.color);
+                donut.material.color = color;
+            }
+
+            function updateDonutRotation() {
+                donut.rotation.set(donutParameters.rotationX, donutParameters.rotationY, donutParameters.rotationZ);
+            }
+
+            function updateDonutShape() {
+                const torusRadius = donutParameters.radius;
+                const torusThickness = donutParameters.thickness;
+                donut.geometry = new THREE.TorusGeometry(torusRadius, torusThickness, 64, 64);
+            }
+
+            function updateSprinkleCount() {
+
+                const sprinkles = donut.children.filter(child => child.name === 'sprinkle');
+                sprinkles.forEach(sprinkle => donut.remove(sprinkle));
+
+                const numSprinkles = Math.floor(sprinkleParameters.count);
+                addRandomSprinkles(donut, numSprinkles, sprinkleParameters);
+            }
+
+            function updateSprinkleColor() {
+                const color = new THREE.Color(sprinkleParameters.sprinkleColor);
+                const sprinkles = donut.children.filter(child => child.name === 'sprinkle');
+                sprinkles.forEach(sprinkle => sprinkle.material.color = color);
+            }
+
+            function updateSprinkleSize() {
+                const size = sprinkleParameters.sprinkleSize;
+                const sprinkles = donut.children.filter(child => child.name === 'sprinkle');
+                sprinkles.forEach(sprinkle => {
+                    const scale = new THREE.Vector3(size, size, size);
+                    sprinkle.scale.copy(scale);
+                });
+            }
+
+            function updateSprinkleHeight() {
+                const height = sprinkleParameters.sprinkleHeight;
+                const sprinkles = donut.children.filter(child => child.name === 'sprinkle');
+                sprinkles.forEach(sprinkle => {
+                    sprinkle.position.z = height;
+                });
+            }
+
+            function updateSprinkleRotation() {
+                const rotation = sprinkleParameters.sprinkleRotation;
+                const sprinkles = donut.children.filter(child => child.name === 'sprinkle');
+                sprinkles.forEach(sprinkle => {
+                    sprinkle.rotation.z = rotation;
+                });
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            donut.rotation.x += 0.005;
+            donut.rotation.y += 0.005;
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            const newWidth = window.innerWidth;
+            const newHeight = window.innerHeight;
+
+            camera.aspect = newWidth / newHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(newWidth, newHeight);
+        });
+
+        init();
+        animate();
+    </script>
+</body>
+</html>
