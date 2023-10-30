@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chutes and Ladders</title>
+    <style>
+        #title {
+            text-align: right;
+            font-size: 24px;
+            color: #0077b6;
+            padding: 10px;
+            background-color: #f3f3f3;
+        }
+
+        #animation {
+            text-align: center;
+            font-size: 24px;
+            color: #ff5733;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            animation: slide-up 2s ease;
+        }
+
+        #boardCanvas {
+            border: 1px solid black;
+        }
+
+        #controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #rollButton, #resetButton {
+            background: linear-gradient(180deg, #00bfff 0%, #0077b6 100%);
+            color: #fff;
+            font-size: 18px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            margin: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        #rollButton:hover, #resetButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes slide-up {
+            0% {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Chutes and Ladders</div>
+    <canvas id="boardCanvas" width="400" height="400"></canvas>
+    <div id="controls">
+        <button id="rollButton">Roll Dice</button>
+        <button id="resetButton">Reset</button>
+    </div>
+    <div id="message"></div>
+    <div id="animation">Chute</div>
+
+    <div id="diceAnimation" style="display: none; text-align: center; font-size: 24px;">
+        <pre id="diceAnimationText"></pre>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("boardCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const tileSize = 40;
+        const boardSize = 10;
+        const totalCells = boardSize * boardSize;
+        const moveDelay = 300;
+
+
+        const board = Array.from({ length: totalCells }, (_, i) => i + 1);
+
+const player = {
+    position: 0,
+    tokenRadius: 10,
+    color: "red",
+    borderColor: "darkred",
+    borderWidth: 2,
+    gradientStartColor: "red",
+    gradientEndColor: "darkred",
+};
+
+
+const ai = {
+    position: 0,
+    tokenRadius: 10,
+    color: "blue",
+    borderColor: "darkblue",
+    borderWidth: 2,
+    gradientStartColor: "blue",
+    gradientEndColor: "darkblue",
+};
+
+
+const numChutesAndLadders = 10;
+const maxBoardPosition = totalCells - 1;
+
+
+function generateRandomChutesAndLadders() {
+    const chutesAndLadders = {};
+    const positions = new Set();
+
+    while (positions.size < numChutesAndLadders * 2) {
+        const position = Math.floor(Math.random() * maxBoardPosition) + 1;
+
+
+        if (!positions.has(position)) {
+            positions.add(position);
+        } else {
+            continue;
+        }
+
+
+        const targetPosition = Math.floor(Math.random() * maxBoardPosition) + 1;
+
+        chutesAndLadders[position] = targetPosition;
+    }
+
+    return chutesAndLadders;
+}
+
+let chutesAndLadders = generateRandomChutesAndLadders();
+
+        function drawBoard() {
+    for (let i = 0; i < board.length; i++) {
+        const row = Math.floor(i / boardSize);
+        const col = (row % 2 === 0) ? (i % boardSize) : (boardSize - 1 - (i % boardSize));
+
+        const x = col * tileSize;
+        const y = row * tileSize;
+
+
+        ctx.fillStyle = (row % 2 === 0) ? ((col % 2 === 0) ? "#E8E8E8" : "#D3D3D3") : ((col % 2 === 0) ? "#D3D3D3" : "#E8E8E8");
+        ctx.fillRect(x, y, tileSize, tileSize);
+
+
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, tileSize, tileSize);
+
+        ctx.font = "12px Arial";
+        ctx.fillStyle = "#333";
+        ctx.fillText(board[i], x + 5, y + 15);
+
+
+        if (chutesAndLadders[i + 1]) {
+            const chuteOrLadder = chutesAndLadders[i + 1] > i + 1 ? "L" : "C";
+            ctx.beginPath();
+            ctx.arc(x + tileSize / 2, y + tileSize / 2, 10, 0, Math.PI * 2);
+            ctx.fillStyle = chuteOrLadder === "L" ? "#61C156" : "#E75252";
+            ctx.fill();
+            ctx.strokeStyle = "#333";
+            ctx.stroke();
+            ctx.fillStyle = "#fff";
+            ctx.fillText(chuteOrLadder, x + tileSize / 2 - 5, y + tileSize / 2 + 5);
+        }
+    }
+}
+
+function drawPlayer(playerObj) {
+    const row = Math.floor(playerObj.position / boardSize);
+    const col = (row % 2 === 0) ? (playerObj.position % boardSize) : (boardSize - 1 - (playerObj.position % boardSize));
+
+    const x = col * tileSize + tileSize / 2;
+    const y = row * tileSize + tileSize / 2;
+
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, playerObj.tokenRadius);
+    gradient.addColorStop(0, playerObj.gradientStartColor);
+    gradient.addColorStop(1, playerObj.gradientEndColor);
+
+    ctx.beginPath();
+    ctx.arc(x, y, playerObj.tokenRadius, 0, Math.PI * 2);
+
+
+    ctx.fillStyle = gradient;
+    ctx.strokeStyle = playerObj.borderColor;
+    ctx.lineWidth = playerObj.borderWidth;
+
+    ctx.fill();
+    ctx.stroke();
+}
+
+        async function movePlayer(playerObj, steps) {
+            const initialPosition = playerObj.position;
+            let currentStep = 0;
+            while (currentStep < steps) {
+                await delay(moveDelay);
+                playerObj.position++;
+                currentStep++;
+                drawBoard();
+                drawPlayer(playerObj);
+            }
+
+            if (chutesAndLadders[playerObj.position + 1]) {
+                const isLadder = chutesAndLadders[playerObj.position + 1] > playerObj.position + 1;
+                const message = isLadder ? "You climbed a ladder!" : "Oops! You hit a chute";
+
+
+                const animationElement = document.getElementById("animation");
+                animationElement.textContent = isLadder ? "Ladder" : "Chute";
+                animationElement.style.display = "block";
+
+                setTimeout(() => {
+                    animationElement.style.display = "none";
+                    alert(message);
+                    playerObj.position = chutesAndLadders[playerObj.position + 1] - 1;
+                    drawBoard();
+                    drawPlayer(playerObj);
+                }, 2000);
+            }
+
+            if (playerObj.position >= totalCells) {
+                alert(playerObj === player ? "You won!" : "AI won!");
+                player.position = 0;
+                ai.position = 0;
+            }
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function aiTurn() {
+            const steps = Math.floor(Math.random() * 6) + 1;
+            movePlayer(ai, steps);
+        }
+
+
+        document.getElementById("rollButton").addEventListener("click", async function () {
+            const steps = Math.floor(Math.random() * 6) + 1;
+            await movePlayer(player, steps);
+            aiTurn();
+        });
+
+        document.getElementById("resetButton").addEventListener("click", function () {
+            player.position = 0;
+            ai.position = 0;
+            chutesAndLadders = shuffleChutesAndLadders();
+            drawBoard();
+            drawPlayer(player);
+            drawPlayer(ai);
+        });
+
+
+        drawBoard();
+        drawPlayer(player);
+        drawPlayer(ai);
+
+        document.getElementById("resetButton").addEventListener("click", function () {
+    player.position = 0;
+    ai.position = 0;
+    chutesAndLadders = generateRandomChutesAndLadders();
+    drawBoard();
+    drawPlayer(player);
+    drawPlayer(ai);
+});
+    </script>
+</body>
+</html>
