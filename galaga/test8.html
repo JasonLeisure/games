@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Galaga</title>
+    <style>
+      body {
+            text-align: center;
+            background-color: black;
+            color: #FFD700; /* Set the text color to a gold/yellow color */
+            font-size: 36px; /* Adjust the font size */
+            font-family: 'Press Start 2P', cursive; /* Use a retro arcade font (you need to import this font) */
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"> <!-- Link to the Press Start 2P font -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.7/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.7/addons/p5.dom.js"></script>
+</head>
+<body>
+    <div>Galaga</div>
+
+    <div id="gameContainer" style="display: none;">
+        <!-- Your game elements go here -->
+    </div>
+
+    <button onclick="startGame()">Play Music</button>
+
+<script>
+    var ship;
+    var lasers = [];
+    var enemies = [];
+    var stars = [];
+    var score = 0;
+    var gameStarted = false;
+    function setup() {
+        createCanvas(800, 600);
+        ship = new Ship();
+        for (var i = 0; i < 10; i++) {
+            enemies.push(new Enemy(i * 50 + 50, 50, i % 2));
+        }
+        for (var i = 0; i < 10; i++) {
+            enemies.push(new Enemy(i * 50 + 50, 120, i % 2));
+        }
+        for (var i = 0; i < 10; i++) {
+            enemies.push(new Enemy(i * 50 + 50, 190, i % 2));
+        }
+    }
+
+    function draw() {
+    background(0);
+
+    if (enemies.length == 0) {
+        fill(0, 255, 0);
+        textSize(100);
+        text("You won!", width / 2 - 200, height / 2);
+    } else if (ship.hp < 0) {
+        fill(255, 0, 0);
+        textSize(100);
+        text("You lost!", width / 2 - 200, height / 2);
+    }
+
+    var maxX = enemies[0].pos.x;
+    var minX = enemies[0].pos.x;
+    var rightI = 0;
+    var leftI = 0;
+
+    for (let i = 0; i < enemies.length; i++) {
+        if (enemies[i].pos.x > maxX) {
+            maxX = enemies[i].pos.x;
+            rightI = i;
+        }
+        if (enemies[i].pos.x < minX) {
+            minX = enemies[i].pos.x;
+            leftI = i;
+        }
+    }
+
+    for (let i = 0; i < enemies.length; i++) {
+        if (enemies[rightI].pos.x > width - 10) {
+            enemies[i].move();
+        } else if (enemies[leftI].pos.x < 10) {
+            enemies[i].move();
+        }
+        enemies[i].update();
+    }
+
+    if (stars.length <= 100) {
+        stars.push(new Star());
+    }
+
+    for (let i = 0; i < stars.length; i++) {
+        stars[i].update();
+
+        if (stars[i].isOffScreen()) {
+            stars[i] = new Star();
+        }
+    }
+
+    for (let i = lasers.length - 1; i >= 0; i--) {
+        lasers[i].update();
+        for (let j = enemies.length - 1; j >= 0; j--) {
+            if (lasers[i] && lasers[i].touching(enemies[j])) {
+                enemies.splice(j, 1);
+                lasers.splice(i, 1);
+                score += 100; // Increase the score by 100 when an enemy is killed
+            }
+        }
+
+        if (lasers[i] && lasers[i].isOffScreen()) {
+            lasers.splice(i, 1);
+        }
+    }
+    ship.update();
+
+    textSize(32);
+    fill(255);
+    text("Score: " + score, 20, 30); // Display the score
+}
+    function keyPressed() {
+        if (ship.hp > 0) {
+            if (key == 'A' || keyCode == LEFT_ARROW) {
+                ship.vel.x = -ship.speed;
+            }
+            if (key == 'D' || keyCode == RIGHT_ARROW) {
+                ship.vel.x = ship.speed;
+            }
+            if (key == ' ') {
+                if (lasers.length < 2) {
+                    lasers.push(new Laser(ship.pos.x, ship.pos.y));
+                }
+            }
+        }
+    }
+
+    function keyReleased() {
+        if (key == 'A' || keyCode == LEFT_ARROW || key == 'D' || keyCode == RIGHT_ARROW) {
+            ship.vel.x = 0;
+        }
+    }
+// JavaScript function to start the game and play the audio
+function startGame() {
+            if (!gameStarted) {
+                gameStarted = true;
+                document.getElementById("gameContainer").style.display = "block";
+
+                // Create and play the audio
+                var audio = document.createElement("audio");
+                audio.src = "space.mp3";
+                audio.autoplay = true;
+                document.body.appendChild(audio);
+            }
+        }
+
+    function Enemy(x, y, id) {
+    this.pos = createVector(x, y);
+    this.vel = createVector(3, 0);
+    this.bullets = [];
+    this.r = 15; // Increase the size of the enemy ships
+    this.id = id;
+    this.randomShoot = int(random(100, 150));
+
+    this.update = function () {
+        this.pos.add(this.vel);
+        this.display();
+
+        if (this.hits(ship)) {
+            ship.hp--;
+        }
+        if (id == 1 && frameCount % this.randomShoot == 0) {
+            this.shoot();
+        }
+
+        for (let i = this.bullets.length - 1; i >= 0; i--) {
+            this.bullets[i].update();
+
+            if (this.bullets[i].isOffScreen()) {
+                this.bullets.splice(i, 1);
+            }
+        }
+    };
+
+    this.move = function () {
+        this.vel.x *= -1;
+    };
+
+    this.hits = function (ship) {
+        for (var i = 0; i < this.bullets.length; i++) {
+            var bullet = this.bullets[i];
+            var d = ship.pos.dist(bullet.pos);
+            return d < 7 + bullet.r;
+        };
+    };
+
+    this.display = function () {
+        if (this.id == 0) {
+            // Customize the appearance of enemy ship 0
+            fill(255, 0, 0); // Red color
+            noStroke();
+            rect(this.pos.x - this.r / 2, this.pos.y - this.r / 2, this.r, this.r);
+        } else if (this.id == 1) {
+            // Customize the appearance of enemy ship 1
+            fill(0, 0, 255); // Blue color
+            noStroke();
+            triangle(
+                this.pos.x - this.r, this.pos.y + this.r / 2,
+                this.pos.x, this.pos.y - this.r / 2,
+                this.pos.x + this.r, this.pos.y + this.r / 2
+            );
+        }
+    };
+
+    this.shoot = function () {
+        this.bullets.push(new EnemyLaser(this.pos.x, this.pos.y));
+    };
+}
+
+function EnemyLaser(x, y) {
+    this.pos = createVector(x, y);
+    this.vel = createVector(0, 5);
+    this.r = 2; // Adjusted size to make it thinner
+    this.opacity = 200; // Reduced initial opacity
+    this.opacityDirection = -2; // Set the initial opacity direction for flickering
+
+    this.update = function () {
+        this.pos.add(this.vel);
+        this.display();
+        this.updateOpacity();
+    };
+
+    this.display = function () {
+        const laserColor = color(0, 200, 255, this.opacity); // Cyan laser color
+
+        // Draw a blurred, larger shape around the laser beam for the glow effect
+        const glowColor = color(0, 200, 255, this.opacity * 0.4); // Adjust opacity for glow
+        fill(glowColor);
+        noStroke();
+        ellipse(this.pos.x, this.pos.y, this.r * 6, 30); // Adjusted size for the glow
+
+        // Draw the laser beam on top of the glow
+        fill(laserColor);
+        noStroke();
+        rect(this.pos.x - this.r / 2, this.pos.y, this.r, 20); // Adjusted size and shape
+    };
+
+    this.updateOpacity = function () {
+        // Update the opacity value to create a flickering effect
+        this.opacity += this.opacityDirection;
+
+        // Reverse the opacity direction when it reaches certain limits
+        if (this.opacity <= 100 || this.opacity >= 200) {
+            this.opacityDirection *= -1;
+        }
+    };
+
+    this.isOffScreen = function () {
+        return this.pos.y > height;
+    };
+}
+function Barrier(x, y) {
+    this.pos = createVector(x, y);
+    this.width = 40; // Adjust the width of the barrier
+    this.height = 20; // Adjust the height of the barrier
+
+    this.display = function () {
+        fill(100, 255, 100); // Green barrier color
+        noStroke();
+        rect(this.pos.x, this.pos.y, this.width, this.height);
+    };
+
+    this.isHit = function (bullet) {
+        // Check if a bullet hits the barrier
+        return (
+            bullet.pos.x > this.pos.x &&
+            bullet.pos.x < this.pos.x + this.width &&
+            bullet.pos.y > this.pos.y &&
+            bullet.pos.y < this.pos.y + this.height
+        );
+    };
+}
+
+function Laser(x, y) {
+    this.pos = createVector(x, y);
+    this.vel = createVector(0, -10);
+    this.width = 2; // Decrease the width to make it thinner
+    this.height = 8; // Decrease the height to make it shorter
+
+    this.update = function () {
+        this.pos.add(this.vel);
+        this.display();
+    };
+
+    this.display = function () {
+        stroke(0, 255, 0); // Set the color to green for a laser-like appearance
+        strokeWeight(2); // Set a thin stroke weight
+        line(this.pos.x, this.pos.y, this.pos.x, this.pos.y - this.height); // Draw a line
+    };
+
+    this.isOffScreen = function () {
+        return this.pos.y <= -20;
+    };
+
+    this.touching = function (enemy) {
+        var d = this.pos.dist(enemy.pos);
+        return d < 20;
+    };
+}
+
+    function Ship() {
+    this.pos = createVector(width / 2, height - 50);
+    this.w = 40; // Width of the ship
+    this.h = 50; // Height of the ship
+    this.hp = 3;
+    this.speed = 4;
+    this.vel = createVector(0, 0);
+
+    this.update = function () {
+        this.pos.add(this.vel);
+        this.pos.x = constrain(this.pos.x, this.w / 2, width - this.w / 2);
+        this.display();
+    };
+
+    this.display = function () {
+        fill(255);
+        if (this.hp <= 0) fill(255, 0, 0);
+        // Draw a ship-like shape
+        beginShape();
+        vertex(this.pos.x, this.pos.y - this.h / 2);
+        vertex(this.pos.x - this.w / 2, this.pos.y + this.h / 2);
+        vertex(this.pos.x, this.pos.y + this.h / 4);
+        vertex(this.pos.x + this.w / 2, this.pos.y + this.h / 2);
+        endShape(CLOSE);
+    };
+
+}
+function Star() {
+    this.pos = createVector(random(width), random(height)); // Randomize initial position
+    this.vel = createVector(0, random(1, 5)); // Randomize vertical velocity
+    colorMode(HSB);
+    this.col = color(random(360), random(50, 100), 100); // Randomize color and saturation
+    colorMode(RGB);
+    this.r = random(1, 3); // Randomize radius
+    this.depth = random(0, 1); // Randomize the depth of the star
+
+    this.update = function() {
+        this.pos.add(this.vel);
+
+        // Add twinkling effect
+        if (random(1) < 0.02) { // Adjust the value to control the frequency of twinkling
+            this.col = color(random(360), random(50, 100), 100);
+        }
+
+        this.display();
+    };
+
+    this.display = function() {
+        let d = this.r * 2 * this.depth; // Calculate the apparent size based on depth
+
+        push();
+        translate(this.pos.x, this.pos.y);
+
+        // Apply 3D effect with shadow and highlight
+        for (let i = 0; i < 10; i++) {
+            let shade = map(i, 0, 10, 255, 100);
+            fill(this.col);
+            ellipse(0, 0, d, d);
+            fill(255, shade);
+            ellipse(0, -d / 2, d, d);
+            d -= 0.5;
+        }
+        pop();
+    };
+
+    this.isOffScreen = function() {
+        return this.pos.y >= height + this.r + 1; // Adjust the offset for removal
+    };
+}
+</script>
+</html>
