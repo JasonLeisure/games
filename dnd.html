@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D&D Game</title>
+</head>
+<body>
+    <h1>Welcome to the D&D Game!</h1>
+    <div id="output"></div>
+    <div id="store">
+        <h2>General Store</h2>
+        <p>Welcome to the village's general store. Here are the items available for purchase:</p>
+        <ul>
+            <li>
+                <span class="item-name">Health Potion</span>
+                <span class="item-description">Restores 20 HP when consumed.</span>
+                <span class="item-price">Cost: 15 gold</span>
+                <button onclick="buyItem('Health Potion', 15, 20)">Buy</button>
+            </li>
+            <li>
+                <span class="item-name">Leather Armor</span>
+                <span class="item-description">Provides +2 defense.</span>
+                <span class="item-price">Cost: 25 gold</span>
+                <button onclick="buyItem('Leather Armor', 25, 0, 2)">Buy</button>
+            </li>
+            <li>
+                <span class="item-name">Dagger</span>
+                <span class="item-description">A small, versatile weapon.</span>
+                <span class="item-price">Cost: 10 gold</span>
+                <button onclick="buyItem('Dagger', 10)">Buy</button>
+            </li>
+            <li>
+                <span class="item-name">Mana Potion</span>
+                <span class="item-description">Restores 20 mana when consumed.</span>
+                <span class="item-price">Cost: 15 gold</span>
+                <button onclick="buyItem('Mana Potion', 15, 0, 0, 20)">Buy</button>
+            </li>
+            <li>
+                <span class="item-name">Longsword</span>
+                <span class="item-description">A versatile, two-handed weapon.</span>
+                <span class="item-price">Cost: 30 gold</span>
+                <button onclick="buyItem('Longsword', 30)">Buy</button>
+            </li>
+            <li>
+                <span class="item-name">Thief's Toolkit</span>
+                <span class="item-description">Tools for lockpicking and stealthy activities.</span>
+                <span class="item-price">Cost: 20 gold</span>
+                <button onclick="buyItem('Thief\'s Toolkit', 20)">Buy</button>
+            </li>
+        </ul>
+        </ul>
+    </div>
+    <script>
+        let character = {
+            name: '',
+            class: '',
+            race: '',
+            level: 1,
+            hp: 10,
+            maxHp: 10,
+            gold: 0,
+        };
+        let inventory = [];
+        function displayStats() {
+            const output = document.getElementById('output');
+            output.innerHTML = `
+            <p>Name: ${character.name}</p>
+            <p>Race: ${character.race}</p>
+            <p>Class: ${character.class}</p>
+            <p>Level: ${character.level}</p>
+            <p>HP: ${character.hp}/${character.maxHp}</p>
+            <p>Gold: ${character.gold}</p>
+            `;
+        }
+        function buyItem(itemName, itemCost, hpRestore = 0, defenseBonus = 0) {
+    if (character.gold >= itemCost) {
+        character.gold -= itemCost;
+        character.hp += hpRestore;
+        character.maxHp += hpRestore;
+        character.defense += defenseBonus;
+        inventory.push(itemName);
+        displayStats();
+        displayInventory();
+    } else {
+        alert("You don't have enough gold to buy this item.");
+    }
+}
+
+function displayInventory() {
+    const output = document.getElementById('output');
+    output.innerHTML += "<p>Your Inventory:</p>";
+    if (inventory.length > 0) {
+        output.innerHTML += "<ul>";
+        for (let item of inventory) {
+            output.innerHTML += `<li>${item}</li>`;
+        }
+        output.innerHTML += "</ul>";
+    } else {
+        output.innerHTML += "<p>Your inventory is empty.</p>";
+    }
+
+    // Add a button to return to the game
+    output.innerHTML += `
+        <button onclick="returnToGame()">Back to Game</button>
+    `;
+}
+
+function returnToGame() {
+    // Clear the inventory display
+    const output = document.getElementById('output');
+    output.innerHTML = "";
+
+    // Display character stats and continue the game
+    displayStats();
+    // Include any other game options or descriptions here
+}
+        function startGame() {
+            const output = document.getElementById('output');
+            output.innerHTML = "<p>Welcome to the world of Dungeons & Dragons! Before we begin, let's create your character.</p>";
+            createCharacter();
+        }
+
+        function createCharacter() {
+    const output = document.getElementById('output');
+    output.innerHTML += "<p>Character Name: <input type='text' id='charName'></p>";
+    output.innerHTML += "<p>Choose Your Race: ";
+    output.innerHTML += `<select id='charRace'>
+        <option value='Human'>Human</option>
+        <option value='Elf'>Elf</option>
+        <option value='Dwarf'>Dwarf</option>
+    </select></p>`;
+    output.innerHTML += "<p>Choose Your Class: ";
+    output.innerHTML += `<select id='charClass' onchange="setClassStats()">
+        <option value='Warrior'>Warrior</option>
+        <option value='Mage'>Mage</option>
+        <option value='Rogue'>Rogue</option>
+    </select></p>`;
+    output.innerHTML += "<button onclick='startQuest()'>Start Quest</button>";
+}
+function setClassStats() {
+    const charClass = document.getElementById('charClass').value;
+
+    if (charClass.toLowerCase() === 'warrior') {
+        character.class = 'Warrior';
+        character.hp = 15;
+        character.maxHp = 15;
+        character.mp = 5; // Mana points for non-magic class
+        character.maxMp = 5;
+        character.attack = 8; // Adjust attack stats
+        character.defense = 10; // Adjust defense stats
+    } else if (charClass.toLowerCase() === 'mage') {
+        character.class = 'Mage';
+        character.hp = 10;
+        character.maxHp = 10;
+        character.mp = 20; // Mana points for mage class
+        character.maxMp = 20;
+        character.attack = 5; // Adjust attack stats
+        character.defense = 5; // Adjust defense stats
+    } else if (charClass.toLowerCase() === 'rogue') {
+        character.class = 'Rogue';
+        character.hp = 12;
+        character.maxHp = 12;
+        character.mp = 10; // Mana points for rogue class
+        character.maxMp = 10;
+        character.attack = 10; // Adjust attack stats
+        character.defense = 7; // Adjust defense stats
+    }
+}
+function randomEvent() {
+    const chance = Math.random();
+
+    if (chance < 0.3) {
+        giveLoot();
+    } else if (chance < 0.6) {
+        stealLoot();
+    } else {
+        continueStory();
+    }
+}
+
+function giveLoot() {
+    const output = document.getElementById('output');
+    output.innerHTML += "<p>You stumble upon a hidden chest filled with valuable loot!</p>";
+
+    // Implement giving loot, e.g., adding gold or items to the character's inventory
+    character.gold += 50; // Example: Add 50 gold
+    displayStats();
+
+    output.innerHTML += `
+    <p>You've gained some loot. What will you do next?</p>
+    <button onclick="continueStory()">Continue</button>
+    `;
+}
+
+function stealLoot() {
+    const output = document.getElementById('output');
+    output.innerHTML += "<p>A bandit suddenly appears and steals some of your gold and items!</p>";
+
+    // Implement stealing loot, e.g., deducting gold or items from the character's inventory
+    character.gold -= 20; // Example: Deduct 20 gold
+    // Remove an item from the inventory (if the character has items)
+
+    displayStats();
+
+    output.innerHTML += `
+    <p>You've been robbed! What will you do next?</p>
+    <button onclick="continueStory()">Continue</button>
+    `;
+}
+
+        function startQuest() {
+            const charName = document.getElementById('charName').value;
+            const charRace = document.getElementById('charRace').value;
+            const charClass = document.getElementById('charClass').value;
+
+            if (!charName || charName.trim() === "") {
+                alert("Please enter a valid character name.");
+                return;
+            }
+
+            character.name = charName;
+            character.race = charRace;
+            character.class = charClass;
+
+            if (charClass.toLowerCase() === 'warrior') {
+                character.hp = 15;
+                character.maxHp = 15;
+            } else if (charClass.toLowerCase() === 'mage') {
+                character.hp = 8;
+                character.maxHp = 8;
+            } else if (charClass.toLowerCase() === 'rogue') {
+                character.hp = 12;
+                character.maxHp = 12;
+            }
+
+            displayStats();
+
+            const output = document.getElementById('output');
+            output.innerHTML += `<p>${character.name}, you find yourself in the small village of Oakridge. The village elder asks for your help. Do you accept?</p>`;
+
+            output.innerHTML += `
+            <button onclick="acceptQuest()">Accept</button>
+            <button onclick="declineQuest()">Decline</button>
+            `;
+        }
+
+        function acceptQuest() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You've accepted the quest. The elder tells you that goblins are terrorizing the village. What would you like to do?</p>";
+
+            output.innerHTML += `
+            <button onclick="fightGoblins()">Confront the goblins</button>
+            <button onclick="seekInformation()">Seek information</button>
+            <button onclick="visitTavern()">Visit the tavern</button>
+            `;
+        }
+
+        function declineQuest() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You've declined the quest. The village elder is disappointed, but you have other options.</p>";
+
+            output.innerHTML += `
+            <button onclick="exploreVillage()">Explore the village</button>
+            <button onclick="visitMarket()">Visit the market</button>
+            <button onclick="trainSkills()">Train your skills</button>
+            `;
+        }
+
+        function fightGoblins() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You confront the goblins in the nearby forest. Battle begins!</p>";
+            // Implement a detailed goblin battle or encounter here
+            output.innerHTML += `
+            <p>You successfully defeated the goblins and saved the village!</p>
+            <button onclick="exploreVillage()">Continue</button>
+            `;
+        }
+        function exploreVillage() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You return to the village. What would you like to do now?</p>";
+
+            output.innerHTML += `
+            <button onclick="visitMarket()">Visit the market</button>
+            <button onclick="trainSkills()">Train your skills</button>
+            <button onclick="ventureIntoWilderness()">Venture into the wilderness</button>
+            <button onclick="restAtInn()">Rest at the inn</button>
+            <button onclick="randomEvent()">Random Event</button> <!-- Add a random event button -->
+            `;
+        }
+        function discoverRelic() {
+    const output = document.getElementById('output');
+    output.innerHTML += "<p>You stumble upon a forgotten relic of great power!</p>";
+
+    // Implement the effect of discovering the relic, such as gaining a special item or power
+    // You can add a new item to the character's inventory or increase a character's attribute
+
+    output.innerHTML += `
+    <p>You've discovered a powerful relic. What will you do next?</p>
+    <button onclick="continueStory()">Continue</button>
+    `;
+}
+function rescueTraveler() {
+    const output = document.getElementById('output');
+    output.innerHTML += "<p>You come across a traveler in distress and help them overcome a dangerous situation.</p>";
+
+    // Implement the effect of the rescue, such as gaining a reward, friendship, or valuable information
+    // You can increase the character's gold or provide hints for quests
+
+    output.innerHTML += `
+    <p>You've rescued a fellow traveler. What will you do next?</p>
+    <button onclick="continueStory()">Continue</button>
+    `;
+}
+function mysteriousPortal() {
+    const output = document.getElementById('output');
+    output.innerHTML += "<p>You encounter a mysterious portal that leads to an unknown realm.</p>";
+
+    // Implement a choice to enter the portal or not
+    output.innerHTML += `
+    <button onclick="enterPortal()">Enter the portal</button>
+    <button onclick="avoidPortal()">Avoid the portal</button>
+    `;
+}
+
+function enterPortal() {
+    const output = document.getElementById('output');
+    output.innerHTML += "<p>You step through the portal and find yourself in a new, magical world.</p>";
+
+    // Implement a unique adventure or encounter in the new realm
+
+    output.innerHTML += `
+    <p>You're in a new world. What will you do next?</p>
+    <button onclick="continueStory()">Continue</button>
+    `;
+}
+
+function avoidPortal() {
+    const output = document.getElementById('output');
+    output.innerHTML += "<p>You decide not to risk it and continue your journey.</p>";
+
+    output.innerHTML += `
+    <p>You've avoided the portal. What will you do next?</p>
+    <button onclick="continueStory()">Continue</button>
+    `;
+}
+function friendlyCreature() {
+    const output = document.getElementById('output');
+    output.innerHTML += "<p>You encounter a friendly and magical creature willing to assist you.</p>";
+
+    // Implement the effect of the creature's assistance, such as gaining a temporary buff or help in battles
+
+    output.innerHTML += `
+    <p>You've encountered a friendly creature. What will you do next?</p>
+    <button onclick="continueStory()">Continue</button>
+    `;
+}
+        function visitMarket() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You visit the bustling village market. What are you interested in buying or selling?</p>";
+
+            output.innerHTML += `
+            <button onclick="buyEquipment()">Buy equipment</button>
+            <button onclick="sellLoot()">Sell loot</button>
+            <button onclick="exploreVillage()">Return to the village</button>
+            `;
+        }
+
+        function buyEquipment() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You purchase new equipment to aid you in your adventures.</p>";
+            character.gold -= 20; // Adjust the cost as needed
+            // Update character's equipment or stats here
+            displayStats();
+            output.innerHTML += `
+            <p>With your new gear, you're ready for more challenges.</p>
+            <button onclick="exploreVillage()">Return to the village</button>
+            `;
+        }
+
+        function sellLoot() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You sell the loot you've gathered from your adventures, earning some gold.</p>";
+            character.gold += 15; // Adjust the amount earned as needed
+            displayStats();
+            output.innerHTML += `
+            <p>You've made a tidy profit from your adventures. What's next?</p>
+            <button onclick="exploreVillage()">Return to the village</button>
+            `;
+        }
+
+        function trainSkills() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You decide to hone your skills. Which skill would you like to improve?</p>";
+
+            output.innerHTML += `
+            <button onclick="trainCombatSkills()">Combat skills</button>
+            <button onclick="trainMagicSkills()">Magic skills</button>
+            <button onclick="trainStealthSkills()">Stealth skills</button>
+            <button onclick="exploreVillage()">Return to the village</button>
+            `;
+        }
+
+        function trainCombatSkills() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You dedicate time to improving your combat skills, becoming a more formidable warrior.</p>";
+            // Enhance combat-related attributes or abilities
+            character.hp += 5; // Increase hit points
+            character.maxHp += 5;
+            character.level++; // Gain experience
+            displayStats();
+            output.innerHTML += `
+            <p>You're now a stronger warrior, ready for more challenges.</p>
+            <button onclick="exploreVillage()">Return to the village</button>
+            `;
+        }
+
+        function trainMagicSkills() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You immerse yourself in the arcane arts, deepening your understanding of magic.</p>";
+            // Enhance magic-related attributes or abilities
+            // Add new spells or abilities
+            character.level++;
+            displayStats();
+            output.innerHTML += `
+            <p>You've unlocked new magical potential. What will you do next?</p>
+            <button onclick="exploreVillage()">Return to the village</button>
+            `;
+        }
+
+        function trainStealthSkills() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You focus on perfecting your stealth and agility, making you a more adept rogue.</p>";
+            // Improve stealth-related attributes or abilities
+            character.level++;
+            displayStats();
+            output.innerHTML += `
+            <p>You're now a master of stealth, ready to outwit your enemies.</p>
+            <button onclick="exploreVillage()">Return to the village</button>
+            `;
+        }
+
+        function restAtInn() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You choose to rest at the village inn. Your HP is fully restored, and you gain some well-deserved rest.</p>";
+            character.hp = character.maxHp;
+            displayStats();
+            output.innerHTML += `
+            <p>Feeling refreshed, you decide to return to the village.</p>
+            <button onclick="exploreVillage()">Continue</button>
+            `;
+        }
+        function seekInformation() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You decide to gather information from the villagers. They share tales of a hidden goblin camp deep in the forest.</p>";
+
+            output.innerHTML += `
+            <button onclick="exploreForest()">Explore the forest</button>
+            <button onclick="visitInn()">Visit the inn</button>
+            <button onclick="exploreVillage()">Return to the village</button>
+            `;
+        }
+
+        function exploreForest() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You venture into the forest and discover the goblin camp. What's your plan?</p>";
+            output.innerHTML += `
+            <button onclick="ambushGoblins()">Ambush the goblins</button>
+            <button onclick="sneakIn()">Sneak into their camp</button>
+            <button onclick="returnToVillage()">Return to the village</button>
+            `;
+        }
+        function exploreCave() {
+    const output = document.getElementById('output');
+    output.innerHTML += "<p>You discover a mysterious cave entrance in the nearby hills. Do you want to explore it?</p>";
+
+    output.innerHTML += `
+    <button onclick="enterCave()">Enter the cave</button>
+    <button onclick="exploreVillage()">Return to the village</button>
+    `;
+}
+
+function enterCave() {
+    const output = document.getElementById('output');
+    output.innerHTML += "<p>You venture into the dark cave, unsure of what you'll find inside.</p>";
+    // Implement a cave exploration or encounter here
+    output.innerHTML += `
+    <p>You've successfully explored the cave. What's your next move?</p>
+    <button onclick="exploreVillage()">Return to the village</button>
+    `;
+}
+
+function joinBandits() {
+    const output = document.getElementById('output');
+    output.innerHTML += "<p>You decide to join the local bandit gang. It's a risky path, but it could be lucrative. Do you want to proceed?</p>";
+
+    output.innerHTML += `
+    <button onclick="becomeBandit()">Join the bandits</button>
+    <button onclick="exploreVillage()">Return to the village</button>
+    `;
+}
+
+function becomeBandit() {
+    const output = document.getElementById('output');
+    output.innerHTML += "<p>You've become a member of the bandit gang. You'll need to follow their orders and participate in their activities.</p>";
+    // Implement bandit-related events or activities
+    output.innerHTML += `
+    <p>You're now part of the bandit gang. What's your next move?</p>
+    <button onclick="exploreVillage()">Return to the village</button>
+    `;
+}
+        function ambushGoblins() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You launch an ambush on the goblin camp and engage in a fierce battle.</p>";
+            // Implement detailed goblin camp battle here
+            output.innerHTML += `
+            <p>You successfully defeated the goblins and eliminated the threat to the village!</p>
+            <button onclick="exploreVillage()">Continue</button>
+            `;
+        }
+
+        function sneakIn() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You successfully sneak into the goblin camp and gather valuable information about their plans.</p>";
+            character.gold += 10;
+            displayStats();
+            output.innerHTML += `
+            <p>With the information in hand, you return to the village.</p>
+            <button onclick="exploreVillage()">Continue</button>
+            `;
+        }
+
+        function visitInn() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You visit the local inn and enjoy a meal. Your HP is restored, and you gain 5 gold.</p>";
+            character.hp = character.maxHp;
+            character.gold += 5;
+            displayStats();
+            output.innerHTML += `
+            <p>Feeling refreshed, you decide to return to the village.</p>
+            <button onclick="exploreVillage()">Continue</button>
+            `;
+        }
+
+        function visitTavern() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You enter the bustling tavern. It's a lively place with many options. What would you like to do?</p>";
+
+            output.innerHTML += `
+            <button onclick="orderDrink()">Order a drink</button>
+            <button onclick="joinBarBrawl()">Join a bar brawl</button>
+            <button onclick="listenToRumors()">Listen to rumors</button>
+            <button onclick="exploreVillage()">Return to the village</button>
+            `;
+        }
+
+        function orderDrink() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You order a drink and enjoy the evening at the tavern. It costs 2 gold.</p>";
+            character.gold -= 2;
+            displayStats();
+            output.innerHTML += `
+            <p>As you relax with your drink, you can decide what to do next.</p>
+            <button onclick="visitTavern()">Stay at the tavern</button>
+            <button onclick="exploreVillage()">Return to the village</button>
+            `;
+        }
+
+        function joinBarBrawl() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You join a rowdy bar brawl. It's chaotic and wild, but you have a chance to win some gold and glory.</p>";
+
+            // Implement bar brawl mechanics
+            const brawlOutcome = Math.random();
+            if (brawlOutcome < 0.3) {
+                output.innerHTML += "<p>You emerge victorious and gain 10 gold!</p>";
+                character.gold += 10;
+            } else if (brawlOutcome < 0.6) {
+                output.innerHTML += "<p>You fought valiantly but didn't win. You gain some bruises and lose 5 gold.</p>";
+                character.gold -= 5;
+            } else {
+                output.innerHTML += "<p>You were overmatched and suffered a defeat. You lose 10 gold.</p>";
+                character.gold -= 10;
+            }
+
+            displayStats();
+            output.innerHTML += `
+            <p>After the brawl, you can decide what to do next.</p>
+            <button onclick="visitTavern()">Stay at the tavern</button>
+            <button onclick="exploreVillage()">Return to the village</button>
+            `;
+        }
+
+        function listenToRumors() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You listen to the rumors circulating in the tavern. Some interesting information comes your way.</p>";
+
+            // Implement rumors and their effects
+            const rumorOutcome = Math.random();
+            if (rumorOutcome < 0.3) {
+                output.innerHTML += "<p>You hear about a hidden treasure in a nearby cave.</p>";
+            } else if (rumorOutcome < 0.6) {
+                output.innerHTML += "<p>You learn about a local bandit gang causing trouble in the area.</p>";
+            } else {
+                output.innerHTML += "<p>You hear tales of a powerful artifact that grants great power to its wielder.</p>";
+            }
+
+            output.innerHTML += `
+            <p>With this information, you can decide what to do next.</p>
+            <button onclick="visitTavern()">Stay at the tavern</button>
+            <button onclick="exploreVillage()">Return to the village</button>
+            `;
+        }
+
+        function returnToVillage() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You decide to return to the village for now.</p>";
+
+            output.innerHTML += `
+            <button onclick="exploreVillage()">Return to the village</button>
+            `;
+        }
+
+        // Continue the story and add more choices and outcomes as needed
+        function continueStory() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>More adventures await you in the world of Dungeons & Dragons!</p>";
+
+            output.innerHTML += `
+            <button onclick="exploreVillage()">Return to the village</button>
+            <button onclick="ventureIntoWilderness()">Venture into the wilderness</button>
+            <button onclick="visitMarket()">Visit the market</button>
+            <button onclick="trainSkills()">Train your skills</button>
+            `;
+        }
+
+        function ventureIntoWilderness() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You decide to explore the wilderness surrounding the village. As you travel deeper into the forest, you encounter a pack of wolves. What will you do?</p>";
+
+            output.innerHTML += `
+            <button onclick="fightWolves()">Fight the wolves</button>
+            <button onclick="tryToSneakPast()">Try to sneak past</button>
+            <button onclick="returnToVillage()">Return to the village</button>
+            `;
+        }
+
+        function fightWolves() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You engage in a battle with the wolves. It's a tough fight, but you manage to defeat them.</p>";
+
+            // Implement detailed wolf battle here
+            output.innerHTML += `
+            <p>With the wolves defeated, you can continue your exploration of the wilderness.</p>
+            <button onclick="continueStory()">Continue</button>
+            `;
+        }
+
+        function tryToSneakPast() {
+            const output = document.getElementById('output');
+            output.innerHTML += "<p>You attempt to sneak past the wolves. Your success depends on your class and skills.</p>";
+
+            // Implement sneak past mechanics
+            const success = Math.random() < 0.5; // Adjust the success chance as needed
+            if (success) {
+                output.innerHTML += "<p>You successfully sneak past the wolves without alerting them.</p>";
+                output.innerHTML += `
+                <p>You continue your journey deeper into the wilderness.</p>
+                <button onclick="continueStory()">Continue</button>
+                `;
+            } else {
+                output.innerHTML += "<p>Your attempt to sneak past the wolves fails, and you must fight them.</p>";
+                output.innerHTML += `
+                <button onclick="fightWolves()">Fight the wolves</button>
+                <button onclick="returnToVillage()">Return to the village</button>
+                `;
+            }
+        }
+
+        startGame(); // Start the game when the page loads
+    </script>
+</body>
+</html>
