@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>3D Breakout Game</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        position: relative;
+      }
+      #game-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      #score {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 24px;
+        color: white;
+      }
+      #game-name {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 36px;
+    color: #FFFF00;
+    font-weight: bold;
+    text-transform: uppercase;
+    transform: perspective(100px) rotateX(30deg);
+    text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(45deg, #FFD700, #FFFF00, #FFD700);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+    </style>
+  </head>
+  <body>
+    <div id="game-container"></div>
+    <div id="game-name">BREAK0UT</div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      const paddleMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+      const ballMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+      const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x888888 });
+
+
+const paddleGeometry = new THREE.BoxGeometry(6, 1, 2);
+const paddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
+paddle.position.set(0, -10, 0);
+scene.add(paddle);
+
+
+const paddleLight = new THREE.PointLight(0x00ff00, 10, 15);
+paddleLight.position.set(0, -9, 0);
+scene.add(paddleLight);
+
+      // Ball
+      const ballGeometry = new THREE.SphereGeometry(1, 32, 32);
+      const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+      ball.position.set(0, 0, 0);
+      scene.add(ball);
+
+      let score = 0;
+      let level = 1;
+
+      const brickGeometry = new THREE.BoxGeometry(4, 1, 2);
+      const bricks = [];
+
+      function createBricks(level) {
+        for (let i = 0; i < 5; i++) {
+          for (let j = 0; j < 5 + level; j++) {
+            const brick = new THREE.Mesh(brickGeometry, groundMaterial);
+            brick.position.set(i * 5 - 10, j * 2 + 2, 0);
+            brick.hitCount = 2;
+            brick.pointValue = 100;
+            scene.add(brick);
+            bricks.push(brick);
+          }
+        }
+      }
+
+      createBricks(level);
+
+
+      const groundGeometry = new THREE.BoxGeometry(30, 1, 30);
+      const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+      ground.position.set(0, -12, 0);
+      scene.add(ground);
+
+
+      const wallGeometry = new THREE.BoxGeometry(1, 30, 30);
+      const leftWall = new THREE.Mesh(wallGeometry, groundMaterial);
+      leftWall.position.set(-15, 0, 0);
+      scene.add(leftWall);
+
+      const rightWall = new THREE.Mesh(wallGeometry, groundMaterial);
+      rightWall.position.set(15, 0, 0);
+      scene.add(rightWall);
+
+
+      const ceilingGeometry = new THREE.BoxGeometry(30, 1, 30);
+      const ceiling = new THREE.Mesh(ceilingGeometry, groundMaterial);
+      ceiling.position.set(0, 15, 0);
+      scene.add(ceiling);
+
+const ballLight = new THREE.PointLight(0xff0000, 5, 10);
+ball.add(ballLight);
+
+
+ballLight.position.set(0, 0, 0);
+scene.add(ballLight);
+
+const ambientLight = new THREE.AmbientLight(0x404040);
+const pointLight = new THREE.PointLight(0xff0000, 1, 25);
+pointLight.position.set(0, 10, 10);
+
+scene.add(ambientLight);
+scene.add(pointLight);
+
+      const ballSpeed = 0.2;
+      let ballDirection = new THREE.Vector2(1, 1);
+
+      const paddleSpeed = 0.3;
+      let moveLeft = false;
+      let moveRight = false;
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowLeft") {
+          moveLeft = true;
+          moveRight = false;
+        } else if (event.key === "ArrowRight") {
+          moveLeft = false;
+          moveRight = true;
+        }
+      });
+
+      document.addEventListener("keyup", (event) => {
+        if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+          moveLeft = false;
+          moveRight = false;
+        }
+      });
+
+      function gameOver() {
+        alert("Game over! Your final score: " + score);
+        document.location.reload();
+      }
+
+      function handleBrickCollision() {
+        for (let i = 0; i < bricks.length; i++) {
+          const brick = bricks[i];
+          if (
+            ball.position.x > brick.position.x - 2 &&
+            ball.position.x < brick.position.x + 2 &&
+            ball.position.y > brick.position.y - 1
+          ) {
+            ballDirection.y *= -1;
+            brick.hitCount -= 1;
+            score += brick.pointValue;
+
+            if (brick.hitCount === 1) {
+              brick.material.color.set(0xFFA500);
+            } else if (brick.hitCount <= 0) {
+              scene.remove(brick);
+              bricks.splice(i, 1);
+              i--;
+            }
+          }
+        }
+      }
+
+
+      function checkWin() {
+        if (bricks.length === 0) {
+          alert("Level " + level + " complete! Your score: " + score);
+          score += level * 1000;
+          level++;
+          createBricks(level);
+        }
+      }
+
+
+      const update = () => {
+        if (moveLeft && paddle.position.x > -12) {
+          paddle.position.x -= paddleSpeed;
+        }
+        if (moveRight && paddle.position.x < 12) {
+          paddle.position.x += paddleSpeed;
+        }
+
+ballLight.position.copy(ball.position);
+        ball.position.x += ballSpeed * ballDirection.x;
+        ball.position.y += ballSpeed * ballDirection.y;
+
+        if (
+          ball.position.x > paddle.position.x - 3 &&
+          ball.position.x < paddle.position.x + 3 &&
+          ball.position.y < paddle.position.y + 1.5
+        ) {
+          ballDirection.y *= -1;
+        }
+
+        if (ball.position.x > 14 || ball.position.x < -14) {
+          ballDirection.x *= -1;
+        }
+        if (ball.position.y > 12 || ball.position.y < -12) {
+          if (ball.position.y < -12) {
+            gameOver();
+            return;
+          }
+          ballDirection.y *= -1;
+        }
+
+        handleBrickCollision();
+
+        checkWin();
+
+        renderer.render(scene, camera);
+        requestAnimationFrame(update);
+      };
+
+      update();
+
+
+      camera.position.z = 30;
+    </script>
+  </body>
+</html>
