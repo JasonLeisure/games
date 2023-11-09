@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Block Stack</title>
+    <style>
+        :root {
+            --width: 400px;
+            --boardWidth: 500px;
+        }
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+            outline: none;
+            overflow-x: hidden;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .name-block {
+    display: flex;
+    align-items: flex-end;
+    width: 200px;
+    margin-right: 20px;
+    font-size: 1.5rem;
+    text-align: left;
+    perspective: 500px;
+}
+
+.name-block h2 {
+    margin: 0;
+    opacity: 0;
+    transform: translateY(-50px) rotateX(45deg);
+    animation: slamDownBlock 0.5s forwards ease-out;
+}
+
+.name-block h2:nth-child(2) {
+    animation-delay: 0.2s;
+    transform: translateY(-50px) rotateX(45deg);
+}
+
+
+.name-block h2:nth-child(1) {
+    background: linear-gradient(45deg, #ff0000, #00ff00);
+}
+
+.name-block h2:nth-child(2) {
+    background: linear-gradient(45deg, #0000ff, #ffff00);
+}
+
+@keyframes slamDownBlock {
+    to {
+        transform: translateY(0) rotateX(0);
+        opacity: 1;
+    }
+}
+
+
+        .game {
+    width: var(--boardWidth);
+    height: 500px;
+    margin: auto;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    animation: changeBackground 10s infinite;
+}
+
+@keyframes changeBackground {
+    0% { background-color: #f4f4f4; }
+    25% { background-color: #f8c471; }
+    50% { background-color: #85c1e9; }
+    75% { background-color: #d98880;  }
+    100% { background-color: #a9dfbf; }
+}
+
+        .slider {
+    visibility: hidden;
+    height: 20px;
+    width: 100px;
+    position: relative;
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2), inset 0 0 3px rgba(255, 255, 255, 0.3);
+}
+        #slider1 {
+    visibility: visible;
+    background: linear-gradient(45deg, #e74c3c, #c0392b); /* Red gradient */
+}
+
+#slider2 {
+    background: linear-gradient(45deg, #2ecc71, #27ae60); /* Green gradient */
+}
+
+#slider3 {
+    background: linear-gradient(45deg, #f39c12, #d35400); /* Orange gradient */
+}
+
+#slider4 {
+    background: linear-gradient(45deg, #3498db, #2980b9); /* Blue gradient */
+}
+
+#slider5 {
+    background: linear-gradient(45deg, #9b59b6, #8e44ad); /* Purple gradient */
+}
+
+#slider6 {
+    background: linear-gradient(45deg, #1abc9c, #16a085); /* Turquoise gradient */
+}
+
+#slider7 {
+    background: linear-gradient(45deg, #e67e22, #d35400); /* Orange gradient */
+}
+
+#slider8 {
+    background: linear-gradient(45deg, #34495e, #2c3e50); /* Dark Blue gradient */
+}
+
+#slider9 {
+    background: linear-gradient(45deg, #ecf0f1, #bdc3c7); /* Silver gradient */
+}
+
+#slider10 {
+    background: linear-gradient(45deg, #e74c3c, #c0392b); /* Red gradient */
+}
+
+#slider11 {
+    background: linear-gradient(45deg, #2ecc71, #27ae60); /* Green gradient */
+}
+
+#slider12 {
+    background: linear-gradient(45deg, #f39c12, #d35400); /* Orange gradient */
+}
+
+#slider13 {
+    background: linear-gradient(45deg, #3498db, #2980b9); /* Blue gradient */
+}
+
+#slider14 {
+    background: linear-gradient(45deg, #9b59b6, #8e44ad); /* Purple gradient */
+}
+
+#slider15 {
+    background: linear-gradient(45deg, #1abc9c, #16a085); /* Turquoise gradient */
+}
+
+#slider16 {
+    background: linear-gradient(45deg, #e67e22, #d35400); /* Orange gradient */
+}
+
+#slider17 {
+    background: linear-gradient(45deg, #34495e, #2c3e50); /* Dark Blue gradient */
+}
+
+#slider18 {
+    background: linear-gradient(45deg, #ecf0f1, #bdc3c7); /* Silver gradient */
+}
+
+#slider19 {
+    background: linear-gradient(45deg, #e74c3c, #c0392b); /* Red gradient */
+}
+
+#slider20 {
+    background: linear-gradient(45deg, #2ecc71, #27ae60); /* Green gradient */
+}
+
+#slider21 {
+    background: linear-gradient(45deg, #f39c12, #d35400); /* Orange gradient */
+}
+
+#slider22 {
+    background: linear-gradient(45deg, #3498db, #2980b9); /* Blue gradient */
+}
+
+#slider23 {
+    background: linear-gradient(45deg, #9b59b6, #8e44ad); /* Purple gradient */
+}
+
+#slider24 {
+    background: linear-gradient(45deg, #1abc9c, #16a085); /* Turquoise gradient */
+}
+
+#slider25 {
+    background: linear-gradient(45deg, #e67e22, #d35400); /* Orange gradient */
+}
+.animate {
+    animation: side 4s infinite linear;
+}
+
+@keyframes side {
+    0% { left: 0px; }
+    50% { left: var(--width); }
+    100% { left: 0px; }
+}
+
+
+        #score {
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+
+        button {
+            font-size: 1.5rem;
+            padding: 0.5rem 2rem;
+            border: 3px solid #333;
+            border-radius: 0.3rem;
+            margin: 1rem auto;
+            display: block;
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        #btn:hover, #restart:hover {
+            background: linear-gradient(45deg, #1abc9c, #16a085);
+        }
+
+        #btn:active, #restart:active {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        #restart {
+            background: linear-gradient(45deg, #e67e22, #d35400);
+            display: none;
+        }
+
+        #score {
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+    </style>
+    <link rel="icon" href="fav.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="game">
+        <div id="score">Score: 0</div>
+        <!-- Your sliders -->
+        <div class="slider animate" id="slider25"></div>
+        <div class="slider animate" id="slider24"></div>
+        <div class="slider animate" id="slider23"></div>
+        <div class="slider animate" id="slider22"></div>
+        <div class="slider animate" id="slider21"></div>
+        <div class="slider animate" id="slider20"></div>
+        <div class="slider animate" id="slider19"></div>
+        <div class="slider animate" id="slider18"></div>
+        <div class="slider animate" id="slider17"></div>
+        <div class="slider animate" id="slider16"></div>
+        <div class="slider animate" id="slider15"></div>
+        <div class="slider animate" id="slider14"></div>
+        <div class="slider animate" id="slider13"></div>
+        <div class="slider animate" id="slider12"></div>
+        <div class="slider animate" id="slider11"></div>
+        <div class="slider animate" id="slider10"></div>
+        <div class="slider animate" id="slider9"></div>
+        <div class="slider animate" id="slider8"></div>
+        <div class="slider animate" id="slider7"></div>
+        <div class="slider animate" id="slider6"></div>
+        <div class="slider animate" id="slider5"></div>
+        <div class="slider animate" id="slider4"></div>
+        <div class="slider animate" id="slider3"></div>
+        <div class="slider animate" id="slider2"></div>
+        <div class="slider animate" id="slider1"></div>
+    </div>
+    <div class="container">
+        <div class="name-block">
+            <h2>Block</h2>
+            <h2>Stack</h2>
+            <!-- Add your name block content here -->
+            <!-- You can include additional text or elements as needed -->
+        </div>
+    <button onclick="stopSliding('slider1','slider2','slider1')" id="btn">Stop!</button>
+    <button id="restart" onclick="location.reload();">Restart</button>
+
+    <script>
+        if(window.innerWidth < 500){
+            var boardWidth = window.innerWidth-2;
+            var gameWidth = window.innerWidth-102;
+            document.documentElement.style.setProperty('--boardWidth', boardWidth + "px");
+            document.documentElement.style.setProperty('--width', gameWidth + "px");
+        }else{
+            var boardWidth = 500;
+            var gameWidth = 400;
+        }
+        var counter = 2;
+        var btn = document.getElementById("btn");
+        var scoreCounter = 0;
+
+        function updateScore() {
+            document.getElementById('score').innerText = 'Score: ' + scoreCounter;
+        }
+
+        function stopSliding(sliderMoving, sliderAbove, sliderB4){
+            var sliderMoving = document.getElementById(sliderMoving);
+            var sliderAbove = document.getElementById(sliderAbove);
+            var sliderB4 = document.getElementById(sliderB4);
+            var left = window.getComputedStyle(sliderMoving).getPropertyValue("left");
+            sliderMoving.classList.remove("animate");
+            sliderMoving.style.left = left;
+            var width = parseFloat(window.getComputedStyle(sliderMoving).getPropertyValue("width"));
+            left = parseFloat(left);
+            var leftB4 = parseFloat(window.getComputedStyle(sliderB4).getPropertyValue("left"));
+            var difference = left - leftB4;
+            var absDifference = Math.abs(difference);
+            if(difference>width||difference<-width){
+                document.getElementById("restart").style.display = "block";
+                var score = "Score: ".concat(counter-2);
+                btn.setAttribute("onclick", "");
+                alert(score);
+                location.reload();
+            }
+            if(difference>0){
+                left = left + absDifference;
+            }else{
+                left = left - difference;
+                sliderMoving.style.left = left.toString().concat("px");
+            }
+            var offset = (width - absDifference).toString().concat("px");
+            sliderMoving.style.width = offset;
+            sliderAbove.style.width = offset;
+            sliderAbove.style.visibility = "visible";
+            gameWidth = gameWidth + absDifference;
+            document.documentElement.style.setProperty('--width', gameWidth + "px");
+            var onclick = "stopSliding('slider".concat(counter, "','slider", counter+1, "','slider", counter-1, "')");
+            btn.setAttribute("onclick",onclick);
+            counter++;
+            scoreCounter++;
+            updateScore();
+        }
+    </script>
+</body>
+</html>
