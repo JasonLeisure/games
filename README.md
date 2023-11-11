@@ -1,4 +1,6 @@
-### Updates to files 11/09/2023 added in block stacking game to games. will be last game added.
+### FINAL UPDATE TO REPO 11/11/2023 added in frogger to games.
+
+### Updates to files 11/09/2023 added in block stacking game to games.
 
 ### Updates to files 11/06/2023 added in games a 3d breakout game. Added snowglobe to animations.
 
