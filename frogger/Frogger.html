@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #1abc9c;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border: 2px solid #27ae60;
+            border-radius: 5px;
+        }
+    </style>
+    <title>Frogger Game</title>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <audio id="backgroundMusic" loop>
+        <source src="watr.mp3" type="audio/mp3">
+        Your browser does not support the audio tag.
+    </audio>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const frog = {
+            x: canvas.width / 2,
+            y: canvas.height - -410,
+            width: 30,
+            height: 30,
+            speed: 20,
+            isHopping: false,
+            hopHeight: 10,
+            hopDuration: 150,
+            hopStart: 0
+        };
+
+        const car = {
+            width: 50,
+            height: 30,
+            speed: 8
+        };
+
+        const car2 = {
+            width: 50,
+            height: 30,
+            speed: 8
+        };
+
+        const log = {
+            width: 100,
+            height: 20,
+            speed: 5
+        };
+
+        const water = {
+            startY: canvas.height / 3,
+            endY: (canvas.height / 3) * 2,
+            color: "#3498db"
+        };
+
+        const water2 = {
+            startY: (canvas.height / 3) * 2,
+            endY: canvas.height,
+            color: "#3498db"
+        };
+
+        const lilyPad = {
+            width: 40,
+            height: 20,
+            color: "#2ecc71"
+        };
+
+        let obstacles = [];
+        let obstacles2 = [];
+        let logs = [];
+        let lilyPads = [];
+        let score = 0;
+
+        function drawFrog() {
+            ctx.fillStyle = "#4CAF50"; // Green color
+            ctx.fillRect(frog.x - frog.width / 2, frog.y - frog.height / 2, frog.width, frog.height);
+
+            ctx.beginPath();
+            ctx.arc(frog.x - frog.width / 4 - 5, frog.y - frog.height / 4, 3, 0, Math.PI * 2); // Left eye
+            ctx.arc(frog.x - frog.width / 4 + 5, frog.y - frog.height / 4, 3, 0, Math.PI * 2); // Right eye
+            ctx.fillStyle = "#fff"; // White color
+            ctx.fill();
+            ctx.closePath();
+
+            ctx.beginPath();
+            ctx.arc(frog.x - frog.width / 4 - 5, frog.y - frog.height / 4, 1.5, 0, Math.PI * 2); // Left pupil
+            ctx.arc(frog.x - frog.width / 4 + 5, frog.y - frog.height / 4, 1.5, 0, Math.PI * 2); // Right pupil
+            ctx.fillStyle = "#000"; // Black color
+            ctx.fill();
+            ctx.closePath();
+
+            ctx.beginPath();
+            ctx.moveTo(frog.x - 3, frog.y + frog.height / 4);
+            ctx.quadraticCurveTo(frog.x - 10, frog.y + frog.height / 2, frog.x + 3, frog.y + frog.height / 4);
+            ctx.fillStyle = "#e74c3c";
+            ctx.fill();
+            ctx.closePath();
+
+            if (frog.isHopping) {
+                const elapsedTime = Date.now() - frog.hopStart;
+                const hopProgress = Math.min(elapsedTime / frog.hopDuration, 1);
+                const hopOffset = Math.sin(hopProgress * Math.PI) * frog.hopHeight;
+
+                ctx.translate(0, -hopOffset);
+            }
+        }
+
+        function startHop() {
+    if (!frog.isHopping) {
+        frog.isHopping = true;
+        frog.hopStart = Date.now();
+    }
+}
+
+function endHop() {
+    if (frog.isHopping) {
+        frog.isHopping = false;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
+}
+
+function drawCar(x, y) {
+    // Car body
+    ctx.fillStyle = "#c0392b"; // Red color
+    ctx.fillRect(x - car.width / 2, y - car.height / 2, car.width, car.height);
+
+    // Roof
+    ctx.fillStyle = "#2c3e50"; // Dark gray color for the roof
+    ctx.fillRect(x - car.width / 4, y - car.height / 2, car.width / 2, car.height / 2);
+
+    // Windows
+    ctx.fillStyle = "#3498db"; // Blue color
+    ctx.fillRect(x - car.width / 4 + 5, y - car.height / 2 + 5, car.width / 4 - 10, car.height / 4);
+
+    // Front windshield
+    ctx.fillStyle = "#3498db"; // Blue color
+    ctx.beginPath();
+    ctx.moveTo(x - car.width / 4 + 5, y - car.height / 2 + 5);
+    ctx.lineTo(x - car.width / 4 + car.width / 4 - 5, y - car.height / 2 + 5);
+    ctx.lineTo(x, y - car.height + 5);
+    ctx.closePath();
+    ctx.fill();
+
+    // Wheels
+    var wheelRadius = 8;
+    ctx.fillStyle = "#2c3e50"; // Dark gray color for the wheels
+
+    // Front wheel
+    ctx.beginPath();
+    ctx.arc(x - car.width / 3, y + car.height / 2, wheelRadius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.closePath();
+
+    // Back wheel
+    ctx.beginPath();
+    ctx.arc(x + car.width / 3, y + car.height / 2, wheelRadius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.closePath();
+}
+
+function drawCar2(x, y) {
+    // Car body
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(x - car2.width / 2, y - car2.height / 2, car2.width, car2.height);
+
+    // Roof
+    ctx.fillStyle = "#2c3e50";
+    ctx.fillRect(x - car2.width / 4, y - car2.height / 2, car2.width / 2, car2.height / 2);
+
+    // Windows
+    ctx.fillStyle = "#3498db";
+    ctx.fillRect(x - car2.width / 4 + 5, y - car2.height / 2 + 5, car2.width / 4 - 10, car2.height / 4);
+
+    // Front windshield
+    ctx.fillStyle = "#3498db";
+    ctx.beginPath();
+    ctx.moveTo(x - car2.width / 4 + 5, y - car2.height / 2 + 5);
+    ctx.lineTo(x - car2.width / 4 + car2.width / 4 - 5, y - car2.height / 2 + 5);
+    ctx.lineTo(x, y - car2.height + 5);
+    ctx.closePath();
+    ctx.fill();
+
+    // Wheels
+    var wheelRadius = 8;
+    ctx.fillStyle = "#2c3e50";
+
+    // Front wheel
+    ctx.beginPath();
+    ctx.arc(x - car2.width / 3, y + car2.height / 2, wheelRadius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.closePath();
+
+    // Back wheel
+    ctx.beginPath();
+    ctx.arc(x + car2.width / 3, y + car2.height / 2, wheelRadius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.closePath();
+}
+function drawRoad(y) {
+            ctx.fillStyle = "#95a5a6";
+            ctx.fillRect(0, y - 15, canvas.width, 30);
+        }
+        function drawLog(x, y) {
+            ctx.beginPath();
+            var logWidth = 80;
+            var logHeight = 20;
+            var cornerRadius = 8;
+            ctx.moveTo(x - logWidth / 2 + cornerRadius, y - logHeight / 2);
+            ctx.lineTo(x + logWidth / 2 - cornerRadius, y - logHeight / 2);
+            ctx.quadraticCurveTo(x + logWidth / 2, y - logHeight / 2, x + logWidth / 2, y);
+            ctx.lineTo(x + logWidth / 2, y + logHeight / 2);
+            ctx.quadraticCurveTo(x + logWidth / 2, y + logHeight / 2, x + logWidth / 2 - cornerRadius, y + logHeight / 2);
+            ctx.lineTo(x - logWidth / 2 + cornerRadius, y + logHeight / 2);
+            ctx.quadraticCurveTo(x - logWidth / 2, y + logHeight / 2, x - logWidth / 2, y);
+            ctx.lineTo(x - logWidth / 2, y - logHeight / 2 + cornerRadius);
+            ctx.quadraticCurveTo(x - logWidth / 2, y - logHeight / 2, x - logWidth / 2 + cornerRadius, y - logHeight / 2);
+            var gradient = ctx.createLinearGradient(x - logWidth / 2, y - logHeight / 2, x + logWidth / 2, y + logHeight / 2);
+            gradient.addColorStop(0, "#8B4513");
+            gradient.addColorStop(1, "#A0522D");
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawWater() {
+    const gradient = ctx.createLinearGradient(0, water.startY, 0, water.endY);
+    gradient.addColorStop(0, "#3498db");
+    gradient.addColorStop(1, "#2980b9");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, water.startY, canvas.width, water.endY - water.startY);
+
+    const gradient2 = ctx.createLinearGradient(0, water2.startY, 0, water2.endY);
+    gradient2.addColorStop(0, "#3498db");
+    gradient2.addColorStop(1, "#2980b9");
+    ctx.fillStyle = gradient2;
+    ctx.fillRect(0, water2.startY, canvas.width, water2.endY - water2.startY);
+
+
+    if (frog.y < water.startY && frog.y > 0) {
+
+        if (!isOnSafeObject()) {
+            gameOver();
+        }
+    }
+
+
+    if (frog.y > water.startY && frog.y < water2.startY) {
+
+        if (!isOnLog()) {
+            gameOver();
+        }
+    }
+
+    if (Math.random() < 0.02) {
+        logs.push({ x: Math.random() * canvas.width, y: water2.startY + Math.random() * (water2.endY - water2.startY) });
+    }
+
+    for (let i = 0; i < logs.length; i++) {
+        logs[i].x += log.speed;
+        drawLog(logs[i].x, logs[i].y);
+
+        if (
+            frog.x > logs[i].x - log.width / 2 &&
+            frog.x < logs[i].x + log.width / 2 &&
+            frog.y > logs[i].y - log.height / 2 &&
+            frog.y < logs[i].y + log.height / 2
+        ) {
+            frog.x += log.speed;
+        }
+
+        if (logs[i].x > canvas.width + log.width / 2) {
+            logs.splice(i, 1);
+            i--;
+        }
+    }
+}
+
+
+function isOnLog() {
+    for (let i = 0; i < logs.length; i++) {
+        if (
+            frog.x > logs[i].x - log.width / 2 &&
+            frog.x < logs[i].x + log.width / 2 &&
+            frog.y > logs[i].y - log.height / 2 &&
+            frog.y < logs[i].y + log.height / 2
+        ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function isOnSafeObject() {
+    for (let i = 0; i < lilyPads.length; i++) {
+        if (
+            frog.x > lilyPads[i].x - lilyPad.width / 2 &&
+            frog.x < lilyPads[i].x + lilyPad.width / 2 &&
+            frog.y > lilyPads[i].y - lilyPad.height / 2 &&
+            frog.y < lilyPads[i].y + lilyPad.height / 2
+        ) {
+            return true;
+        }
+    }
+
+    return isOnLog();
+}
+
+
+function drawLilyPad(x, y) {
+    var padRadius = 15;
+
+    ctx.beginPath();
+    ctx.arc(x, y, padRadius, 0, Math.PI * 2);
+    ctx.fillStyle = "#8BC34A";
+    ctx.fill();
+    ctx.closePath();
+
+    var stemWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(x, y + padRadius);
+    ctx.lineTo(x, y + padRadius + 10);
+    ctx.lineWidth = stemWidth;
+    ctx.strokeStyle = "#2ecc71";
+    ctx.stroke();
+    ctx.closePath();
+}
+
+
+drawLilyPad(100, 100);
+drawLilyPad(200, 100);
+
+function drawTree(x, y) {
+    ctx.fillStyle = "#27ae60";
+    ctx.fillRect(x - 10, y - 30, 20, 30);
+
+    ctx.fillStyle = "#8B4513";
+    ctx.fillRect(x - 5, y, 10, 10);
+}
+
+function drawBackground() {
+    ctx.fillStyle = "#1abc9c";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+    drawRoad(canvas.height / 3);
+    drawRoad((canvas.height / 3) * 2);
+
+
+    for (let i = 50; i < canvas.width; i += 100) {
+        drawTree(i, canvas.height / 3 - 20);
+    }
+
+
+    for (let i = 50; i < canvas.width; i += 100) {
+        drawTree(i, (canvas.height / 3) * 2 - 20);
+    }
+
+
+    drawWater();
+
+
+    const numLilyPadsTop = Math.floor(canvas.width / 70);
+    for (let i = 0; i < numLilyPadsTop; i++) {
+        drawLilyPad(70 * i, 30);
+    }
+
+
+    for (let i = 0; i < lilyPads.length; i++) {
+
+        drawLilyPad(lilyPads[i].x, lilyPads[i].y + 30);
+    }
+
+
+    for (let i = 50; i < canvas.width; i += 100) {
+        if (
+            frog.x > i - 20 && frog.x < i + 20 &&
+            frog.y > (canvas.height / 3) - 40 && frog.y < (canvas.height / 3)
+        ) {
+
+            gameOver();
+        }
+        if (
+            frog.x > i - 20 && frog.x < i + 20 &&
+            frog.y > ((canvas.height / 3) * 2) - 40 && frog.y < ((canvas.height / 3) * 2)
+        ) {
+
+            gameOver();
+        }
+    }
+
+
+    for (let i = 50; i < canvas.width; i += 100) {
+        if (
+            frog.x + frog.width / 2 > i - 25 && frog.x - frog.width / 2 < i + 25 &&
+            frog.y + frog.height / 2 > (canvas.height / 3) - 25 && frog.y - frog.height / 2 < (canvas.height / 3) + 25
+        ) {
+
+            gameOver();
+        }
+    }
+
+    for (let i = 50; i < canvas.width; i += 100) {
+        if (
+            frog.x + frog.width / 2 > i - 25 && frog.x - frog.width / 2 < i + 25 &&
+            frog.y + frog.height / 2 > ((canvas.height / 3) * 2) - 25 && frog.y - frog.height / 2 < ((canvas.height / 3) * 2) + 25
+        ) {
+
+            gameOver();
+        }
+    }
+}
+
+
+        function drawScore() {
+    var gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+    gradient.addColorStop(0, '#3498db');
+    gradient.addColorStop(0.5, '#2c3e50');
+    gradient.addColorStop(1, '#3498db');
+
+    ctx.fillStyle = gradient;
+
+    ctx.font = "30px Arial";
+
+    var yOffset = -5;
+    ctx.fillText("Score: " + score, 20, 40 + yOffset);
+}
+
+function draw() {
+    drawBackground();
+    drawFrog();
+    drawScore();
+
+    if (Math.random() < 0.02) {
+        logs.push({ x: Math.random() * canvas.width, y: water.startY + Math.random() * (water.endY - water.startY) });
+    }
+
+    for (let i = 0; i < logs.length; i++) {
+        logs[i].x += log.speed;
+        drawLog(logs[i].x, logs[i].y);
+
+        if (
+            frog.x > logs[i].x - log.width / 2 &&
+            frog.x < logs[i].x + log.width / 2 &&
+            frog.y > logs[i].y - log.height / 2 &&
+            frog.y < logs[i].y + log.height / 2
+        ) {
+            frog.x += log.speed;
+        }
+
+        if (logs[i].x > canvas.width + log.width / 2) {
+            logs.splice(i, 1);
+            i--;
+        }
+    }
+
+    if (Math.random() < 0.02) {
+        obstacles.push({ x: canvas.width + car.width / 2, y: canvas.height / 3 + Math.random() * (canvas.height / 3) });
+    }
+
+    for (let i = 0; i < obstacles.length; i++) {
+        obstacles[i].x -= car.speed;
+        drawCar(obstacles[i].x, obstacles[i].y);
+
+        if (
+            frog.x > obstacles[i].x - car.width / 2 &&
+            frog.x < obstacles[i].x + car.width / 2 &&
+            frog.y > obstacles[i].y - car.height / 2 &&
+            frog.y < obstacles[i].y + car.height / 2
+        ) {
+            alert("Game Over! Your score: " + score);
+            score = 0;
+            obstacles = [];
+            logs = [];
+            lilyPads = [];
+        }
+
+        if (obstacles[i].x < -car.width / 2) {
+            obstacles.splice(i, 1);
+            i--;
+        }
+    }
+
+    if (Math.random() < 0.02) {
+        obstacles2.push({ x: canvas.width + car2.width / 2, y: (canvas.height / 3) * 2 + Math.random() * (canvas.height / 3) });
+    }
+
+    for (let i = 0; i < obstacles2.length; i++) {
+        obstacles2[i].x -= car2.speed;
+        drawCar2(obstacles2[i].x, obstacles2[i].y);
+
+        if (
+            frog.x > obstacles2[i].x - car2.width / 2 &&
+            frog.x < obstacles2[i].x + car2.width / 2 &&
+            frog.y > obstacles2[i].y - car2.height / 2 &&
+            frog.y < obstacles2[i].y + car2.height / 2
+        ) {
+            alert("Game Over! Your score: " + score);
+            score = 0;
+            obstacles2 = [];
+            logs = [];
+            lilyPads = [];
+            frog.y = canvas.height - 30;
+        }
+
+        if (obstacles2[i].x < -car2.width / 2) {
+            obstacles2.splice(i, 1);
+            i--;
+        }
+    }
+
+    if (frog.y < water.startY && frog.y > 0) {
+        let onLilyPad = false;
+        for (let i = 0; i < lilyPads.length; i++) {
+            if (
+                frog.x > lilyPads[i].x - lilyPad.width / 2 &&
+                frog.x < lilyPads[i].x + lilyPad.width / 2 &&
+                frog.y > lilyPads[i].y - lilyPad.height / 2 &&
+                frog.y < lilyPads[i].y + lilyPad.height / 2
+            ) {
+                onLilyPad = true;
+                break;
+            }
+        }
+
+        if (!onLilyPad) {
+            frog.y = Math.min(canvas.height - frog.height / 2, frog.y + frog.speed);
+        }
+    }
+
+    requestAnimationFrame(draw);
+}
+
+function gameOver() {
+    alert("Game Over! Your score: " + score);
+    score = 0;
+    obstacles = [];
+    obstacles2 = [];
+    logs = [];
+    lilyPads = [];
+    frog.y = canvas.height - 30;
+}
+function keyDownHandler(e) {
+    if (e.key == "ArrowRight") {
+
+        if (frog.x + frog.speed + frog.width / 2 < canvas.width) {
+            frog.x += frog.speed;
+        }
+    } else if (e.key == "ArrowLeft") {
+
+        if (frog.x - frog.speed - frog.width / 2 > 0) {
+            frog.x -= frog.speed;
+        }
+    } else if (e.key == "ArrowUp") {
+
+        score += 10;
+        frog.y -= frog.hopHeight;
+    } else if (e.key == "ArrowDown") {
+
+        if (frog.y + frog.speed + frog.height / 2 < canvas.height) {
+            frog.y += frog.speed;
+        }
+    }
+
+    frog.x = Math.max(frog.width / 2, Math.min(canvas.width - frog.width / 2, frog.x));
+    frog.y = Math.max(frog.height / 2, Math.min(canvas.height - frog.height / 2, frog.y));
+
+
+    for (let i = 50; i < canvas.width; i += 100) {
+        if (
+            frog.x > i - 20 && frog.x < i + 20 &&
+            frog.y - frog.hopHeight < (canvas.height / 3) && frog.y > (canvas.height / 3) - 40
+        ) {
+
+            gameOver();
+        }
+    }
+
+
+    for (let i = 50; i < canvas.width; i += 100) {
+        if (
+            frog.x > i - 20 && frog.x < i + 20 &&
+            frog.y - frog.hopHeight < ((canvas.height / 3) * 2) && frog.y > ((canvas.height / 3) * 2) - 40
+        ) {
+
+            gameOver();
+        }
+    }
+
+
+    if (frog.y < water.startY && frog.y > 0 && !onSafeObject()) {
+        gameOver();
+    }
+
+
+    if (frog.y > canvas.height) {
+        gameOver();
+    }
+}
+
+function onSafeObject() {
+    for (let i = 0; i < lilyPads.length; i++) {
+        if (
+            frog.x > lilyPads[i].x - lilyPad.width / 2 &&
+            frog.x < lilyPads[i].x + lilyPad.width / 2 &&
+            frog.y > lilyPads[i].y - lilyPad.height / 2 &&
+            frog.y < lilyPads[i].y + lilyPad.height / 2
+        ) {
+            return true;
+        }
+    }
+
+    return onLog();
+}
+
+// Function to check if the frog is on a log
+function onLog() {
+    for (let i = 0; i < logs.length; i++) {
+        if (
+            frog.x > logs[i].x - log.width / 2 &&
+            frog.x < logs[i].x + log.width / 2 &&
+            frog.y > logs[i].y - log.height / 2 &&
+            frog.y < logs[i].y + log.height / 2
+        ) {
+            return true;
+        }
+    }
+    return false;
+}
+        document.addEventListener("keydown", keyDownHandler);
+
+        canvas.width = 600;
+        canvas.height = 600;
+
+        for (let i = 0; i < 5; i++) {
+            lilyPads.push({ x: canvas.width - 50, y: water.endY - 30 * i });
+        }
+
+        draw();
+
+         // Play the background music when the page loads
+         document.addEventListener('DOMContentLoaded', function () {
+            const backgroundMusic = document.getElementById('backgroundMusic');
+            backgroundMusic.play();
+        });
+
+        function playBackgroundMusic() {
+            const backgroundMusic = document.getElementById('backgroundMusic');
+            backgroundMusic.play();
+            // Disable the button after clicking to avoid multiple plays
+            document.querySelector('button').disabled = true;
+
+            // Start the game when the music starts
+            draw();
+        }
+    </script>
+</body>
+</html>
