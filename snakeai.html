@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake AI Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(to bottom, #87CEEB, #1E90FF);
+        }
+
+        #game-board {
+            width: 300px;
+            height: 300px;
+            border: 2px solid #000;
+            position: relative;
+        }
+
+        .snake {
+            width: 20px;
+            height: 20px;
+            background-color: #2ecc71;
+            position: absolute;
+            border-radius: 3px;
+        }
+
+        .snake-eye {
+            width: 6px;
+            height: 6px;
+            background-color: #fff;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .snake-pupil {
+            width: 3px;
+            height: 3px;
+            background-color: #000;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .food {
+            width: 20px;
+            height: 20px;
+            background-color: #e74c3c;
+            position: absolute;
+            border-radius: 50%;
+        }
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Snake AI Game</h1>
+    <div id="game-board"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const board = document.getElementById('game-board');
+            const gridSize = 15;
+            let snake = [{ x: 2, y: 2 }];
+            let food = { x: 10, y: 10 };
+            let pelletsEaten = 0;
+            const pelletsToGrow = 1;
+
+            function draw() {
+                board.innerHTML = '';
+
+                snake.forEach((segment, index) => {
+                    const snakeSegment = document.createElement('div');
+                    snakeSegment.className = 'snake';
+                    snakeSegment.style.left = segment.x * gridSize + 'px';
+                    snakeSegment.style.top = segment.y * gridSize + 'px';
+                    board.appendChild(snakeSegment);
+
+                    if (index === 0) {
+                        const eye1 = createEye(segment, 1);
+                        const eye2 = createEye(segment, -1);
+                        board.appendChild(eye1);
+                        board.appendChild(eye2);
+                    }
+                });
+
+                const foodElement = document.createElement('div');
+                foodElement.className = 'food';
+                foodElement.style.left = food.x * gridSize + 'px';
+                foodElement.style.top = food.y * gridSize + 'px';
+                board.appendChild(foodElement);
+            }
+
+            function createEye(segment, direction) {
+                const eye = document.createElement('div');
+                eye.className = 'snake-eye';
+
+                let eyeTop = (segment.y * gridSize + 5) + 'px';
+                let eyeLeft = (segment.x * gridSize + 7 + direction * 5) + 'px';
+
+
+                switch (segment.direction) {
+                    case 'up':
+                        eyeTop = (segment.y * gridSize) + 'px';
+                        break;
+                    case 'down':
+                        eyeTop = (segment.y * gridSize + 10) + 'px';
+                        break;
+                    case 'left':
+                        eyeLeft = (segment.x * gridSize + 2 + direction * 5) + 'px';
+                        break;
+                    case 'right':
+                        eyeLeft = (segment.x * gridSize + 12 + direction * 5) + 'px';
+                        break;
+                    default:
+                        break;
+                }
+
+                eye.style.left = eyeLeft;
+                eye.style.top = eyeTop;
+
+                const pupil = document.createElement('div');
+                pupil.className = 'snake-pupil';
+                pupil.style.left = '2px';
+                pupil.style.top = '2px';
+
+                eye.appendChild(pupil);
+
+                return eye;
+            }
+            function move() {
+                const head = { ...snake[0] };
+
+
+                const nextMove = findNextMove(head, food, snake);
+
+
+                if (head.x === food.x && head.y === food.y) {
+                    pelletsEaten++;
+                    generateFood();
+                }
+
+
+                snake.unshift(nextMove);
+                if (pelletsEaten >= pelletsToGrow) {
+                    pelletsEaten = 0;
+                } else {
+                    snake.pop();
+                }
+
+                if (
+                    head.x < 0 ||
+                    head.x >= gridSize ||
+                    head.y < 0 ||
+                    head.y >= gridSize ||
+                    checkCollision()
+                ) {
+                    alert(`Game Over! Pellets Eaten: ${pelletsEaten}`);
+                    resetGame();
+                }
+
+                draw();
+            }
+
+            function generateFood() {
+
+                food = {
+                    x: Math.floor(Math.random() * gridSize),
+                    y: Math.floor(Math.random() * gridSize),
+                };
+
+
+                while (checkCollision(food)) {
+                    food = {
+                        x: Math.floor(Math.random() * gridSize),
+                        y: Math.floor(Math.random() * gridSize),
+                    };
+                }
+            }
+
+            function checkCollision(obj) {
+
+                for (let i = 0; i < snake.length; i++) {
+                    if (obj && obj.x === snake[i].x && obj.y === snake[i].y) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            function resetGame() {
+                snake = [{ x: 2, y: 2 }];
+                pelletsEaten = 0;
+                generateFood();
+                draw();
+            }
+
+
+            function findNextMove(start, target, obstacles) {
+                if (start.x < target.x) {
+                    return { x: start.x + 1, y: start.y };
+                } else if (start.x > target.x) {
+                    return { x: start.x - 1, y: start.y };
+                } else if (start.y < target.y) {
+                    return { x: start.x, y: start.y + 1 };
+                } else {
+                    return { x: start.x, y: start.y - 1 };
+                }
+            }
+
+            generateFood();
+            draw();
+            setInterval(move, 200);
+        });
+
+
+    </script>
+</body>
+</html>
