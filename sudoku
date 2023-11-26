@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sudoku Game</title>
+  <style>
+    input {
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      position: relative;
+    }
+
+    .selected {
+      background-color: #a0c4ff;
+    }
+
+    .error {
+      background-color: #ffdcdc;
+    }
+
+    .pencil-marks {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      font-size: 10px;
+      color: #666;
+    }
+
+    #timer {
+      margin-top: 10px;
+    }
+
+    #progress {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Sudoku Game</h1>
+<div>
+  <button onclick="newGame('easy')">New Easy Game</button>
+  <button onclick="newGame('medium')">New Medium Game</button>
+  <button onclick="newGame('hard')">New Hard Game</button>
+  <button onclick="clearBoard()">Clear</button>
+  <button onclick="checkSolution()">Check</button>
+  <button onclick="solve()">Solve</button>
+  <button onclick="undo()">Undo</button>
+  <button onclick="redo()">Redo</button>
+  <span id="progress">Progress: 0%</span>
+</div>
+<div id="timer">Timer: <span id="minutes">00</span>:<span id="seconds">00</span></div>
+<table id="sudoku-board"></table>
+<p id="result"></p>
+
+<script>
+  let sudokuBoard;
+  let selectedCell;
+  let pencilMarks;
+  let undoStack;
+  let redoStack;
+  let timer;
+  let seconds = 0;
+  let minutes = 0;
+
+  function startTimer() {
+    timer = setInterval(function () {
+      seconds++;
+      if (seconds === 60) {
+        seconds = 0;
+        minutes++;
+      }
+      document.getElementById("seconds").innerText = seconds < 10 ? "0" + seconds : seconds;
+      document.getElementById("minutes").innerText = minutes < 10 ? "0" + minutes : minutes;
+    }, 1000);
+  }
+
+  function stopTimer() {
+    clearInterval(timer);
+  }
+
+  function newGame(difficulty) {
+    stopTimer();
+    seconds = 0;
+    minutes = 0;
+    document.getElementById("seconds").innerText = "00";
+    document.getElementById("minutes").innerText = "00";
+
+    sudokuBoard = generateSudoku(difficulty);
+    pencilMarks = emptyBoard();
+    undoStack = [];
+    redoStack = [];
+    renderBoard(sudokuBoard, pencilMarks);
+    startTimer();
+    document.getElementById("result").innerText = "";
+    selectedCell = null;
+    highlightSelectedCell();
+    updateProgress();
+  }
+
+  function clearBoard() {
+    stopTimer();
+    seconds = 0;
+    minutes = 0;
+    document.getElementById("seconds").innerText = "00";
+    document.getElementById("minutes").innerText = "00";
+
+    sudokuBoard = emptyBoard();
+    pencilMarks = emptyBoard();
+    undoStack = [];
+    redoStack = [];
+    renderBoard(sudokuBoard, pencilMarks);
+    startTimer();
+    document.getElementById("result").innerText = "";
+    selectedCell = null;
+    highlightSelectedCell();
+    updateProgress();
+  }
+
+  function checkSolution() {
+    if (isBoardComplete(sudokuBoard) && isBoardCorrect(sudokuBoard)) {
+      stopTimer();
+      document.getElementById("result").innerText = "Congratulations! Puzzle completed in " + minutes + " minutes and " + seconds + " seconds.";
+    } else {
+      document.getElementById("result").innerText = "The solution is not correct. Keep trying!";
+    }
+  }
+
+  function isBoardComplete(board) {
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[i].length; j++) {
+        if (board[i][j] === 0) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  function isBoardCorrect(board) {
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[i].length; j++) {
+        if (board[i][j] !== 0 && !isValid(board, i, j, board[i][j])) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  function renderBoard(board, pencilMarks) {
+    const table = document.getElementById("sudoku-board");
+    table.innerHTML = "";
+
+    for (let i = 0; i < board.length; i++) {
+        const row = table.insertRow();
+
+        for (let j = 0; j < board[i].length; j++) {
+            const cell = row.insertCell();
+            const input = document.createElement("input");
+            input.type = "text";
+            input.maxLength = 1;
+            input.value = board[i][j] !== 0 ? board[i][j] : "";
+            input.disabled = board[i][j] !== 0;
+            input.addEventListener("input", function () {
+                this.value = this.value.replace(/[^1-9]/g, "");
+                const prevValue = board[i][j];
+                board[i][j] = this.value !== "" ? parseInt(this.value, 10) : 0;
+                highlightSelectedCell();
+                updateProgress();
+                addToUndoStack({ row: i, col: j, value: prevValue });
+            });
+
+            input.addEventListener("click", function () {
+                selectedCell = { row: i, col: j };
+                highlightSelectedCell();
+            });
+
+            cell.appendChild(input);
+
+            if (pencilMarks[i][j]) {
+                const pencilMarksDiv = document.createElement("div");
+                pencilMarksDiv.classList.add("pencil-marks");
+                pencilMarksDiv.innerText = pencilMarks[i][j].join(" ");
+                cell.appendChild(pencilMarksDiv);
+            }
+        }
+    }
+    highlightSelectedCell();
+}
+
+  function highlightSelectedCell() {
+    const table = document.getElementById("sudoku-board");
+    for (let i = 0; i < table.rows.length; i++) {
+      for (let j = 0; j < table.rows[i].cells.length; j++) {
+        table.rows[i].cells[j].classList.remove("selected", "error");
+      }
+    }
+    if (selectedCell) {
+      table.rows[selectedCell.row].cells[selectedCell.col].classList.add("selected");
+      highlightNumber(selectedCell.row, selectedCell.col, true);
+    }
+  }
+ function solve() {
+    stopTimer();
+    solveSudoku(sudokuBoard);
+    renderBoard(sudokuBoard, pencilMarks);
+    updateProgress();
+    document.getElementById("result").innerText = "Puzzle solved!";
+  }
+  function highlightNumber(row, col, highlight) {
+    const table = document.getElementById("sudoku-board");
+    const num = sudokuBoard[row][col];
+    for (let i = 0; i < table.rows.length; i++) {
+      for (let j = 0; j < table.rows[i].cells.length; j++) {
+        if (sudokuBoard[i][j] === num && (i !== row || j !== col)) {
+          if (highlight) {
+            table.rows[i].cells[j].classList.add("error");
+          } else {
+            table.rows[i].cells[j].classList.remove("error");
+          }
+        }
+      }
+    }
+  }
+
+  function updateProgress() {
+    const filledCells = sudokuBoard.reduce((acc, row) => acc + row.filter(cell => cell !== 0).length, 0);
+    const totalCells = sudokuBoard.length * sudokuBoard[0].length;
+    const progress = Math.floor((filledCells / totalCells) * 100);
+    document.getElementById("progress").innerText = `Progress: ${progress}%`;
+  }
+
+  function addToUndoStack(move) {
+    undoStack.push(move);
+    redoStack = [];
+  }
+
+  function undo() {
+    if (undoStack.length > 0) {
+      const move = undoStack.pop();
+      redoStack.push({ ...move, value: sudokuBoard[move.row][move.col] });
+      sudokuBoard[move.row][move.col] = move.value;
+      renderBoard(sudokuBoard, pencilMarks);
+      highlightSelectedCell();
+      updateProgress();
+    }
+  }
+
+  function redo() {
+    if (redoStack.length > 0) {
+      const move = redoStack.pop();
+      undoStack.push({ ...move, value: sudokuBoard[move.row][move.col] });
+      sudokuBoard[move.row][move.col] = move.value;
+      renderBoard(sudokuBoard, pencilMarks);
+      highlightSelectedCell();
+      updateProgress();
+    }
+  }
+
+  function generateSudoku(difficulty) {
+    const board = [];
+    const size = 9;
+
+    for (let i = 0; i < size; i++) {
+      board.push(Array(size).fill(0));
+    }
+
+    solveSudoku(board);
+    removeNumbers(board, difficulty);
+
+    return board;
+  }
+
+  function solveSudoku(board) {
+    const size = 9;
+    for (let row = 0; row < size; row++) {
+      for (let col = 0; col < size; col++) {
+        if (board[row][col] === 0) {
+          for (let num = 1; num <= size; num++) {
+            if (isValid(board, row, col, num)) {
+              board[row][col] = num;
+
+              if (solveSudoku(board)) {
+                return true;
+              }
+
+              board[row][col] = 0;
+            }
+          }
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  function isValid(board, row, col, num) {
+    for (let i = 0; i < 9; i++) {
+      if (board[row][i] === num || board[i][col] === num || board[Math.floor(row / 3) * 3 + Math.floor(i / 3)][Math.floor(col / 3) * 3 + i % 3] === num) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function removeNumbers(board, difficulty) {
+    let numToRemove;
+    switch (difficulty) {
+      case 'easy':
+        numToRemove = 30;
+        break;
+      case 'medium':
+        numToRemove = 40;
+        break;
+      case 'hard':
+        numToRemove = 50;
+        break;
+      default:
+        numToRemove = 40;
+    }
+
+    while (numToRemove > 0) {
+      const row = Math.floor(Math.random() * 9);
+      const col = Math.floor(Math.random() * 9);
+
+      if (board[row][col] !== 0) {
+        board[row][col] = 0;
+        numToRemove--;
+      }
+    }
+  }
+
+  function emptyBoard() {
+    return Array.from({ length: 9 }, () => Array(9).fill(0));
+  }
+</script>
+
+</body>
+</html>
