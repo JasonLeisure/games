@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #080909;
+    }
+    #othelloTitle {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #4caf50;
+    }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(8, 60px);
+      grid-template-rows: repeat(8, 60px);
+      gap: 2px;
+      background-color: #27ae60;
+      border: 2px solid #004d40;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .cell {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #004d40;
+      cursor: pointer;
+      position: relative;
+      background-color: #009688;
+    }
+
+    .disc {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  position: absolute;
+  transition: transform 0.3s ease-in-out;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.white { background-color: #fff; }
+.black { background-color: #000; }
+
+
+    #message {
+      margin-top: 20px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .info {
+      color: #fff;
+      margin-top: 10px;
+    }
+
+    #restart {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #004d40;
+      color: #fff;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+  </style>
+  <title>Othello Game</title>
+</head>
+<body>
+
+    <div id="othelloTitle">Othello</div>
+    <div id="board"></div>
+    <div id="message">Current Turn: Black</div>
+    <div id="info" class="info"></div>
+    <button id="restartButton" onclick="restartGame()">Restart Game</button>
+
+
+<script>
+
+  const boardSize = 8;
+  const board = document.getElementById('board');
+  const cells = [];
+  let currentPlayer = 'black';
+  let validMoves = [];
+  let gameBoard = initializeBoard();
+  let gameOver = false;
+
+
+  function initializeBoard() {
+    const board = Array.from({ length: boardSize }, () => Array(boardSize).fill(null));
+    board[3][3] = 'white';
+    board[3][4] = 'black';
+    board[4][3] = 'black';
+    board[4][4] = 'white';
+    return board;
+  }
+
+
+  function renderBoard() {
+    board.innerHTML = '';
+    for (let i = 0; i < boardSize; i++) {
+      for (let j = 0; j < boardSize; j++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.row = i;
+        cell.dataset.col = j;
+        cell.addEventListener('click', () => placeDisc(i, j));
+        board.appendChild(cell);
+        cells.push(cell);
+
+        const disc = document.createElement('div');
+        disc.className = 'disc';
+        cell.appendChild(disc);
+
+        if (gameBoard[i][j] === 'white') {
+          disc.classList.add('white');
+        } else if (gameBoard[i][j] === 'black') {
+          disc.classList.add('black');
+        }
+      }
+    }
+  }
+
+
+  function placeDisc(row, col) {
+    if (gameOver || !isValidMove(row, col)) {
+      return;
+    }
+
+    flipDiscs(row, col);
+    gameBoard[row][col] = currentPlayer;
+    renderBoard();
+
+    currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
+    validMoves = getValidMoves();
+    displayValidMoves();
+
+    if (currentPlayer === 'black' && !gameOver) {
+
+      setTimeout(() => {
+        const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+        placeDisc(randomMove.row, randomMove.col);
+      }, 500);
+    }
+
+    if (!hasValidMove()) {
+      currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
+
+      if (!hasValidMove()) {
+        endGame();
+      }
+    }
+  }
+
+
+  function isValidMove(row, col) {
+    return validMoves.some(move => move.row === row && move.col === col);
+  }
+
+
+  function displayValidMoves() {
+    validMoves.forEach(move => {
+      const index = move.row * boardSize + move.col;
+      const cell = cells[index];
+      cell.classList.remove('valid-move');
+    });
+
+    validMoves = getValidMoves();
+
+    validMoves.forEach(move => {
+      const index = move.row * boardSize + move.col;
+      const cell = cells[index];
+      cell.classList.add('valid-move');
+    });
+
+    displayCurrentPlayer();
+  }
+
+
+  function getValidMoves() {
+    const moves = [];
+
+    for (let i = 0; i < boardSize; i++) {
+      for (let j = 0; j < boardSize; j++) {
+        if (gameBoard[i][j] === null && isValidMoveDirection(i, j)) {
+          moves.push({ row: i, col: j });
+        }
+      }
+    }
+
+    return moves;
+  }
+
+  function isValidMoveDirection(row, col) {
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        if (i !== 0 || j !== 0) {
+          if (isValidDirection(row, col, i, j)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+
+  function isValidDirection(row, col, rowDir, colDir) {
+    let currentRow = row + rowDir;
+    let currentCol = col + colDir;
+    let opponent = currentPlayer === 'black' ? 'white' : 'black';
+
+    while (isValidCell(currentRow, currentCol)) {
+      if (gameBoard[currentRow][currentCol] === null) {
+        break;
+      }
+
+      if (gameBoard[currentRow][currentCol] === opponent) {
+        currentRow += rowDir;
+        currentCol += colDir;
+      } else if (gameBoard[currentRow][currentCol] === currentPlayer) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function isValidCell(row, col) {
+    return row >= 0 && row < boardSize && col >= 0 && col < boardSize;
+  }
+
+
+  function flipDiscs(row, col) {
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        if (i !== 0 || j !== 0) {
+          flipDirection(row, col, i, j);
+        }
+      }
+    }
+  }
+
+  function flipDirection(row, col, rowDir, colDir) {
+    let currentRow = row + rowDir;
+    let currentCol = col + colDir;
+    let opponent = currentPlayer === 'black' ? 'white' : 'black';
+    const discsToFlip = [];
+
+    while (isValidCell(currentRow, currentCol)) {
+      if (gameBoard[currentRow][currentCol] === null) {
+        break;
+      }
+
+      if (gameBoard[currentRow][currentCol] === opponent) {
+        discsToFlip.push({ row: currentRow, col: currentCol });
+        currentRow += rowDir;
+        currentCol += colDir;
+      } else if (gameBoard[currentRow][currentCol] === currentPlayer) {
+        flipDiscsArray(discsToFlip);
+        break;
+      }
+    }
+  }
+
+
+  function flipDiscsArray(discs) {
+    discs.forEach(({ row, col }) => {
+      gameBoard[row][col] = currentPlayer;
+      animateDiscFlip(row, col);
+    });
+  }
+
+  function animateDiscFlip(row, col) {
+    const index = row * boardSize + col;
+    const disc = cells[index].querySelector('.disc');
+
+    disc.style.transform = 'scale(1.2)';
+    setTimeout(() => {
+      disc.style.transform = 'scale(1)';
+    }, 300);
+  }
+
+
+  function displayCurrentPlayer() {
+    const message = document.getElementById('message');
+    message.textContent = `Current Turn: ${currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1)}`;
+  }
+
+  function hasValidMove() {
+    return getValidMoves().length > 0;
+  }
+
+    function endGame() {
+    const blackCount = countDiscs('black');
+    const whiteCount = countDiscs('white');
+    let winner;
+
+    if (blackCount > whiteCount) {
+      winner = 'Black';
+    } else if (whiteCount > blackCount) {
+      winner = 'White';
+    } else {
+      winner = 'Tie';
+    }
+
+    const message = document.getElementById('message');
+    message.textContent = `Game Over. Winner: ${winner}`;
+
+    const info = document.getElementById('info');
+    info.innerHTML = `Black: ${blackCount} | White: ${whiteCount}`;
+    gameOver = true;
+  }
+
+  function countDiscs(player) {
+    let count = 0;
+    for (let i = 0; i < boardSize; i++) {
+      for (let j = 0; j < boardSize; j++) {
+        if (gameBoard[i][j] === player) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  function restartGame() {
+    currentPlayer = 'black';
+    validMoves = [];
+    gameBoard = initializeBoard();
+    gameOver = false;
+    renderBoard();
+    displayValidMoves();
+    const message = document.getElementById('message');
+    message.textContent = 'Current Turn: Black';
+    const info = document.getElementById('info');
+    info.innerHTML = '';
+  }
+</script>
+
+</body>
+</html>
