@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lava Lamp Container</title>
+    <style>
+        :root {
+            --w: 125px;
+            --h: 210px;
+        }
+
+        @keyframes lavaMotion {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(20px) rotate(5deg);
+            }
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+        }
+
+        @keyframes bubbleMotion {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(10px);
+            }
+        }
+
+        #lava-lamp {
+            width: var(--w);
+            height: var(--h);
+            background: conic-gradient(
+                from 0deg,
+                transparent 0%,
+                transparent 100%
+            );
+            position: absolute;
+            bottom: -100px;
+            animation: lavaMotion 5s infinite, bubbleMotion 3s infinite;
+            border-radius: 50%;
+            filter: blur(10px);
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #111; /* Dark Background */
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .wall {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .c {
+            width: var(--w);
+            height: var(--h);
+            margin: auto;
+            border-width: 3px;
+            border-style: solid;
+            border-radius: 50px;
+            position: relative;
+            overflow: hidden;
+            background-image: radial-gradient(ellipse farthest-corner at center bottom, transparent 0%, transparent 80%, transparent 100%);
+        }
+
+        .l::after,
+        .l::before {
+            content: '';
+            position: absolute;
+            animation: rotate1 10s linear infinite;
+            background-image: linear-gradient(45deg, #FF5733, #33FF57, #FF00FF, #FFA500, #800080, #00FFFF); /* Neon Colors + Existing Colors */
+            width: 194px;
+            height: 194px;
+            border-radius: 40% 60% 38% 62% / 53% 35% 65% 47%;
+            bottom: -178px;
+            right: -38px;
+            transform: scale(1.1) skew(20deg);
+            z-index: -1;
+            border: 1px solid #01d5ff;
+            opacity: 0.9;
+        }
+
+        .l::after {
+            animation-direction: reverse;
+            animation-duration: 20s;
+            right: -20px;
+            bottom: -180px;
+        }
+
+        .b {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            background-color: black;
+            z-index: -2;
+            filter: contrast(20);
+        }
+
+        .b i:nth-child(2)::before {
+            animation-duration: 25s;
+            width: 50px;
+            height: 50px;
+            background-image: linear-gradient(45deg, rgba(255, 0, 255, 0.64), rgba(0, 255, 255, 0.84), #FF00FF, #FFA500); /* Neon Colors */
+        }
+
+        .b i::before {
+            content: '';
+            position: absolute;
+            border-radius: 47% 53% 45% 55% / 67% 59% 41% 33%;
+            background-image: linear-gradient(45deg, rgba(255, 0, 0, 0.64), rgba(0, 255, 0, 0.84), #FF00FF, #FFA500); /* Neon Colors */
+            width: 40px;
+            height: 50px;
+            top: 20px;
+            left: 0;
+            right: 0;
+            margin: auto;
+            z-index: 0;
+            filter: blur(10px);
+            animation: rotate1 9s linear infinite, yAxis 10s linear infinite alternate-reverse forwards, bs 5s linear infinite;
+        }
+
+        .b i::after {
+            content: '';
+            position: absolute;
+            border-radius: 47% 53% 45% 55% / 67% 59% 41% 33%;
+            background-image: linear-gradient(45deg, #FF5733, #33FF57, #FF00FF, #FFA500, #800080, #00FFFF); /* Neon Colors + Existing Colors */
+            width: 60px;
+            height: 52px;
+            top: 70px;
+            left: 0;
+            right: 0;
+            margin: auto;
+            z-index: 0;
+            filter: blur(10px);
+            animation: rotate1 8s linear infinite, yAxis 20s linear infinite alternate forwards;
+        }
+
+        @keyframes rotate1 {
+            from {
+                transform: rotate(0);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes yAxis {
+            from {
+                top: -60px;
+                border-radius: 17% 53% 45% 55% / 67% 59% 41% 33%;
+            }
+            to {
+                top: 210px;
+                border-radius: 97% 33% 65% 55% / 87% 29% 41% 33%;
+            }
+        }
+
+        @keyframes bs {
+            from {
+                box-shadow: 0px 0px 0px 2px rgb(237, 255, 87);
+            }
+            50% {
+                box-shadow: 0px 0px 0px 10px #00c4ff;
+            }
+            to {
+                box-shadow: 0px 0px 0px 1px rgb(237, 255, 87);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="glass-container">
+        <div class="wall">
+            <div class="c">
+                <div class="l"></div>
+                <div id="lava-lamp"></div>
+                <div id="bubbles"></div>
+                <div class="b">
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const glassContainer = document.getElementById('glass-container');
+        const audio = new Audio('medirain.mp3');
+        let audioPlaying = false;
+
+        glassContainer.addEventListener('click', () => {
+            if (audioPlaying) {
+                audio.pause();
+                audioPlaying = false;
+            } else {
+                audio.play();
+                audioPlaying = true;
+            }
+        });
+    </script>
+</body>
+</html>
