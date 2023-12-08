@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #333340;
+      position: relative;
+    }
+
+    @keyframes flickerAnimation {
+  0% {
+    background-color: #d2eb87;
+    opacity: 1;
+  }
+  25% {
+    background-color: yellow;
+    opacity: 0.8;
+  }
+  50% {
+    background-color: #d2eb87;
+    opacity: 1;
+  }
+  75% {
+    background-color: #d5eb87;
+    opacity: 0.9;
+  }
+  100% {
+    background-color: #d2eb87;
+    opacity: 1;
+  }
+}
+    @keyframes smokeAnimation {
+      0% {
+        transform: translateY(0) rotate(0);
+        opacity: 0.5;
+      }
+      50% {
+        transform: translateY(-20px) rotate(5deg);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-40px) rotate(0);
+        opacity: 0;
+      }
+    }
+
+    #chimney {
+      width: 20px;
+      height: 40px;
+      background-color: #8B0000;
+      position: absolute;
+      top: 5px;
+      left: 80px; /* Adjusted left position */
+    }
+
+    #smoke {
+      width: 10px;
+      height: 10px;
+      background-color: #ccc;
+      position: absolute;
+      top: -6px;
+      left: 60px; /* Adjusted left position */
+      animation: smokeAnimation 2s linear infinite;
+    }
+
+    .window-light {
+      width: 10px;
+      height: 10px;
+      position: absolute;
+      top: 60px;
+      animation: flickerAnimation 2s linear infinite;
+    }
+
+    #house {
+      width: 80px;
+      height: 70px;
+      position: absolute;
+      top: 150px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    #roof {
+      width: 0;
+      height: 0;
+      border-left: 40px solid transparent;
+      border-right: 40px solid transparent;
+      border-bottom: 50px solid #8B0000;
+    }
+
+    .raindrop {
+      width: 2px;
+      height: 20px; /* Adjust the length of raindrops */
+      position: absolute;
+      background-color: rgba(135, 206, 250, 0.8); /* Adjust the color and opacity */
+    }
+
+    #walls {
+      width: 80px;
+      height: 40px;
+      background-color: #8B4513;
+    }
+
+    #chimney {
+      width: 20px;
+      height: 40px;
+      background-color: #8B0000;
+      position: absolute;
+      top: 5px;
+      left: 50px;
+    }
+
+    #window1, #window2 {
+      width: 10px;
+      height: 10px;
+      background-color: #87CEEB;
+      position: absolute;
+      top: 60px;
+    }
+
+    #window1 {
+      left: 10px;
+    }
+
+    #window2 {
+      right: 10px;
+    }
+    #container {
+      width: 400px;
+      height: 325px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate3d(-50%, -50%, 0);
+    }
+
+    #globe {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.5) inset;
+      position: absolute;
+      left: 50%;
+      transform: translate3d(-50%, 0, 0);
+      overflow: hidden;
+    }
+
+    #base {
+      width: 320px;
+      height: 75px;
+      background-color: #080400;
+      position: absolute;
+      top: 250px;
+      left: 50%;
+      transform: translate3d(-50%, 0, 0);
+      border-radius: 50px 50px 0 0;
+    }
+
+    #ground {
+      width: 300px;
+      height: 100px;
+      background-color: rgb(6, 56, 27);
+      position: absolute;
+      top: 75%;
+    }
+
+    #snow {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .flake {
+      width: 2px;
+      height: 2px;
+      position: absolute;
+      background-color: white;
+    }
+
+    #moon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: #f0f0f0;
+      position: absolute;
+      top: 20px; /* Adjusted top position */
+      right: 20px; /* Adjusted right position */
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+    }
+
+    #moonlight {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 70%);
+    }
+
+
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="globe">
+      <div id="ground"></div>
+      <div id="tree">
+        <div id="treetop"></div>
+        <div id="trunk"></div>
+      </div>
+      <div id="rain"></div> <!-- New rain container -->
+      <div id="moon">
+        <div id="moonlight"></div>
+      </div>
+    </div>
+    <div id="house">
+      <div id="chimney"></div>
+      <div id="smoke"></div>
+      <div id="roof"></div>
+      <div id="walls"></div>
+      <div id="window1" class="window-light"></div>
+      <div id="window2" class="window-light"></div>
+      <div id="snowflake"></div>
+    </div>
+
+    <div id="base"></div>
+  </div>
+  <div id="fps"></div>
+</body>
+<script>
+  var raindrops = [];
+  var speedY = 5; // Adjust the speed of raindrops
+
+  makeRaindrops();
+  animateRaindrops();
+
+  function makeRaindrops() {
+    for (var i = 0; i < 500; i++) {
+      raindrops.push(document.createElement("div"));
+      raindrops[i].className += "raindrop";
+      raindrops[i].style.left = getRandomPosition() + "px";
+      raindrops[i].style.top = getRandomPosition() + "px";
+      document.getElementById("rain").appendChild(raindrops[i]);
+    }
+  }
+
+  function animateRaindrops() {
+    for (var i = 0; i < raindrops.length; i++) {
+      var currentTop = parseInt(raindrops[i].style.top);
+
+      var newTop = currentTop + speedY;
+
+      if (newTop > 400) {
+        newTop = 0;
+      }
+
+      raindrops[i].style.top = newTop + "px";
+    }
+    requestAnimationFrame(animateRaindrops);
+  }
+
+  function getRandomPosition() {
+    return Math.floor(Math.random() * 400);
+  }
+</script>
+</html>
