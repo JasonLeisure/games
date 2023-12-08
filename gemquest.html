@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gem Quest</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+    }
+
+    #board {
+      display: grid;
+      grid-template-columns: repeat(7, 80px);
+      gap: 5px;
+      margin: 20px auto;
+      position: relative;
+    }
+
+    .cell {
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #aaa;
+      position: relative;
+    }
+
+    .player-token {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      position: absolute;
+      z-index: 1;
+    }
+
+    .player1-token {
+      background-color: red;
+    }
+
+    .player2-token {
+      background-color: blue;
+    }
+
+    #players {
+      margin-top: 20px;
+    }
+
+    .player {
+      margin: 0 10px;
+    }
+
+    #log {
+      margin-top: 20px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .mini-game-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      z-index: 2;
+      text-align: left; /* Adjust text alignment for the word hint */
+    }
+
+    .word-hint {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="board"></div>
+<div id="players"></div>
+<div id="log"></div>
+
+<script>
+  const gemCards = [
+  { name: 'Ruby', points: 5 },
+  { name: 'Emerald', points: 4 },
+  { name: 'Sapphire', points: 3 },
+  { name: 'Diamond', points: 6 },
+  { name: 'Amethyst', points: 4 },
+  { name: 'Topaz', points: 3 },
+  { name: 'Opal', points: 5 },
+  // Add more gem cards as needed
+];
+
+const gameBoard = [
+    ['Start', 'Challenge', 'Teleport', 'Gem', 'Challenge', 'Obstacle', 'Power-up'], // Added 'Obstacle' and 'Power-up' spaces
+    ['Gem', 'Teleport', 'Challenge', 'Gem', 'Teleport', 'Gem', 'Challenge'],
+    ['Challenge', 'Gem', 'Teleport', 'Obstacle', 'Gem', 'Challenge', 'Power-up'], // Added 'Obstacle' and 'Power-up' spaces
+    ['Gem', 'Teleport', 'Challenge', 'Teleport', 'Gem', 'Obstacle', 'Gem'], // Added 'Obstacle' space
+    ['Challenge', 'Gem', 'Teleport', 'Challenge', 'Power-up', 'Gem', 'Challenge'], // Added 'Power-up' space
+    ['Challenge', 'Obstacle', 'Gem', 'Teleport', 'Challenge', 'Gem', 'Teleport'], // Added 'Obstacle' space
+    ['Challenge', 'Gem', 'Teleport', 'Challenge', 'Power-up', 'Teleport', 'End'], // Added 'Power-up' space and 'Teleport' space
+  ];
+  const players = [
+    { name: 'Player 1', gems: 0, position: 0 },
+    { name: 'Player 2', gems: 0, position: 0 },
+  ];
+
+  let currentPlayer = 0; // Player 1 starts
+  let gameLog = '';
+
+  function renderBoard() {
+    const boardElement = document.getElementById('board');
+    boardElement.innerHTML = '';
+
+    gameBoard.forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
+        const cellElement = document.createElement('div');
+        cellElement.classList.add('cell');
+        cellElement.textContent = cell;
+        boardElement.appendChild(cellElement);
+
+        if (cell === 'Start') {
+          renderPlayerToken(rowIndex, colIndex, 0);
+          renderPlayerToken(rowIndex, colIndex, 1);
+        }
+      });
+    });
+  }
+
+  function renderPlayerToken(row, col, playerIndex) {
+    const playerToken = document.createElement('div');
+    playerToken.classList.add('player-token');
+    playerToken.classList.add(`player${playerIndex + 1}-token`);
+    playerToken.style.top = `${row * 85}px`;
+    playerToken.style.left = `${col * 85 + playerIndex * 30}px`;
+    document.getElementById('board').appendChild(playerToken);
+  }
+
+  function updatePlayerTokens() {
+    const tokenElements = document.querySelectorAll('.player-token');
+    tokenElements.forEach((token, index) => {
+      const player = players[index];
+      const { row, col } = getCellPosition(player.position);
+      token.style.top = `${row * 85}px`;
+      token.style.left = `${col * 85 + index * 30}px`;
+    });
+  }
+
+  function getCellPosition(position) {
+    const row = Math.floor(position / gameBoard[0].length);
+    const col = position % gameBoard[0].length;
+    return { row, col };
+  }
+
+  function renderPlayers() {
+    const playersElement = document.getElementById('players');
+    playersElement.innerHTML = '';
+
+    players.forEach(player => {
+      const playerElement = document.createElement('div');
+      playerElement.classList.add('player');
+      playerElement.textContent = `${player.name}: ${player.gems} gems`;
+      playersElement.appendChild(playerElement);
+
+      const rollButton = document.createElement('button');
+      rollButton.textContent = 'Roll Dice';
+      rollButton.addEventListener('click', () => playTurn());
+      playerElement.appendChild(rollButton);
+    });
+
+    // Display player turn
+    const turnIndicator = document.createElement('p');
+    turnIndicator.id = 'turn-indicator';
+    turnIndicator.textContent = `Turn: ${players[currentPlayer].name}`;
+    playersElement.appendChild(turnIndicator);
+  }
+
+  function renderLog(message) {
+    const logElement = document.getElementById('log');
+    gameLog += `${message}\n`;
+    logElement.textContent = gameLog;
+  }
+
+  function rollDice() {
+    return Math.floor(Math.random() * 6) + 1;
+  }
+
+  function movePlayer(steps) {
+    const player = players[currentPlayer];
+    renderLog(`${player.name} rolled a ${steps}.`);
+
+    player.position = (player.position || 0) + steps;
+    if (player.position >= gameBoard.flat().length) {
+      renderLog(`${player.name} reached the end!`);
+      endGame();
+      return;
+    }
+
+    const currentSpace = gameBoard.flat()[player.position];
+    renderLog(`${player.name} landed on ${currentSpace}.`);
+
+    switch (currentSpace) {
+      case 'Challenge':
+        handleChallenge();
+        break;
+      case 'Teleport':
+        handleTeleport();
+        break;
+      case 'Gem':
+        handleGem();
+        break;
+      case 'Obstacle': // Added case for 'Obstacle'
+        handleObstacle();
+        break;
+      case 'Power-up': // Added case for 'Power-up'
+        handlePowerUp();
+        break;
+    }
+
+    updatePlayerTokens(); // Update player tokens after each move
+    currentPlayer = (currentPlayer + 1) % players.length;
+    renderPlayers();
+  }
+
+  function handleChallenge() {
+    // Start the mini-game
+    createMiniGameInterface();
+  }
+
+  function createMiniGameInterface() {
+    const miniGameContainer = document.createElement('div');
+    miniGameContainer.classList.add('mini-game-container');
+
+    const wordList = ['apple', 'banana', 'orange', 'grape', 'watermelon'];
+    const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
+
+    // Display a partially revealed word as a hint
+    const wordHint = document.createElement('p');
+    wordHint.classList.add('word-hint');
+    wordHint.textContent = `Word Hint: ${randomWord.charAt(0)}${"_ ".repeat(randomWord.length - 1)}`;
+    miniGameContainer.appendChild(wordHint);
+
+    const questionElement = document.createElement('p');
+    questionElement.textContent = `Guess the word:`;
+    miniGameContainer.appendChild(questionElement);
+
+    const answerInput = document.createElement('input');
+    answerInput.setAttribute('type', 'text');
+    answerInput.setAttribute('placeholder', 'Type your guess...');
+    miniGameContainer.appendChild(answerInput);
+
+    const submitButton = document.createElement('button');
+    submitButton.textContent = 'Submit Guess';
+    submitButton.addEventListener('click', () => handleMiniGame(answerInput.value, randomWord));
+    miniGameContainer.appendChild(submitButton);
+
+    document.body.appendChild(miniGameContainer);
+  }
+
+  function handleMiniGame(guess, correctWord) {
+    const player = players[currentPlayer];
+
+    if (guess.toLowerCase() === correctWord) {
+      renderLog(`${player.name} successfully completed the challenge and earned an extra gem!`);
+      player.gems++;
+    } else {
+      renderLog(`${player.name} failed the challenge.`);
+    }
+
+    // Remove the mini-game interface
+    const miniGameContainer = document.querySelector('.mini-game-container');
+    if (miniGameContainer) {
+      miniGameContainer.remove();
+    }
+
+    // Continue with the game
+    updatePlayerTokens();
+    currentPlayer = (currentPlayer + 1) % players.length;
+    renderPlayers();
+  }
+
+  function handleTeleport() {
+    const player = players[currentPlayer];
+    const newPosition = Math.floor(Math.random() * gameBoard.flat().length);
+    renderLog(`${player.name} teleported to a new location.`);
+    player.position = newPosition;
+  }
+
+  function handleGem() {
+    const player = players[currentPlayer];
+    const gemCard = gemCards[Math.floor(Math.random() * gemCards.length)];
+    player.gems += gemCard.points;
+    renderLog(`${player.name} collected a ${gemCard.name} worth ${gemCard.points} points. Total gems: ${player.gems}`);
+  }
+
+  function handleObstacle() {
+    const player = players[currentPlayer];
+    renderLog(`${player.name} encountered an obstacle and lost a turn.`);
+    currentPlayer = (currentPlayer + 1) % players.length; // Skip the next player's turn
+  }
+
+  function handlePowerUp() {
+    const player = players[currentPlayer];
+    const bonusPoints = Math.floor(Math.random() * 3) + 1; // Bonus points between 1 and 3
+    player.gems += bonusPoints;
+    renderLog(`${player.name} found a power-up and gained ${bonusPoints} bonus gems.`);
+  }
+
+  function endGame() {
+    renderLog('Game Over!');
+    // Determine the winner and display results
+    const winner = determineWinner();
+    renderLog(`The winner is ${winner.name} with ${winner.gems} gems!`);
+    renderPlayers(); // Update UI to show final scores
+  }
+
+  function determineWinner() {
+    return players.reduce((winner, player) => (player.gems > winner.gems ? player : winner), players[0]);
+  }
+
+
+  function playTurn() {
+    const player = players[currentPlayer];
+    const steps = rollDice();
+    movePlayer(steps);
+  }
+
+  function handleChallenge() {
+    // Start the mini-game
+    createMiniGameInterface();
+  }
+
+  function createMiniGameInterface() {
+    const miniGameContainer = document.createElement('div');
+    miniGameContainer.classList.add('mini-game-container');
+
+    const wordList = ['apple', 'banana', 'orange', 'grape', 'watermelon'];
+    const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
+
+    // Display a partially revealed word as a hint
+    const wordHint = document.createElement('p');
+    wordHint.classList.add('word-hint');
+    wordHint.textContent = `Word Hint: ${randomWord.charAt(0)}${"_ ".repeat(randomWord.length - 1)}`;
+    miniGameContainer.appendChild(wordHint);
+
+    const questionElement = document.createElement('p');
+    questionElement.textContent = `Guess the word:`;
+    miniGameContainer.appendChild(questionElement);
+
+    const answerInput = document.createElement('input');
+    answerInput.setAttribute('type', 'text');
+    answerInput.setAttribute('placeholder', 'Type your guess...');
+    miniGameContainer.appendChild(answerInput);
+
+    const submitButton = document.createElement('button');
+    submitButton.textContent = 'Submit Guess';
+    submitButton.addEventListener('click', () => handleMiniGame(answerInput.value, randomWord));
+    miniGameContainer.appendChild(submitButton);
+
+    document.body.appendChild(miniGameContainer);
+  }
+
+  function handleMiniGame(guess, correctWord) {
+    const player = players[currentPlayer];
+
+    if (guess.toLowerCase() === correctWord) {
+      renderLog(`${player.name} successfully completed the challenge and earned an extra gem!`);
+      player.gems++;
+    } else {
+      renderLog(`${player.name} failed the challenge.`);
+    }
+
+    // Remove the mini-game interface
+    const miniGameContainer = document.querySelector('.mini-game-container');
+    if (miniGameContainer) {
+      miniGameContainer.remove();
+    }
+
+    // Continue with the game
+    updatePlayerTokens();
+    currentPlayer = (currentPlayer + 1) % players.length;
+    renderPlayers();
+  }
+
+  function handleTeleport() {
+    const player = players[currentPlayer];
+    const newPosition = Math.floor(Math.random() * gameBoard.flat().length);
+    renderLog(`${player.name} teleported to a new location.`);
+    player.position = newPosition;
+  }
+
+  function handleGem() {
+    const player = players[currentPlayer];
+    const gemCard = gemCards[Math.floor(Math.random() * gemCards.length)];
+    player.gems += gemCard.points;
+    renderLog(`${player.name} collected a ${gemCard.name} worth ${gemCard.points} points. Total gems: ${player.gems}`);
+  }
+
+  // New feature: Obstacle space
+  function handleObstacle() {
+    const player = players[currentPlayer];
+    renderLog(`${player.name} encountered an obstacle and lost a turn.`);
+    currentPlayer = (currentPlayer + 1) % players.length; // Skip the next player's turn
+  }
+
+  // New feature: Power-up space
+  function handlePowerUp() {
+    const player = players[currentPlayer];
+    const bonusPoints = Math.floor(Math.random() * 3) + 1; // Bonus points between 1 and 3
+    player.gems += bonusPoints;
+    renderLog(`${player.name} found a power-up and gained ${bonusPoints} bonus gems.`);
+  }
+
+  function endGame() {
+    renderLog('Game Over!');
+    // Determine the winner and display results
+    const winner = determineWinner();
+    renderLog(`The winner is ${winner.name} with ${winner.gems} gems!`);
+    renderPlayers(); // Update UI to show final scores
+  }
+
+  function determineWinner() {
+    return players.reduce((winner, player) => (player.gems > winner.gems ? player : winner), players[0]);
+  }
+
+  // Start the game
+  renderBoard();
+  renderPlayers();
+</script>
+
+</body>
+</html>
