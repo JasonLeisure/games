@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uno Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            color: #e44d26;
+        }
+
+        #unoForm {
+            margin-top: 20px;
+        }
+
+        #playedCard {
+            width: 150px;
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #e44d26;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #gameState {
+            margin-top: 20px;
+            color: #007acc;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .player-hand {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Uno Game</h1>
+
+    <form id="unoForm">
+        <label for="playedCard">Your Turn:</label>
+        <select id="playedCard" required>
+            <!-- Options will be dynamically populated with player's hand -->
+        </select>
+        <button type="button" onclick="playTurn()">Play</button>
+        <button type="button" onclick="drawCard()">Draw</button>
+    </form>
+
+    <div class="player-hand" id="playerHand"></div>
+
+    <div id="gameState"></div>
+
+    <script>
+        // Define card colors and values
+        const colors = ['Red', 'Green', 'Blue', 'Yellow'];
+        const values = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'Skip', 'Reverse', 'Draw Two'];
+
+        function createDeck() {
+    const deck = [];
+    for (const color of colors) {
+        for (const value of values) {
+            // Add multiple copies of special cards
+            if (value === 'Skip' || value === 'Reverse' || value === 'Draw Two') {
+                for (let i = 0; i < 2; i++) {
+                    deck.push({ color, value });
+                }
+            } else {
+                deck.push({ color, value });
+            }
+        }
+    }
+    return deck;
+}
+
+        // Shuffle the Uno deck
+        function shuffleDeck(deck) {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        // Deal cards to players
+        function dealCards(deck, numPlayers, numCards) {
+            const players = [];
+            for (let i = 0; i < numPlayers; i++) {
+                players.push(deck.splice(0, numCards));
+            }
+            return players;
+        }
+
+        // Initialize Uno game
+        function initUnoGame(numPlayers) {
+            const unoDeck = createDeck();
+            shuffleDeck(unoDeck);
+
+            const players = dealCards(unoDeck, numPlayers, 7);
+
+            return { unoDeck, players, currentPlayer: 0, currentCard: unoDeck.pop() };
+        }
+
+        function playTurn() {
+    const playedCardSelect = document.getElementById('playedCard');
+    const selectedCard = playedCardSelect.value.split('-');
+    const playedCard = { color: selectedCard[0], value: selectedCard[1] };
+
+    const currentPlayerHand = unoGame.players[unoGame.currentPlayer];
+    const validMove = isValidMove(playedCard, unoGame.currentCard);
+
+    if (validMove) {
+        // Update current card
+        unoGame.currentCard = playedCard;
+        // Remove played card from player's hand
+        const cardIndex = currentPlayerHand.findIndex(card => card.color === playedCard.color && card.value === playedCard.value);
+        currentPlayerHand.splice(cardIndex, 1);
+
+        // Check for winner
+        if (currentPlayerHand.length === 0) {
+            console.log(`Player ${unoGame.currentPlayer + 1} wins!`);
+            // You can add a message or perform other actions for winning here
+
+            // Optionally, you might want to stop the game or reset it at this point
+            // For example, you can call a function to reset the game state:
+            // resetGame();
+            return;
+        }
+
+        // Move to the next player
+        unoGame.currentPlayer = (unoGame.currentPlayer + 1) % unoGame.players.length;
+
+        // Update the display
+        updateSelectOptions();
+        displayGameState();
+        updatePlayerHand();
+
+        // Trigger AI turn after a delay (only for players 2 and 3)
+        if (unoGame.currentPlayer !== 0) {
+            setTimeout(() => playAITurn(), 1000);
+        }
+    } else {
+        console.log('Invalid move! Try again.');
+    }
+}
+
+        // Draw a card in Uno
+        function drawCard() {
+            const currentPlayerHand = unoGame.players[unoGame.currentPlayer];
+            const drawnCard = unoGame.unoDeck.pop();
+
+            currentPlayerHand.push(drawnCard);
+
+            // Update the display
+            updateSelectOptions();
+            displayGameState();
+            updatePlayerHand();
+
+            // Trigger AI turn after a delay (only for players 2 and 3)
+            if (unoGame.currentPlayer !== 0) {
+                setTimeout(() => playAITurn(), 1000);
+            }
+        }
+
+        function playAITurn() {
+    const currentPlayerHand = unoGame.players[unoGame.currentPlayer];
+    let playedCard = findSpecialCard(currentPlayerHand);
+
+    if (!playedCard) {
+        // If no special card is found, play as before
+        playedCard = findValidCard(currentPlayerHand);
+    }
+
+    if (playedCard) {
+        // Update current card
+        unoGame.currentCard = playedCard;
+        // Remove played card from player's hand
+        const cardIndex = currentPlayerHand.findIndex(
+            (card) => card.color === playedCard.color && card.value === playedCard.value
+        );
+        currentPlayerHand.splice(cardIndex, 1);
+
+        // Check for Uno (last card)
+        if (currentPlayerHand.length === 1) {
+            console.log('UNO!');
+        }
+
+        // Check for winner
+        if (currentPlayerHand.length === 0) {
+            console.log(`Player ${unoGame.currentPlayer + 1} wins!`);
+            return;
+        }
+
+        // Move to the next player
+        unoGame.currentPlayer = (unoGame.currentPlayer + 1) % unoGame.players.length;
+
+        // Update the display
+        updateSelectOptions();
+        displayGameState();
+        updatePlayerHand();
+
+        // Trigger next AI turn after a delay (only for players 2 and 3)
+        if (unoGame.currentPlayer !== 0) {
+            setTimeout(() => playAITurn(), 1000);
+        }
+    } else {
+        // If no valid card is found, draw a card
+        drawCard();
+    }
+}
+
+function findSpecialCard(hand) {
+    return hand.find((card) => isSpecialCard(card) && isValidMove(card, unoGame.currentCard));
+}
+
+function findValidCard(hand) {
+    return hand.find((card) => isValidMove(card, unoGame.currentCard));
+}
+
+function isValidMove(card1, card2) {
+    return (
+        card1.color === card2.color ||
+        card1.value === card2.value ||
+        (isSpecialCard(card1) && isSpecialCard(card2))
+    );
+}
+
+function isSpecialCard(card) {
+    return ['Skip', 'Reverse', 'Draw Two'].includes(card.value);
+}
+
+        // Function to get Uno card symbol
+        function getCardSymbol(color) {
+            switch (color) {
+                case 'Red':
+                    return '🔴';
+                case 'Green':
+                    return '🟢';
+                case 'Blue':
+                    return '🔵';
+                case 'Yellow':
+                    return '🟡';
+                default:
+                    return '';
+            }
+        }
+
+        // Update the player's hand display
+        function updatePlayerHand() {
+            const playerHandDiv = document.getElementById('playerHand');
+            const currentPlayerHand = unoGame.players[unoGame.currentPlayer];
+            playerHandDiv.innerHTML = `
+                <p>Your Hand:</p>
+                <ul>
+                    ${currentPlayerHand.map(card => `<li>${getCardSymbol(card.color)} ${card.value}</li>`).join('')}
+                </ul>
+            `;
+        }
+
+        // Update the select element with player's hand
+        function updateSelectOptions() {
+            const playedCardSelect = document.getElementById('playedCard');
+            playedCardSelect.innerHTML = unoGame.players[unoGame.currentPlayer]
+                .map(card => `<option value="${card.color}-${card.value}">${getCardSymbol(card.color)} ${card.value}</option>`)
+                .join('');
+        }
+
+        // Display the current game state
+        function displayGameState() {
+            const gameStateDiv = document.getElementById('gameState');
+            gameStateDiv.innerHTML = `
+                <p>Current Player: ${unoGame.currentPlayer + 1}</p>
+                <p>Current Card: ${getCardSymbol(unoGame.currentCard.color)} ${unoGame.currentCard.value}</p>
+                <p>Player Hands:</p>
+                <ul>
+                    ${unoGame.players.map((hand, index) => `<li>Player ${index + 1}: ${hand.length} cards</li>`).join('')}
+                </ul>
+            `;
+        }
+
+        // Example usage
+        const numPlayers = 3;
+        let unoGame = initUnoGame(numPlayers);
+
+        // Initial display
+        updateSelectOptions();
+        displayGameState();
+        updatePlayerHand();
+    </script>
+</body>
+</html>
