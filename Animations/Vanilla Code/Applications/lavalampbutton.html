@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lava Lamp Button</title>
+  <style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: black;
+  font-family: "Montserrat";
+}
+
+a {
+  position: relative;
+  padding: 20px 50px;
+  display: block;
+  text-decoration: none;
+  text-transform: uppercase;
+  width: 200px;
+  overflow: hidden;
+  border-radius: 40px;
+  font-weight: 700;
+  text-align: center;
+}
+
+a span {
+  position: relative;
+  color: #fff;
+  letter-spacing: 8px;
+  z-index: 1;
+}
+
+a .liquid {
+  position: absolute;
+  top: -80px;
+  left: 0;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(
+    circle,
+    #FF4500 0%,
+    #FF0000 20%,
+    #8B0000 30%,
+    #FF6347 40%,
+    #FF8C00 50%,
+    #FFD700 60%,
+    #32CD32 70%,
+    #00CED1 80%,
+    #800080 90%,
+    #4B0082 100%
+  );
+  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  transition: 0.5s;
+  animation: moveLava 8s ease-in-out infinite alternate;
+}
+
+@keyframes moveLava {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(20px);
+  }
+}
+
+a .liquid::after,
+a .liquid::before {
+  content: '';
+  width: 200%;
+  height: 200%;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -75%);
+  background: #000;
+}
+
+a .liquid::before {
+  border-radius: 45%;
+  background: rgba(20, 20, 20, 1);
+  animation: animate 5s linear infinite;
+}
+
+a .liquid::after {
+  border-radius: 40%;
+  background: rgba(20, 20, 20, 0.5);
+  animation: animate 10s linear infinite;
+}
+
+a:hover .liquid {
+  top: -120px;
+}
+    @keyframes animate {
+      0% {
+        transform: translate(-50%, -75%) rotate(0deg);
+      }
+      100% {
+        transform: translate(-50%, -75%) rotate(360deg);
+      }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <a href="#" onclick="return false;">
+    <span>Click Me</span>
+    <div class="liquid"></div>
+  </a>
+</body>
+</html>
