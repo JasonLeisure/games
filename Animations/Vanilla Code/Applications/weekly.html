@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Note Planner</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f8f8;
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    input {
+      width: calc(100% - 22px);
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .deleteButton {
+      background-color: #dc3545;
+    }
+
+    .deleteButton:hover {
+      background-color: #c82333;
+    }
+
+    div {
+      margin-bottom: 20px;
+    }
+
+    div:nth-child(odd) {
+      background-color: #f2f2f2;
+    }
+
+    div:nth-child(even) {
+      background-color: #e6e6e6;
+    }
+
+    .highlight {
+      background-color: #ffff99;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Weekly Note Planner</h1>
+  <p id="currentDate"></p>
+
+  <script>
+    function addNote(dayId) {
+      const container = document.getElementById(`${dayId}Container`);
+      const noteCount = container.childElementCount / 3 + 1;
+
+      const noteInput = document.createElement('input');
+      noteInput.id = `${dayId}Note${noteCount}`;
+      noteInput.type = 'text';
+      noteInput.oninput = () => updateCharacterCount(`${dayId}Note${noteCount}`);
+
+      const characterCountSpan = document.createElement('span');
+      characterCountSpan.id = `${dayId}CharacterCount${noteCount}`;
+      characterCountSpan.textContent = '0 characters';
+
+      const reminderInput = document.createElement('input');
+      reminderInput.type = 'time';
+      reminderInput.id = `${dayId}Reminder${noteCount}`;
+
+      container.appendChild(noteInput);
+      container.appendChild(characterCountSpan);
+      container.appendChild(reminderInput);
+    }
+  </script>
+
+<h1>Weekly Note Planner</h1>
+<p id="currentDate"></p>
+
+<script>
+  function addNote(dayId) {
+    const container = document.getElementById(`${dayId}Container`);
+    const noteCount = container.childElementCount / 3 + 1;
+
+    const noteInput = document.createElement('input');
+    noteInput.id = `${dayId}Note${noteCount}`;
+    noteInput.type = 'text';
+    noteInput.oninput = () => updateCharacterCount(`${dayId}Note${noteCount}`);
+
+    const characterCountSpan = document.createElement('span');
+    characterCountSpan.id = `${dayId}CharacterCount${noteCount}`;
+    characterCountSpan.textContent = '0 characters';
+
+    const reminderInput = document.createElement('input');
+    reminderInput.type = 'time';
+    reminderInput.id = `${dayId}Reminder${noteCount}`;
+
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete';
+    deleteButton.className = 'deleteButton';
+    deleteButton.onclick = () => deleteNoteAndReminder(`${dayId}Note${noteCount}`, `${dayId}Reminder${noteCount}`);
+
+    container.appendChild(noteInput);
+    container.appendChild(characterCountSpan);
+    container.appendChild(reminderInput);
+    container.appendChild(deleteButton);
+  }
+</script>
+
+<h2>Monday</h2>
+<div id="mondayContainer">
+  <button onclick="addNote('monday')">Add Note</button>
+</div>
+
+<h2>Tuesday</h2>
+<div id="tuesdayContainer">
+  <button onclick="addNote('tuesday')">Add Note</button>
+</div>
+
+<h2>Wednesday</h2>
+<div id="wednesdayContainer">
+  <button onclick="addNote('wednesday')">Add Note</button>
+</div>
+
+<h2>Thursday</h2>
+<div id="thursdayContainer">
+  <button onclick="addNote('thursday')">Add Note</button>
+</div>
+
+<h2>Friday</h2>
+<div id="fridayContainer">
+  <button onclick="addNote('friday')">Add Note</button>
+</div>
+
+<h2>Saturday</h2>
+<div id="saturdayContainer">
+  <button onclick="addNote('saturday')">Add Note</button>
+</div>
+
+<h2>Sunday</h2>
+<div id="sundayContainer">
+  <button onclick="addNote('sunday')">Add Note</button>
+</div>
+
+  <script>
+    function saveNotes() {
+      localStorage.setItem('mondayNote', document.getElementById('mondayNote').value);
+      localStorage.setItem('tuesdayNote', document.getElementById('tuesdayNote').value);
+      localStorage.setItem('wednesdayNote', document.getElementById('wednesdayNote').value);
+      localStorage.setItem('thursdayNote', document.getElementById('thursdayNote').value);
+      localStorage.setItem('fridayNote', document.getElementById('fridayNote').value);
+      localStorage.setItem('saturdayNote', document.getElementById('saturdayNote').value);
+      localStorage.setItem('sundayNote', document.getElementById('sundayNote').value);
+
+      localStorage.setItem('mondayReminder', document.getElementById('mondayReminder').value);
+      localStorage.setItem('tuesdayReminder', document.getElementById('tuesdayReminder').value);
+      localStorage.setItem('wednesdayReminder', document.getElementById('wednesdayReminder').value);
+      localStorage.setItem('thursdayReminder', document.getElementById('thursdayReminder').value);
+      localStorage.setItem('fridayReminder', document.getElementById('fridayReminder').value);
+      localStorage.setItem('saturdayReminder', document.getElementById('saturdayReminder').value);
+      localStorage.setItem('sundayReminder', document.getElementById('sundayReminder').value);
+    }
+
+    function loadNotes() {
+      document.getElementById('mondayNote').value = localStorage.getItem('mondayNote') || '';
+      document.getElementById('tuesdayNote').value = localStorage.getItem('tuesdayNote') || '';
+      document.getElementById('wednesdayNote').value = localStorage.getItem('wednesdayNote') || '';
+      document.getElementById('thursdayNote').value = localStorage.getItem('thursdayNote') || '';
+      document.getElementById('fridayNote').value = localStorage.getItem('fridayNote') || '';
+      document.getElementById('saturdayNote').value = localStorage.getItem('saturdayNote') || '';
+      document.getElementById('sundayNote').value = localStorage.getItem('sundayNote') || '';
+
+      document.getElementById('mondayReminder').value = localStorage.getItem('mondayReminder') || '';
+      document.getElementById('tuesdayReminder').value = localStorage.getItem('tuesdayReminder') || '';
+      document.getElementById('wednesdayReminder').value = localStorage.getItem('wednesdayReminder') || '';
+      document.getElementById('thursdayReminder').value = localStorage.getItem('thursdayReminder') || '';
+      document.getElementById('fridayReminder').value = localStorage.getItem('fridayReminder') || '';
+      document.getElementById('saturdayReminder').value = localStorage.getItem('saturdayReminder') || '';
+      document.getElementById('sundayReminder').value = localStorage.getItem('sundayReminder') || '';
+    }
+
+    function deleteNoteAndReminder(dayId, reminderId) {
+      localStorage.removeItem(dayId);
+      localStorage.removeItem(reminderId);
+      document.getElementById(dayId).value = '';
+      document.getElementById(reminderId).value = '';
+    }
+
+    function clearAllNotes() {
+      localStorage.removeItem('mondayNote');
+      localStorage.removeItem('tuesdayNote');
+      localStorage.removeItem('wednesdayNote');
+      localStorage.removeItem('thursdayNote');
+      localStorage.removeItem('fridayNote');
+      localStorage.removeItem('saturdayNote');
+      localStorage.removeItem('sundayNote');
+
+      localStorage.removeItem('mondayReminder');
+      localStorage.removeItem('tuesdayReminder');
+      localStorage.removeItem('wednesdayReminder');
+      localStorage.removeItem('thursdayReminder');
+      localStorage.removeItem('fridayReminder');
+      localStorage.removeItem('saturdayReminder');
+      localStorage.removeItem('sundayReminder');
+
+      // Clear input fields
+      document.getElementById('mondayNote').value = '';
+      document.getElementById('tuesdayNote').value = '';
+      document.getElementById('wednesdayNote').value = '';
+      document.getElementById('thursdayNote').value = '';
+      document.getElementById('fridayNote').value = '';
+      document.getElementById('saturdayNote').value = '';
+      document.getElementById('sundayNote').value = '';
+
+      document.getElementById('mondayReminder').value = '';
+      document.getElementById('tuesdayReminder').value = '';
+      document.getElementById('wednesdayReminder').value = '';
+      document.getElementById('thursdayReminder').value = '';
+      document.getElementById('fridayReminder').value = '';
+      document.getElementById('saturdayReminder').value = '';
+      document.getElementById('sundayReminder').value = '';
+    }
+
+    function searchNotes() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+      ['mondayNote', 'tuesdayNote', 'wednesdayNote', 'thursdayNote', 'fridayNote', 'saturdayNote', 'sundayNote'].forEach(dayId => {
+        const note = localStorage.getItem(dayId) || '';
+        const noteElement = document.getElementById(dayId);
+
+        if (note.toLowerCase().includes(searchTerm)) {
+          noteElement.classList.add('highlight');
+        } else {
+          noteElement.classList.remove('highlight');
+        }
+      });
+    }
+
+    function updateCharacterCount(dayId) {
+      const note = document.getElementById(dayId).value;
+      const characterCountElement = document.getElementById(`${dayId}CharacterCount`);
+      const count = note.length;
+      characterCountElement.textContent = `${count} ${count === 1 ? 'character' : 'characters'}`;
+    }
+
+    function getCurrentDate() {
+      const today = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('currentDate').textContent = today.toLocaleDateString('en-US', options);
+    }
+
+    getCurrentDate();
+    loadNotes();
+  </script>
+</body>
+
+</html>
