@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boggle Game</title>
+  <style>
+    body {
+      background: linear-gradient(to right, #4CAF50, #45a049);
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    #boggle-container-under {
+      background-color: #2196F3;
+      width: 326px;
+      height: 330px;
+      margin: 20px auto;
+      border-radius: 10px;
+      box-shadow: 3px 3px 3px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    #boggle-container {
+      width: 296px;
+      height: 300px;
+      display: flex;
+      flex-wrap: wrap;
+      background-color: #2196F3;
+      border: 2px solid #ffffff;
+      margin: auto;
+      position: relative;
+      top: 15px;
+      box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+    }
+
+    .boggle-die {
+  border: 1px solid #ffffff;
+  width: 68px;
+  height: 68px;
+  margin: 2px;
+  background-color: #64B5F6;
+  border-radius: 10px; /* Increased border-radius */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 6px 6px 10px rgba(0, 0, 0, 0.3); /* Increased shadow for a 3D effect */
+  position: relative;
+  transition: transform 0.3s ease-in-out; /* Added transition for a smooth effect */
+}
+
+.boggle-die:hover {
+  transform: translateY(-2px); /* Added a slight lift on hover for a interactive feel */
+}
+
+.boggle-die-inner {
+  width: 45px; /* Decreased width */
+  height: 45px; /* Decreased height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px; /* Match the border-radius of the outer die */
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.5), inset -1px -1px 2px rgba(0, 0, 0, 0.5); /* Added inset shadows for depth */
+  background-color: #64B5F6; /* Added background color to inner die */
+}
+
+.boggle-die p {
+  font-family: 'Arial', sans-serif;
+  color: #000000; /* Black text color */
+  font-size: 28px; /* Decreased font size */
+  font-weight: bold;
+}
+
+#shuffle-button p,
+#pause-button,
+#stop-button {
+  color: #000000; /* Black text color */
+  font-size: 18px; /* Adjusted font size */
+}
+
+    #shuffle-button {
+      background-color: #2196F3;
+      width: 130px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      border: 2px solid #ffffff;
+      position: absolute;
+      top: 40px;
+      left: 80px;
+    }
+
+    #shuffle-button:hover {
+      cursor: pointer;
+    }
+
+    #shuffle-button p {
+      color: #ffffff;
+      font-size: 24px;
+      font-family: 'Arial', sans-serif;
+    }
+
+    #timer {
+      position: absolute;
+      top: 0px;
+      right: 50px;
+      font-size: 60px;
+      font-family: 'Arial', sans-serif;
+      color: #000000;
+      font-weight: bold;
+      display: none;
+    }
+
+    #timer p {
+      margin: 20px;
+    }
+
+    #timer-status-buttons {
+      display: none;
+    }
+
+    #pause-button,
+    #stop-button {
+      background-color: #2196F3;
+      width: 60px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      border: 2px solid #ffffff;
+      position: absolute;
+      top: 90px;
+      right: 80px;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    #pause-button {
+      right: 150px;
+    }
+
+    #time-is-up {
+      background-color: #2196F3;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      color: #ffffff;
+      font-size: 50px;
+      font-family: 'Arial', sans-serif;
+      display: none;
+      opacity: 1;
+    }
+
+    #time-is-up h1 {
+      text-align: center;
+    }
+
+    #time-is-up p {
+      text-align: center;
+      font-size: 30px;
+      cursor: pointer;
+    }
+
+    #time-is-up.show {
+      display: block;
+    }
+
+
+    #submitted-words {
+      position: absolute;
+      top: 150px;
+      left: 85px;
+      font-family: 'Arial', sans-serif;
+      font-size: 16px;
+    }
+
+    .typed-word {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="boggle-container-under">
+    <div id='boggle-container'></div>
+  </div>
+
+  <div id="shuffle-button"><p>START!</p></div>
+
+  <div id="timer">
+    <p>:120</p>
+  </div>
+
+  <div id="time-is-up">
+    <h1>TIME IS UP</h1>
+    <p id="close-time-up">close</p>
+  </div>
+
+  <div id="submitted-words"></div>
+  <input type="text">
+  <button id="submit-word">submit word</button>
+
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script>
+const boggleDice = [
+  ['R', 'I', 'F', 'O', 'B', 'X'],
+  ['I', 'F', 'E', 'H', 'E', 'Y'],
+  ['D', 'E', 'N', 'O', 'W', 'S'],
+  ['U', 'T', 'O', 'K', 'N', 'D'],
+  ['H', 'M', 'S', 'R', 'A', 'O'],
+  ['L', 'U', 'P', 'E', 'T', 'S'],
+  ['A', 'C', 'I', 'T', 'O', 'A'],
+  ['Y', 'L', 'G', 'K', 'U', 'E'],
+  ['Qu', 'B', 'M', 'J', 'O', 'A'],
+  ['E', 'H', 'I', 'S', 'P', 'N'],
+  ['V', 'E', 'T', 'I', 'G', 'N'],
+  ['B', 'A', 'L', 'I', 'Y', 'T'],
+  ['E', 'Z', 'A', 'V', 'N', 'D'],
+  ['R', 'A', 'L', 'E', 'S', 'C'],
+  ['U', 'W', 'I', 'L', 'R', 'G'],
+  ['P', 'A', 'C', 'E', 'M', 'D']
+];
+
+// when populated will be an array of 16 objects with properties for letter and rotation degrees
+let currLettersAndRotations = [];
+
+// so each die isn't always in the same spot in grid
+const shuffleDiceOrder = () => {
+  let currentIndex = boggleDice.length;
+  let temporaryValue;
+  let randomIndex;
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    // And swap it with the current element.
+    temporaryValue = boggleDice[currentIndex];
+    boggleDice[currentIndex] = boggleDice[randomIndex];
+    boggleDice[randomIndex] = temporaryValue;
+  }
+}
+
+// which of the six sides of the die to show
+const chooseLetter = (arr) => {
+  let randomNumber = Math.floor(Math.random() * 5);
+  return arr[randomNumber];
+}
+
+// so looks more realistic - letters won't all be facing the same way
+const randomRotation = () => {
+  let options = [90, 180, 270, 360];
+  let rotation = Math.round(Math.random() * 3);
+  return options[rotation];
+};
+
+// populate the currLettersAndRotations array
+const getAllLettersAndRotations = () => {
+  for (let i = 0; i < boggleDice.length; i++) {
+    let currentLetter = chooseLetter(boggleDice[i]);
+    let currentRotation = randomRotation();
+    currLettersAndRotations[i] = {
+      letter: currentLetter,
+      rotation: currentRotation
+    }
+  }
+}
+
+// update board when user shuffles letters
+let updateBoard = () => {
+  $('.boggle-die').each((i, v) => {
+    let letter = currLettersAndRotations[i].letter;
+    let rotation = currLettersAndRotations[i].rotation;
+    $(v).css('transform', `rotate(${rotation})`);
+     $(v).find('p').text(letter);
+  });
+}
+
+// generate the game board
+let generateHTML = () => {
+  getAllLettersAndRotations();
+  let boggleDiceHTML = ''
+    for (let i = 0; i < currLettersAndRotations.length; i++) {
+    let letter = currLettersAndRotations[i].letter;
+    let rotation = currLettersAndRotations[i].rotation;
+    boggleDiceHTML += `<div class="boggle-die"><div class="boggle-die-inner"><p style="transform:rotate(${rotation}deg)">${letter}</p></div></div>`;
+  }
+  $(boggleDiceHTML).appendTo('#boggle-container');
+}
+
+// user clicks start/shuffle button
+$('#shuffle-button').click(() => {
+  $('#shuffle-button').hide();
+  $('#timer').show();
+  $('#timer-status-buttons').show();
+  shuffleDiceOrder();
+  getAllLettersAndRotations();
+  updateBoard();
+  let timerOn = setInterval(() => {
+     let currentNumMinus1 = Number($('#timer p').text().replace(':', '')) - 1;
+    if (currentNumMinus1 >= 0) {
+      $('#timer p').text(':' + currentNumMinus1);
+    } else {
+      $('#timer').hide();
+      $('#timer-status-buttons').hide();
+      $('#time-is-up').addClass('show').fadeIn('slow');
+      clearInterval(timerOn);
+    }
+  }, 1000);
+});
+
+// user closes 'time is up' messaging
+$('#close-time-up').click(() => {
+  $('#time-is-up').removeClass('show').hide();
+  $('#timer p').text(':120');
+  if ($('#shuffle-button p').text() !== 'SHUFFLE') {
+    $('#shuffle-button p').text('SHUFFLE');
+  }
+  $('#shuffle-button').show();
+});
+
+generateHTML();
+
+
+$('#submit-word').click(() => {
+  let currText = $('input').val();
+  $('#submitted-words').append(`<p class="typed-word">${currText}</p>`);
+});
+  </script>
+</body>
+</html>
