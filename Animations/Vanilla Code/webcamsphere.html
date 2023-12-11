@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webcam Sphere Projection</title>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script src="https://threejs.org/build/three.js"></script>
+  <script>
+    // Set up scene
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Create initial sphere
+    const geometrySphere = new THREE.SphereGeometry(5, 32, 32);
+    const material = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('') });
+    const sphere = new THREE.Mesh(geometrySphere, material);
+    scene.add(sphere);
+
+    // Create cube geometry for morphing
+    const geometryCube = new THREE.BoxGeometry(5, 5, 5);
+
+    // Set up webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(function (stream) {
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.play();
+
+        const texture = new THREE.VideoTexture(video);
+        material.map = texture;
+
+        // Track morphing state
+        let isMorphingToCube = false;
+
+        // Update the texture and morph the geometry when the video frame updates
+        function animate() {
+          if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            texture.needsUpdate = true;
+          }
+
+          // Morph the geometry
+          if (isMorphingToCube) {
+            sphere.geometry = geometryCube;
+          } else {
+            sphere.geometry = geometrySphere;
+          }
+
+          // Rotate the sphere
+          sphere.rotation.x += 0.01;
+          sphere.rotation.y += 0.01;
+
+          // Toggle morphing state when needed
+          if (Math.sin(sphere.rotation.x) < 0) {
+            isMorphingToCube = !isMorphingToCube;
+          }
+
+          requestAnimationFrame(animate);
+          renderer.render(scene, camera);
+        }
+
+        animate();
+      })
+      .catch(function (err) {
+        console.error('Error accessing webcam:', err);
+      });
+
+    // Set up camera position
+    camera.position.z = 10;
+
+    // Handle window resize
+    window.addEventListener('resize', function () {
+      const newWidth = window.innerWidth;
+      const newHeight = window.innerHeight;
+
+      camera.aspect = newWidth / newHeight;
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(newWidth, newHeight);
+    });
+
+  </script>
+</body>
+</html>
