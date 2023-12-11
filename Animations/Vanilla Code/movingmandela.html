@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mandala with p5.js</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+  <script>
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      angleMode(DEGREES);
+    }
+
+    function draw() {
+      background(255);
+
+      translate(width / 2, height / 2);
+
+      drawMandala();
+    }
+
+    function drawMandala() {
+      stroke(0);
+      strokeWeight(2);
+      noFill();
+
+      for (let i = 0; i < 360; i += 15) {
+        push();
+        rotate(i);
+
+        // Customize the pattern here
+        drawPattern(50, 12);
+
+        pop();
+      }
+    }
+
+    function drawPattern(radius, count) {
+      for (let j = 0; j < 360; j += 360 / count) {
+        const x = radius * cos(j);
+        const y = radius * sin(j);
+
+        push();
+        translate(x, y);
+        rotate(frameCount * 0.5);
+
+        // Add animation effects
+        const animatedRadius = radius + 10 * sin(frameCount * 0.1);
+        const colorValue = (frameCount + j) % 255;
+
+        stroke(colorValue, 100, 200); // Change color dynamically
+        fill(colorValue, 100, 200, 50); // Add some transparency
+
+        // Draw more intricate mandala-like pattern
+        ellipse(0, 0, 20, 20);
+        line(0, 0, animatedRadius, 0);
+        ellipse(0, 0, 10, 10);
+        line(0, 0, 0, 20);
+        ellipse(0, 0, 15, 15);
+
+        // Add more shapes, lines, or curves as desired
+
+        pop();
+      }
+    }
+  </script>
+</body>
+</html>
