@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Board Game</title>
+  <style>
+    html {
+      background:
+        limegreen;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      padding-bottom: 200px;
+      overflow-x: hidden;
+    }
+
+    #gameboard {
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      font-size: 0;
+      text-align: center;
+      filter: drop-shadow(0 10px 5px rgba(0,0,0,.5));
+    }
+
+    .tile {
+      width: 33%;
+      height: min(333px, 33vw);
+      display: inline-block;
+      vertical-align: top;
+      box-sizing: border-box;
+      position: relative;
+      margin: -.35vmin;
+      cursor: pointer;
+    }
+
+    .tile:nth-of-type(1) {
+      border-radius: 50% 0 0 50%;
+    }
+
+    .tile:nth-of-type(1):after {
+      content: 'START';
+      color: rgba(0, 0, 0, .25);
+      font-family: sans-serif;
+      font-size: 2rem;
+      font-style: italic;
+      text-align: right;
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      padding-right: 1rem;
+    }
+
+    .tile:nth-of-type(3),
+    .tile:nth-of-type(14),
+    .tile:nth-of-type(18) {
+      border-radius: 0 50% 0 0;
+    }
+
+    .tile:nth-of-type(7),
+    .tile:nth-of-type(22) {
+      border-radius: 50% 0 0 0;
+    }
+
+    .tile:nth-of-type(9),
+    .tile:nth-of-type(24) {
+      border-radius: 0 0 50% 0;
+    }
+
+    .tile:nth-of-type(13),
+    .tile:nth-of-type(17),
+    .tile:nth-of-type(28) {
+      border-radius: 0 0 0 50%;
+    }
+
+    .tile:nth-of-type(30) {
+      border-radius: 0 50% 50% 0;
+    }
+
+    .tile:nth-of-type(30):after {
+      content: 'FINISH';
+      color: rgba(0, 0, 0, .25);
+      font-family: sans-serif;
+      font-size: 2rem;
+      text-align: left;
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      padding-left: 1rem;
+    }
+
+    /* spinner spinner spinner */
+#spinner_box {
+  width: 33vh;
+  height: 33vh;
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  filter: drop-shadow(0 0 10px rgba(0, 0, 0, .25));
+}
+
+#spinner_box:before {
+  content: '';
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, .25);
+  z-index: 2;
+}
+
+#spinner_box:after {
+  content: '';
+  width: 25%;
+  height: 25%;
+  background: white;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+}
+
+/* Color codes for different actions */
+#game_spinner {
+  width: 95%;
+  height: 95%;
+  background: conic-gradient(dodgerblue 36deg, DarkOrange 36deg 108deg, blueviolet 108deg 180deg, red 180deg 252deg, Turquoise 252deg 324deg, dodgerblue 324deg);
+  position: absolute;
+  top: 2.5%;
+  left: 2.5%;
+  border-radius: 50%;
+  border: .75rem solid white;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, .25);
+  box-sizing: border-box;
+  transition: .5s;
+}
+
+.spin {
+  animation: spin .5s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+    /* Player piece */
+    #game_player {
+      width: 10vmin;
+      height: 10vmin;
+      background: black;
+      position: absolute;
+      left: 20%;
+      top: 5%;
+      transition: 1s;
+      transform: translate(-45%, -50%);
+      border-radius: 50% 50% 0 0;
+    }
+  </style>
+</head>
+<body>
+
+    <div id='gameboard'></div>
+
+    <div id='spinner_box'>
+      <div id='game_spinner'></div>
+    </div>
+
+    <script>
+      const gb = document.querySelector('#gameboard');
+      const spinner = document.querySelector('#game_spinner');
+
+      const actions = {
+        'dodgerblue': 'Move forward 2 spaces',
+        'Turquoise': 'Move forward 1 space',
+        'Red': 'Move backward 2 spaces',
+        'BlueViolet': 'Move forward 3 spaces',
+        'DarkOrange': 'Move backward 1 space'
+      };
+
+      function createTile(color, index) {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        tile.style.background = color;
+        tile.dataset.index = index;
+        gb.appendChild(tile);
+      }
+
+      function createBoard() {
+        const colors = ['dodgerblue', 'Turquoise', 'Red', 'BlueViolet', 'DarkOrange'];
+        for (let i = 0; i < 30; i++) {
+          const color = colors[i % colors.length];
+          createTile(color, i);
+        }
+      }
+
+      createBoard();
+      document.querySelector('.tile').classList.add('player');
+
+      function spin() {
+        var num = Math.floor(Math.random() * 360);
+        spinner.classList.toggle('spin');
+        spinner.style.transform = '';
+        spinner_box.style.pointerEvents = 'none';
+
+        setTimeout(function () {
+          spinner.classList.toggle('spin');
+          spinner.style.transform = 'rotate(' + num + 'deg)';
+          spinner_box.style.pointerEvents = '';
+
+          const landedColor = getColorAtAngle(num);
+          movePlayer(landedColor);
+        }, 3000);
+      }
+
+      function movePlayer(landedColor) {
+        const tiles = document.querySelectorAll('.tile');
+        const currentPosition = Array.from(tiles).findIndex(tile => tile.classList.contains('player'));
+
+        const steps = determineSteps(landedColor);
+        const newPosition = (currentPosition + steps + tiles.length) % tiles.length;
+
+        document.querySelector('.player').classList.remove('player');
+        tiles[newPosition].classList.add('player');
+
+        const newBlockRect = tiles[newPosition].getBoundingClientRect();
+        document.querySelector('#game_player').style.left = newBlockRect.left - (window.innerWidth - 1000) * .5 + (newBlockRect.width * .5) + 'px';
+        document.querySelector('#game_player').style.top = newBlockRect.top + window.scrollY + (newBlockRect.height * .5) + 'px';
+        tiles[newPosition].scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+
+        const actionMessage = actions[landedColor];
+        alert(actionMessage || 'You landed on a neutral tile.');
+      }
+
+      function determineSteps(color) {
+        switch (color) {
+          case 'dodgerblue':
+            return 2;
+          case 'Turquoise':
+            return 1;
+          case 'Red':
+            return -2;
+          case 'BlueViolet':
+            return 3;
+          case 'DarkOrange':
+            return -1;
+          default:
+            return 1;
+        }
+      }
+
+      function getColorAtAngle(angle) {
+        const colors = ['dodgerblue', 'DarkOrange', 'BlueViolet', 'red', 'Turquoise'];
+        const index = Math.floor(angle / 72);
+        return colors[index % colors.length];
+      }
+
+      spinner_box.addEventListener('click', spin);
+    </script>
+
+    <!-- Player piece -->
+    <div id="game_player"></div>
+
+    </body>
+    </html>
