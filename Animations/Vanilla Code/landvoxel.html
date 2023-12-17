@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft-like Voxel Terrain with Trees and Water</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+  </style>
+</head>
+<body>
+
+<script src="https://threejs.org/build/three.js"></script>
+<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    const chunkSize = 16;
+    const cubeSize = 1;
+
+    function generateTerrain() {
+      // Add water plane below the stone
+      const waterGeometry = new THREE.PlaneGeometry(chunkSize * cubeSize * 3, chunkSize * cubeSize * 3);
+      const waterMaterial = new THREE.MeshPhongMaterial({ color: 0x3498db, transparent: true, opacity: 0.5 });
+      const water = new THREE.Mesh(waterGeometry, waterMaterial);
+      water.rotation.x = -Math.PI / 2; // Rotate to be a horizontal plane
+      water.position.y = -cubeSize * 2; // Adjust the position to be below the stone
+      water.renderOrder = -1; // Set a lower render order to ensure it renders first
+      scene.add(water);
+
+      for (let x = -1; x <= 1; x++) {
+        for (let z = -1; z <= 1; z++) {
+          const chunk = new THREE.Object3D();
+          chunk.position.set(x * chunkSize * cubeSize, 0, z * chunkSize * cubeSize);
+
+          for (let i = 0; i < chunkSize; i++) {
+            for (let j = 0; j < chunkSize; j++) {
+              const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+
+              const elevation = Math.sin(i / 5) * 5 + Math.cos(j / 5) * 5;
+
+              let color;
+              if (elevation > 0) {
+                color = 0x00ff00; // Green for grass
+              } else {
+                color = 0x888888; // Gray for stone
+              }
+              const material = new THREE.MeshPhongMaterial({ color });
+
+              const cube = new THREE.Mesh(geometry, material);
+              cube.position.set(i * cubeSize, elevation, j * cubeSize);
+
+              chunk.add(cube);
+            }
+          }
+
+
+          for (let t = 0; t < 5; t++) {
+            const trunkGeometry = new THREE.BoxGeometry(cubeSize, 5 * cubeSize, cubeSize);
+            const trunkMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+
+            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+            const trunkX = Math.random() * (chunkSize - 1) * cubeSize;
+            const trunkZ = Math.random() * (chunkSize - 1) * cubeSize;
+            const trunkY = cubeSize * 2 + Math.sin(trunkX / 5) * 5 + Math.cos(trunkZ / 5) * 5;
+
+            trunk.position.set(trunkX, trunkY, trunkZ);
+
+
+            const topGeometry = new THREE.BoxGeometry(3 * cubeSize, 3 * cubeSize, 3 * cubeSize);
+            const topMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+            const top = new THREE.Mesh(topGeometry, topMaterial);
+            const topY = trunkY + 5 * cubeSize;
+
+            top.position.set(trunkX, topY - cubeSize, trunkZ);
+
+            chunk.add(trunk);
+            chunk.add(top);
+          }
+
+          scene.add(chunk);
+        }
+      }
+
+      const sun = new THREE.DirectionalLight(0xffffff, 1);
+      sun.position.set(5, 5, 5);
+      scene.add(sun);
+
+      const ambientLight = new THREE.AmbientLight(0x404040);
+      scene.add(ambientLight);
+    }
+
+    generateTerrain();
+
+    camera.position.z = 50;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    window.addEventListener('resize', function () {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.25;
+    controls.screenSpacePanning = false;
+    controls.maxPolarAngle = Math.PI / 2;
+  });
+</script>
+
+</body>
+</html>
